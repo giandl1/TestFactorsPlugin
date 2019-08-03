@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="PLUGIN_MODULE" version="4">
+  <component name="DevKit.ModuleBuildProperties" url="file://$MODULE_DIR$/resources/META-INF/plugin.xml" />
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/resources" type="java-resource" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/org.eclipse.core.runtime-3.1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/org.eclipse.core.resources.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/org.eclipse.core.runtime-3.1.0-2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/org.eclipse.jdt.core_3.8.3.v20130121-145325.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/apache-lucene.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/bsic_lib.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/CKMetric.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/commons-io-2.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/commons-math3-3.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/ejml-0.23.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/Jama-1.0.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/jaws-bin.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/jsoup-1.8.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/maven-invoker-2.1.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/org.eclipse.osgi_3.6.0.v20100128-1430_NLSONLY.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/plexus-component-annotations-1.5.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/plexus-container-default-1.5.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/plexus-utils-3.0.8.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://$MODULE_DIR$/lib/commons-math3-3.5-javadoc.jar!/" />
+        </JAVADOC>
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/org.osgi.core-4.2.0-2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/lib/org.osgi.core-4.2.0-2.jar!/OSGI-OPT/src" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/TestSmellDiffusion.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+  </component>
+</module>
