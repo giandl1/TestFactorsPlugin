@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.Project;
+import data.ClassTestSmellsInfo;
 import data.TestProjectCKInfo;
 import gui.CKFrame;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
@@ -13,12 +14,14 @@ import org.apache.commons.io.FileUtils;
 import processor.CKMetricsProcessor;
 import processor.CoverageProcessor;
 import processor.MutationCoverageProcessor;
+import processor.SmellynessProcessor;
 
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Vector;
 
 public class PluginInit extends AnAction {
@@ -43,7 +46,8 @@ public class PluginInit extends AnAction {
                 TestProjectCKInfo projectCKInfo = CKProcessor.calculate(testPackages, proj);
                 JFrame ckShow = new CKFrame(projectCKInfo);
                 CoverageProcessor.calculate(root, packages, testPackages,proj);
-                MutationCoverageProcessor.calculate(root,packages,testPackages,proj);
+                ArrayList<ClassTestSmellsInfo> classTestSmellsInfos = SmellynessProcessor.calculate(root, packages, testPackages, proj);
+
                 ckShow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 ckShow.setVisible(true);
 

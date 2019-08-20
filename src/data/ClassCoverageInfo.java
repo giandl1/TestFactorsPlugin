@@ -5,13 +5,17 @@ public class ClassCoverageInfo {
     private String belongingPackage;
     private double lineCoverage;
     private double branchCoverage;
+    private double mutationCoverage;
 
-    public ClassCoverageInfo(String name, String belongingPackage, double lineCoverage, double branchCoverage) {
+    public ClassCoverageInfo(String name, String belongingPackage, double lineCoverage, double branchCoverage, double mutationCoverage) {
         this.name = name;
         this.belongingPackage = belongingPackage;
         this.lineCoverage = lineCoverage;
         this.branchCoverage = branchCoverage;
+        this.mutationCoverage = mutationCoverage;
     }
+
+    public ClassCoverageInfo() {}
 
     public String getName() {
         return name;
@@ -45,6 +49,14 @@ public class ClassCoverageInfo {
         this.branchCoverage = branchCoverage;
     }
 
+    public double getMutationCoverage() {
+        return mutationCoverage;
+    }
+
+    public void setMutationCoverage(double mutationCoverage) {
+        this.mutationCoverage = mutationCoverage;
+    }
+
     @Override
     public String toString() {
         return "ClassCoverageInfo{" +
@@ -52,6 +64,7 @@ public class ClassCoverageInfo {
                 ", belongingPackage='" + belongingPackage + '\'' +
                 ", lineCoverage=" + lineCoverage +
                 ", branchCoverage=" + branchCoverage +
+                ", mutationCoverage=" + mutationCoverage +
                 '}';
     }
 }

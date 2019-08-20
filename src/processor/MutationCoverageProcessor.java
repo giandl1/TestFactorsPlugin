@@ -16,10 +16,10 @@ import java.util.Vector;
 
 public class MutationCoverageProcessor {
     private static final Logger LOGGER = Logger.getInstance("global");
-    public static void calculate(File root, Vector<PackageBean> packages, Vector<PackageBean> testPackages, Project proj) {
+    public static double calculate(File root, Vector<PackageBean> packages, Vector<PackageBean> testPackages, Project proj) {
         try{
-            double mutationCoverage;
-            double lineCoverage;
+            double mutationCoverage=-1;
+            double lineCoverage=-1;
             String reportPath = root.getAbsolutePath() + "\\out\\pitreport";
 
             String mainBuildPath=root.getAbsolutePath() + "\\out\\production\\" + proj.getName();
@@ -57,10 +57,12 @@ public class MutationCoverageProcessor {
                 }
 
             }
+            return mutationCoverage;
 
 
             } catch(Exception e){
             e.printStackTrace();
+            return -1;
         }
     }
 }

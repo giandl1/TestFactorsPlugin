@@ -15,8 +15,9 @@ import java.util.Vector;
 
 public class CoverageProcessor {
     private static final Logger LOGGER = Logger.getInstance("global");
-    public static void calculate(File root, Vector<PackageBean> packages, Vector<PackageBean> testPackages, Project proj) {
+    public static ArrayList<ClassCoverageInfo> calculate(File root, Vector<PackageBean> packages, Vector<PackageBean> testPackages, Project proj) {
         try {
+            ArrayList<ClassCoverageInfo> classCoverageInfo = new ArrayList<ClassCoverageInfo>();
             TestMutationUtilities utilities = new TestMutationUtilities();
             double lineCoverage = 0;
             double branchCoverage = 0;
@@ -66,16 +67,25 @@ public class CoverageProcessor {
                 CoberturaHTMLParser parser = new CoberturaHTMLParser(coberturaPath);
                 lineCoverage = parser.getLineCoverage();
                 branchCoverage = parser.getBranchCoverage();
-                ClassCoverageInfo coverageInfo = new ClassCoverageInfo(productionClass.getName(), productionClass.getBelongingPackage(), lineCoverage, branchCoverage);
+                double mutationCoverage = MutationCoverageProcessor.calculate(root, packages, testPackages, proj);
+                ClassCoverageInfo coverageInfo = new ClassCoverageInfo();
+                coverageInfo.setBelongingPackage(productionClass.getBelongingPackage());
+                coverageInfo.setName(productionClass.getName());
+                coverageInfo.setLineCoverage(lineCoverage);
+                coverageInfo.setBranchCoverage(branchCoverage);
+                coverageInfo.setMutationCoverage(mutationCoverage);
                 LOGGER.info(coverageInfo.toString());
+
+                classCoverageInfo.add(coverageInfo);
             }
             //CLEANUP
 
             FileUtils.deleteDirectory(new File(buildPath + "\\instrumented"));
             FileUtils.deleteQuietly(new File(buildPath + "\\cobertura.ser"));
-
+            return classCoverageInfo;
         } catch (Exception e) {
             LOGGER.info(e.getMessage());
+            return null;
         }
 
     }
