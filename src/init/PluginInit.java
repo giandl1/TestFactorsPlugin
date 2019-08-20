@@ -12,6 +12,7 @@ import it.unisa.testSmellDiffusion.utility.FolderToJavaProjectConverter;
 import org.apache.commons.io.FileUtils;
 import processor.CKMetricsProcessor;
 import processor.CoverageProcessor;
+import processor.MutationCoverageProcessor;
 
 
 import javax.swing.*;
@@ -42,6 +43,7 @@ public class PluginInit extends AnAction {
                 TestProjectCKInfo projectCKInfo = CKProcessor.calculate(testPackages, proj);
                 JFrame ckShow = new CKFrame(projectCKInfo);
                 CoverageProcessor.calculate(root, packages, testPackages,proj);
+                MutationCoverageProcessor.calculate(root,packages,testPackages,proj);
                 ckShow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 ckShow.setVisible(true);
 
