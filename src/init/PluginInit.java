@@ -43,7 +43,7 @@ public class PluginInit extends AnAction {
                 Vector<PackageBean> testPackages = FolderToJavaProjectConverter.convert(test.getAbsolutePath());
                 Vector<PackageBean> packages = FolderToJavaProjectConverter.convert(mainPath);
                 CKMetricsProcessor CKProcessor = new CKMetricsProcessor();
-                TestProjectCKInfo projectCKInfo = CKProcessor.calculate(testPackages, proj);
+                TestProjectCKInfo projectCKInfo = CKProcessor.calculate(packages,testPackages, proj);
                 JFrame ckShow = new CKFrame(projectCKInfo);
                 CoverageProcessor.calculate(root, packages, testPackages,proj);
                 ArrayList<ClassTestSmellsInfo> classTestSmellsInfos = SmellynessProcessor.calculate(root, packages, testPackages, proj);

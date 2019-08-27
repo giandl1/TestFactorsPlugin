@@ -2,6 +2,7 @@ package processor;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import data.ClassCKInfo;
 import data.ClassTestSmellsInfo;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
 import it.unisa.testSmellDiffusion.beans.MethodBean;
@@ -9,10 +10,13 @@ import it.unisa.testSmellDiffusion.beans.PackageBean;
 import it.unisa.testSmellDiffusion.metrics.CKMetrics;
 import it.unisa.testSmellDiffusion.testMutation.TestMutationUtilities;
 import it.unisa.testSmellDiffusion.testSmellRules.*;
+import it.unisa.testSmellDiffusion.utility.FileUtility;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Vector;
 
 public class SmellynessProcessor {
@@ -43,6 +47,7 @@ public class SmellynessProcessor {
                 ClassTestSmellsInfo classTestSmellsInfo = new ClassTestSmellsInfo();
                 classTestSmellsInfo.setBelongingPackage(productionClass.getBelongingPackage());
                 classTestSmellsInfo.setName(productionClass.getName());
+                classTestSmellsInfo.setProductionClass(productionClass.getBelongingPackage() + "." + productionClass.getName());
                 double isAssertionRoulette = Double.NaN;
                 double isEagerTest = Double.NaN;
                 double isLazyTest = Double.NaN;
@@ -104,6 +109,17 @@ public class SmellynessProcessor {
                 classTestSmellsInfos.add(classTestSmellsInfo);
 
             }
+            String fileName = new SimpleDateFormat("yyyyMMddHHmm'.csv'").format(new Date());
+            String outputDir = proj.getBasePath() + "\\reports\\smellyness";
+            String output = "project;test-suite;production-class;ar;et;lt;mg;se;ro;fto;it;dc\n";
+            for(ClassTestSmellsInfo smellsInfo : classTestSmellsInfos){
+                output+=proj.getName() + ";" + smellsInfo.getBelongingPackage() + "." + smellsInfo.getName() + ";" + smellsInfo.getProductionClass() + ";" + smellsInfo.getAssertionRoulette() + ";" +
+                        smellsInfo.getEagerTest()+ ";" + smellsInfo.getLazyTest()+ ";" + smellsInfo.getMysteryGuest()+ ";" + smellsInfo.getSensitiveEquality()+ ";" + smellsInfo.getResourceOptimism()+ ";" +
+                        smellsInfo.getForTestersOnly()+ ";" + smellsInfo.getIndirectTesting()+ ";" + smellsInfo.getDuplicateCode() + "\n";
+            }
+            File out = new File(outputDir);
+            out.mkdirs();
+            FileUtility.writeFile(output, outputDir + "\\" + fileName);
             return classTestSmellsInfos;
         } catch (Exception e) {
             e.printStackTrace();

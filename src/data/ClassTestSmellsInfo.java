@@ -3,6 +3,7 @@ package data;
 public class ClassTestSmellsInfo {
     private String name;
     private String belongingPackage;
+    private String productionClass;
     private int assertionRoulette;
     private int eagerTest;
     private int lazyTest;
@@ -115,6 +116,14 @@ public class ClassTestSmellsInfo {
 
     public void setDuplicateCode(int duplicateCode) {
         this.duplicateCode = duplicateCode;
+    }
+
+    public String getProductionClass() {
+        return productionClass;
+    }
+
+    public void setProductionClass(String productionClass) {
+        this.productionClass = productionClass;
     }
 
     @Override
