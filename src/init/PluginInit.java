@@ -11,10 +11,7 @@ import gui.CKFrame;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
 import it.unisa.testSmellDiffusion.utility.FolderToJavaProjectConverter;
 import org.apache.commons.io.FileUtils;
-import processor.CKMetricsProcessor;
-import processor.CoverageProcessor;
-import processor.MutationCoverageProcessor;
-import processor.SmellynessProcessor;
+import processor.*;
 
 
 import javax.swing.*;
@@ -42,11 +39,12 @@ public class PluginInit extends AnAction {
             try {
                 Vector<PackageBean> testPackages = FolderToJavaProjectConverter.convert(test.getAbsolutePath());
                 Vector<PackageBean> packages = FolderToJavaProjectConverter.convert(mainPath);
-                CKMetricsProcessor CKProcessor = new CKMetricsProcessor();
-                TestProjectCKInfo projectCKInfo = CKProcessor.calculate(packages,testPackages, proj);
+               CKMetricsProcessor CKProcessor = new CKMetricsProcessor();
+              TestProjectCKInfo projectCKInfo = CKProcessor.calculate(packages,testPackages, proj);
                 JFrame ckShow = new CKFrame(projectCKInfo);
-                CoverageProcessor.calculate(root, packages, testPackages,proj);
-                ArrayList<ClassTestSmellsInfo> classTestSmellsInfos = SmellynessProcessor.calculate(root, packages, testPackages, proj);
+           //     CoverageProcessor.calculate(root, packages, testPackages,proj);
+            //    ArrayList<ClassTestSmellsInfo> classTestSmellsInfos = SmellynessProcessor.calculate(root, packages, testPackages, proj);
+                FlakyTestsProcessor.calculate(root, packages, testPackages, proj);
 
                 ckShow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 ckShow.setVisible(true);
