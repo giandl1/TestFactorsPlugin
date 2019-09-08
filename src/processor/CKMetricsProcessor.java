@@ -4,7 +4,7 @@ package processor;
 
 import com.intellij.openapi.project.Project;
 import data.ClassCKInfo;
-import data.TestProjectCKInfo;
+import data.TestProjectAnalysis;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
 import it.unisa.testSmellDiffusion.metrics.CKMetrics;
@@ -21,8 +21,7 @@ import java.util.Vector;
 public class CKMetricsProcessor {
 
 
-    public static TestProjectCKInfo calculate(Vector<PackageBean> packages,Vector<PackageBean> testPackages ,Project proj){
-        TestProjectCKInfo projectCKInfo = new TestProjectCKInfo();
+    public static void calculate(Vector<PackageBean> packages,Vector<PackageBean> testPackages, TestProjectAnalysis proj){
         Vector<ClassCKInfo> classesInfo = new Vector<ClassCKInfo>();
         TestMutationUtilities utilities = new TestMutationUtilities();
 
@@ -48,20 +47,19 @@ public class CKMetricsProcessor {
                     rfcJUnit += rfc;
                 }
             }
-            projectCKInfo.setName(proj.getName());
-            projectCKInfo.setLoc(locJUnit);
-            projectCKInfo.setNom(nomJUnit);
-            projectCKInfo.setWmc(wmcJUnit);
-            projectCKInfo.setRfc(rfcJUnit);
-            projectCKInfo.setClassesInfo(classesInfo);
-            projectCKInfo.setTestClassesNumber(numberOfTestClasses);
+            proj.setLoc(locJUnit);
+            proj.setNom(nomJUnit);
+            proj.setWmc(wmcJUnit);
+            proj.setRfc(rfcJUnit);
+            proj.setClassCKInfo(classesInfo);
+            proj.setTestClassesNumber(numberOfTestClasses);
 
             ArrayList<ClassBean> classes = utilities.getClasses(packages);
             String fileName = new SimpleDateFormat("yyyyMMddHHmm'.csv'").format(new Date());
-            String outputDir = proj.getBasePath() + "\\reports\\ckmetrics";
+            String outputDir = proj.getPath() + "\\reports\\ckmetrics";
             String output = "project;test-suite;production-class;loc;nom;wmc;rfc\n";
-            output+= proj.getName() + ";" + "null;" + "null;" + projectCKInfo.getLoc() + ";" + projectCKInfo.getNom() + ";" + projectCKInfo.getWmc() + ";" + projectCKInfo.getRfc() +"\n";
-             for(ClassCKInfo ckInfo : projectCKInfo.getClassesInfo()){
+            output+= proj.getName() + ";" + "null;" + "null;" + proj.getLoc() + ";" + proj.getNom() + ";" + proj.getWmc() + ";" + proj.getRfc() +"\n";
+             for(ClassCKInfo ckInfo : proj.getClassCKInfo()){
                  output+=proj.getName() + ";" + ckInfo.getBelongingPackage() + "." + ckInfo.getName() + ";" + ckInfo.getProductionClass() + ";" + ckInfo.getLoc() + ";" + ckInfo.getNom() + ";" +
                          ckInfo.getWmc() + ";" + ckInfo.getRfc() + "\n";
              }
@@ -69,11 +67,9 @@ public class CKMetricsProcessor {
              out.mkdirs();
              FileUtility.writeFile(output, outputDir + "\\" + fileName);
 
-            return projectCKInfo;
         }
         catch(Exception e) {
             e.printStackTrace();
-            return null;
         }
 
 

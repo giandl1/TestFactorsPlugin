@@ -1,7 +1,7 @@
 package gui;
 
 import data.ClassCKInfo;
-import data.TestProjectCKInfo;
+import data.TestProjectAnalysis;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -12,10 +12,10 @@ import java.awt.event.WindowEvent;
 import java.util.Vector;
 
 public class CKFrame extends JFrame {
-    private TestProjectCKInfo projectCKInfo;
+    private TestProjectAnalysis projectCKInfo;
 
 
-    public CKFrame(TestProjectCKInfo projectCKInfo) throws HeadlessException {
+    public CKFrame(TestProjectAnalysis projectCKInfo) throws HeadlessException {
         this.projectCKInfo = projectCKInfo;
         setTitle("CKMetrics");
         setPreferredSize(new Dimension(600, 500));
@@ -45,7 +45,7 @@ public class CKFrame extends JFrame {
 
     public JPanel createClassesPanel(){
         int numberOfClasses = projectCKInfo.getTestClassesNumber();
-        Vector<ClassCKInfo> classCKInfo = projectCKInfo.getClassesInfo();
+        Vector<ClassCKInfo> classCKInfo = projectCKInfo.getClassCKInfo();
         JPanel main = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel panel = new JPanel(new GridLayout(numberOfClasses+1, 6));
 

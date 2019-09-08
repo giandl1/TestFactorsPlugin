@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.Project;
 import data.ClassTestSmellsInfo;
-import data.TestProjectCKInfo;
+import data.TestProjectAnalysis;
 import gui.CKFrame;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
 import it.unisa.testSmellDiffusion.utility.FolderToJavaProjectConverter;
@@ -34,17 +34,20 @@ public class PluginInit extends AnAction {
         String buildPath = root.getAbsolutePath() + "\\out";
 
         File project = new File(srcPath);
+        TestProjectAnalysis projectAnalysis = new TestProjectAnalysis();
+        projectAnalysis.setName(proj.getName());
+        projectAnalysis.setPath(proj.getBasePath());
         File test = new File(testPath);
         if ((test.isDirectory()) && (!test.isHidden())) {
             try {
                 Vector<PackageBean> testPackages = FolderToJavaProjectConverter.convert(test.getAbsolutePath());
                 Vector<PackageBean> packages = FolderToJavaProjectConverter.convert(mainPath);
                CKMetricsProcessor CKProcessor = new CKMetricsProcessor();
-              TestProjectCKInfo projectCKInfo = CKProcessor.calculate(packages,testPackages, proj);
-                JFrame ckShow = new CKFrame(projectCKInfo);
-           //     CoverageProcessor.calculate(root, packages, testPackages,proj);
-            //    ArrayList<ClassTestSmellsInfo> classTestSmellsInfos = SmellynessProcessor.calculate(root, packages, testPackages, proj);
-                FlakyTestsProcessor.calculate(root, packages, testPackages, proj);
+               CKProcessor.calculate(packages,testPackages, projectAnalysis);
+                JFrame ckShow = new CKFrame(projectAnalysis);
+               CoverageProcessor.calculate(root, packages, testPackages,projectAnalysis);
+                ArrayList<ClassTestSmellsInfo> classTestSmellsInfos = SmellynessProcessor.calculate(root, packages, testPackages, proj);
+                FlakyTestsProcessor.calculate(root, packages, testPackages, projectAnalysis);
 
                 ckShow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 ckShow.setVisible(true);

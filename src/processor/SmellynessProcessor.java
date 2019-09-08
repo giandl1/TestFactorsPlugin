@@ -104,11 +104,11 @@ public class SmellynessProcessor {
                     if (isDuplicateCode == 1) {
                         classTestSmellsInfo.setDuplicateCode(1);
                     }
-                }
+
                 LOGGER.info(classTestSmellsInfo.toString());
                 classTestSmellsInfos.add(classTestSmellsInfo);
 
-            }
+            } }
             String fileName = new SimpleDateFormat("yyyyMMddHHmm'.csv'").format(new Date());
             String outputDir = proj.getBasePath() + "\\reports\\smellyness";
             String output = "project;test-suite;production-class;ar;et;lt;mg;se;ro;fto;it;dc\n";
