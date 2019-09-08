@@ -30,7 +30,9 @@ public class FlakyTestsProcessor {
             ArrayList<ClassBean> classes = utilities.getClasses(packages);
             ArrayList<FlakyTestsInfo> flakyTests = new ArrayList<>();
             Hashtable<String, Integer> passedTests = new Hashtable<>();
+            int j=0;
             for (ClassBean productionClass : classes) {
+                j++;
                 ClassBean testSuite = TestMutationUtilities.getTestClassBy(productionClass.getName(), testPackages);
                 String cmd = "java -cp C:/jar_files/*;" + destination + ";" + testPath + " org.junit.runner.JUnitCore " + testSuite.getBelongingPackage() + "." + testSuite.getName();
                 LOGGER.info(cmd);
@@ -39,7 +41,7 @@ public class FlakyTestsProcessor {
                 Hashtable<String, Integer> flaky = new Hashtable();
                 info.setTestSuite(testSuite.getName());
                 Runtime rt = Runtime.getRuntime();
-                LOGGER.info("STARTING FIRST RUN TESTS");
+                LOGGER.info("STARTING FIRST RUN TESTS, CLASS nr." + j);
                 Process pr = rt.exec(cmd);
                 String s;
                 String output="";
@@ -56,10 +58,10 @@ public class FlakyTestsProcessor {
                 }
 
 
-                LOGGER.info("FIRST RUN TESTS END");
+                LOGGER.info("FIRST RUN TESTS END, CLASS nr." + j);
                 for(int i=0; i<9; i++){
                     rt = Runtime.getRuntime();
-                    LOGGER.info("RUN TEST START: " + i+2);
+               //     LOGGER.info("RUN TEST START: " + i+2);
 
                     pr = rt.exec(cmd);
                     s="";
@@ -69,21 +71,23 @@ public class FlakyTestsProcessor {
                         output += s;
                     }
                     for (MethodBean method : methods) {
-                        int passed = passedTests.get(method.getName());
-                        if(output.contains(method.getName()) && passed==1)
-                            flaky.replace(method.getName(), 1);
-                        else if(!output.contains(method.getName()) && passed==0)
-                            flaky.replace(method.getName(), 1);
-
+                        int isFlaky = flaky.get(method.getName());
+                        if(isFlaky==0) {
+                            int passed = passedTests.get(method.getName());
+                            if (output.contains(method.getName()) && passed == 1)
+                                flaky.replace(method.getName(), 1);
+                            else if (!output.contains(method.getName()) && passed == 0)
+                                flaky.replace(method.getName(), 1);
+                        }
                     }
-                    LOGGER.info("RUN TEST END: " + i+2);
+                 //   LOGGER.info("RUN TEST END: " + i+2);
 
                 }
 
 
                 info.setFlakyTests(flaky);
                 flakyTests.add(info);
-                LOGGER.info(passedTests.toString());
+                LOGGER.info(flaky.toString());
             }
             return flakyTests;
 
