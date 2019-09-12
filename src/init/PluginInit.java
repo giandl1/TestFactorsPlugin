@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project;
 import data.ClassTestSmellsInfo;
 import data.TestProjectAnalysis;
 import gui.CKFrame;
+import gui.ConfigUI;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
 import it.unisa.testSmellDiffusion.utility.FolderToJavaProjectConverter;
 import org.apache.commons.io.FileUtils;

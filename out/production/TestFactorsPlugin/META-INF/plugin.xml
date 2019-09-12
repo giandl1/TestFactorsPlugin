@@ -33,6 +33,9 @@
     <action id="InitPlugin" class="init.PluginInit" text="Calculate Test Factors">
       <add-to-group group-id="FileMenu" anchor="last"/>
     </action>
+      <action id="ConfigureTFPlugin" class="config.PluginConfig" text="Test Factors Plugin Configuration">
+          <add-to-group group-id="FileMenu" anchor="last"/>
+      </action>
   </actions>
 
 </idea-plugin>
