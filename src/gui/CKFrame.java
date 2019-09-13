@@ -1,6 +1,7 @@
 package gui;
 
 import data.ClassCKInfo;
+import data.TestClassAnalysis;
 import data.TestProjectAnalysis;
 
 import javax.swing.*;
@@ -45,7 +46,7 @@ public class CKFrame extends JFrame {
 
     public JPanel createClassesPanel(){
         int numberOfClasses = projectCKInfo.getTestClassesNumber();
-        Vector<ClassCKInfo> classCKInfo = projectCKInfo.getClassCKInfo();
+        Vector<TestClassAnalysis> analysis = projectCKInfo.getClassAnalysis();
         JPanel main = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel panel = new JPanel(new GridLayout(numberOfClasses+1, 6));
 
@@ -55,15 +56,17 @@ public class CKFrame extends JFrame {
         panel.add(new JLabel("NOM"));
         panel.add(new JLabel("RFC"));
         panel.add(new JLabel("WMC"));
-        for(ClassCKInfo classInfo : classCKInfo){
-            panel.add(new JLabel(classInfo.getName()));
-            panel.add(new JLabel());
-            panel.add(new JLabel("" + classInfo.getLoc()));
-            panel.add(new JLabel("" + classInfo.getNom()));
-            panel.add(new JLabel("" + classInfo.getRfc()));
-            panel.add(new JLabel("" + classInfo.getWmc()));
+        for(TestClassAnalysis classAnalysis : analysis) {
+            ClassCKInfo classInfo = classAnalysis.getCkMetrics();
+                panel.add(new JLabel(classAnalysis.getName()));
+                panel.add(new JLabel());
+                panel.add(new JLabel("" + classInfo.getLoc()));
+                panel.add(new JLabel("" + classInfo.getNom()));
+                panel.add(new JLabel("" + classInfo.getRfc()));
+                panel.add(new JLabel("" + classInfo.getWmc()));
 
-        }
+            }
+
         main.add(panel);
         return main;
 

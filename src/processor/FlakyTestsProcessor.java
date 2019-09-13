@@ -21,7 +21,7 @@ import java.util.Vector;
 public class FlakyTestsProcessor {
     private static final Logger LOGGER = Logger.getInstance("global");
 
-    public static void calculate(File root, Vector<PackageBean> packages, Vector<PackageBean> testPackages, TestProjectAnalysis proj){
+    public static Vector<FlakyTestsInfo> calculate(File root, Vector<PackageBean> packages, Vector<PackageBean> testPackages, TestProjectAnalysis proj){
         try {
             String buildPath = root.getAbsolutePath() + "\\out";
             String destination = root.getAbsolutePath() + "\\out\\production\\" + proj.getName();
@@ -91,10 +91,11 @@ public class FlakyTestsProcessor {
                     //   LOGGER.info(flaky.toString());
                 }
             }
-            proj.setFlakyTestsInfo(flakyTests);
+            return flakyTests;
 
         } catch(Exception e){
             LOGGER.info(e.toString());
+            return null;
         }
     }
 }

@@ -12,10 +12,8 @@ public class TestProjectAnalysis {
     private int nom;
     private int rfc;
     private int wmc;
-    private Vector<ClassCKInfo> classCKInfo;
-    private Vector<ClassCoverageInfo> classCoverageInfo;
-    private Vector<ClassTestSmellsInfo> classSmellsInfo;
-    private Vector<FlakyTestsInfo> flakyTestsInfo;
+    private int affectedClasses;
+    private Vector<TestClassAnalysis> classAnalysis;
 
     public TestProjectAnalysis() {}
 
@@ -83,36 +81,20 @@ public class TestProjectAnalysis {
         this.wmc = wmc;
     }
 
-    public Vector<ClassCKInfo> getClassCKInfo() {
-        return classCKInfo;
+    public Vector<TestClassAnalysis> getClassAnalysis() {
+        return classAnalysis;
     }
 
-    public void setClassCKInfo(Vector<ClassCKInfo> classCKInfo) {
-        this.classCKInfo = classCKInfo;
+    public void setClassAnalysis(Vector<TestClassAnalysis> classAnalysis) {
+        this.classAnalysis = classAnalysis;
     }
 
-    public Vector<ClassCoverageInfo> getClassCoverageInfo() {
-        return classCoverageInfo;
+    public int getAffectedClasses() {
+        return affectedClasses;
     }
 
-    public void setClassCoverageInfo(Vector<ClassCoverageInfo> classCoverageInfo) {
-        this.classCoverageInfo = classCoverageInfo;
-    }
-
-    public Vector<ClassTestSmellsInfo> getClassSmellsInfo() {
-        return classSmellsInfo;
-    }
-
-    public void setClassSmellsInfo(Vector<ClassTestSmellsInfo> classSmellsInfo) {
-        this.classSmellsInfo = classSmellsInfo;
-    }
-
-    public Vector<FlakyTestsInfo> getFlakyTestsInfo() {
-        return flakyTestsInfo;
-    }
-
-    public void setFlakyTestsInfo(Vector<FlakyTestsInfo> flakyTestsInfo) {
-        this.flakyTestsInfo = flakyTestsInfo;
+    public void setAffectedClasses(int affectedClasses) {
+        this.affectedClasses = affectedClasses;
     }
 
     public String getPath() {

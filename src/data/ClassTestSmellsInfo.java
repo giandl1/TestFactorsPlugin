@@ -1,22 +1,27 @@
 package data;
 
 public class ClassTestSmellsInfo {
-    private String name;
-    private String belongingPackage;
-    private String productionClass;
     private int assertionRoulette;
+    private double arMetric;
     private int eagerTest;
+    private double etMetric;
     private int lazyTest;
+    private double ltMetric;
     private int mysteryGuest;
+    private double mgMetric;
     private int sensitiveEquality;
+    private double seMetric;
     private int resourceOptimism;
+    private double roMetric;
     private int forTestersOnly;
+    private double ftoMetric;
     private int indirectTesting;
-    private int duplicateCode;
+    private double itMetric;
+    private int generalFixture;
+    private double gfMetric;
 
-    public ClassTestSmellsInfo(String name, String belongingPackage, int assertionRoulette, int eagerTest, int lazyTest, int mysteryGuest, int sensitiveEquality, int resourceOptimism, int forTestersOnly, int indirectTesting, int duplicateCode) {
-        this.name = name;
-        this.belongingPackage = belongingPackage;
+    public ClassTestSmellsInfo(int assertionRoulette, int eagerTest, int lazyTest, int mysteryGuest, int sensitiveEquality, int resourceOptimism, int forTestersOnly, int indirectTesting, int generalFixture) {
+
         this.assertionRoulette = assertionRoulette;
         this.eagerTest = eagerTest;
         this.lazyTest = lazyTest;
@@ -25,26 +30,14 @@ public class ClassTestSmellsInfo {
         this.resourceOptimism = resourceOptimism;
         this.forTestersOnly = forTestersOnly;
         this.indirectTesting = indirectTesting;
-        this.duplicateCode = duplicateCode;
+        this.generalFixture = generalFixture;
     }
 
     public ClassTestSmellsInfo() {}
 
-    public String getName() {
-        return name;
-    }
 
-    public void setName(String name) {
-        this.name = name;
-    }
 
-    public String getBelongingPackage() {
-        return belongingPackage;
-    }
 
-    public void setBelongingPackage(String belongingPackage) {
-        this.belongingPackage = belongingPackage;
-    }
 
     public int getAssertionRoulette() {
         return assertionRoulette;
@@ -110,36 +103,83 @@ public class ClassTestSmellsInfo {
         this.indirectTesting = indirectTesting;
     }
 
-    public int getDuplicateCode() {
-        return duplicateCode;
+    public int getGeneralFixture() {
+        return generalFixture;
     }
 
-    public void setDuplicateCode(int duplicateCode) {
-        this.duplicateCode = duplicateCode;
+    public void setGeneralFixture(int generalFixture) {
+        this.generalFixture = generalFixture;
     }
 
-    public String getProductionClass() {
-        return productionClass;
+    public double getArMetric() {
+        return arMetric;
     }
 
-    public void setProductionClass(String productionClass) {
-        this.productionClass = productionClass;
+    public void setArMetric(double arMetric) {
+        this.arMetric = arMetric;
     }
 
-    @Override
-    public String toString() {
-        return "ClassTestSmellsInfo{" +
-                "name='" + name + '\'' +
-                ", belongingPackage='" + belongingPackage + '\'' +
-                ", assertionRoulette=" + assertionRoulette +
-                ", eagerTest=" + eagerTest +
-                ", lazyTest=" + lazyTest +
-                ", mysteryGuest=" + mysteryGuest +
-                ", sensitiveEquality=" + sensitiveEquality +
-                ", resourceOptimism=" + resourceOptimism +
-                ", forTestersOnly=" + forTestersOnly +
-                ", indirectTesting=" + indirectTesting +
-                ", duplicateCode=" + duplicateCode +
-                '}';
+    public double getEtMetric() {
+        return etMetric;
+    }
+
+    public void setEtMetric(double etMetric) {
+        this.etMetric = etMetric;
+    }
+
+    public double getLtMetric() {
+        return ltMetric;
+    }
+
+    public void setLtMetric(double ltMetric) {
+        this.ltMetric = ltMetric;
+    }
+
+    public double getMgMetric() {
+        return mgMetric;
+    }
+
+    public void setMgMetric(double mgMetric) {
+        this.mgMetric = mgMetric;
+    }
+
+    public double getSeMetric() {
+        return seMetric;
+    }
+
+    public void setSeMetric(double seMetric) {
+        this.seMetric = seMetric;
+    }
+
+    public double getRoMetric() {
+        return roMetric;
+    }
+
+    public void setRoMetric(double roMetric) {
+        this.roMetric = roMetric;
+    }
+
+    public double getFtoMetric() {
+        return ftoMetric;
+    }
+
+    public void setFtoMetric(double ftoMetric) {
+        this.ftoMetric = ftoMetric;
+    }
+
+    public double getItMetric() {
+        return itMetric;
+    }
+
+    public void setItMetric(double itMetric) {
+        this.itMetric = itMetric;
+    }
+
+    public double getGfMetric() {
+        return gfMetric;
+    }
+
+    public void setGfMetric(double gfMetric) {
+        this.gfMetric = gfMetric;
     }
 }

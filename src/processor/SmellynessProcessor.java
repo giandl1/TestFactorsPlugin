@@ -2,8 +2,10 @@ package processor;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import config.SmellsThresholds;
 import data.ClassCKInfo;
 import data.ClassTestSmellsInfo;
+import data.TestProjectAnalysis;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
 import it.unisa.testSmellDiffusion.beans.MethodBean;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
@@ -22,17 +24,11 @@ import java.util.Vector;
 public class SmellynessProcessor {
     private static final Logger LOGGER = Logger.getInstance("global");
 
-    public static ArrayList<ClassTestSmellsInfo> calculate(File root, Vector<PackageBean> packages, Vector<PackageBean> testPackages, Project proj) {
+    public static ClassTestSmellsInfo calculate(ClassBean testSuite, ClassBean productionClass, Vector<PackageBean> packages, SmellsThresholds thresholds, TestProjectAnalysis project) {
         try {
-            ArrayList<ClassTestSmellsInfo> classTestSmellsInfos = new ArrayList<>();
+            boolean isAffected=false;
             TestMutationUtilities utilities = new TestMutationUtilities();
-            ArrayList<ClassBean> classes = utilities.getClasses(packages);
-            String mainBuildPath = root.getAbsolutePath() + "\\out\\production\\" + proj.getName();
-            String testBuildPath = root.getAbsolutePath() + "\\out\\test\\" + proj.getName();
-            String mainPath = root.getAbsolutePath() + "\\src\\main\\java";
-            String testPath = root.getAbsolutePath() + "\\src\\test\\java";
             Collection<MethodBean> methodsInTheProject = IndirectTesting.findInvocations(packages);
-            File suiteTest = new File(root.getAbsolutePath() + "\\src\\test\\java");
             AssertionRoulette assertionRoulette = new AssertionRoulette();
             EagerTest eagerTest = new EagerTest();
             LazyTest lazyTest = new LazyTest();
@@ -41,13 +37,9 @@ public class SmellynessProcessor {
             ResourceOptimistism resourceOptimism = new ResourceOptimistism();
             ForTestersOnly forTestersOnly = new ForTestersOnly();
             IndirectTesting indirectTesting = new IndirectTesting();
-            DuplicateCode duplicateCode = new DuplicateCode();
-            for (ClassBean productionClass : classes) {
-                ClassBean testSuite = TestMutationUtilities.getTestClassBy(productionClass.getName(), testPackages);
+            GeneralFixture generalFixture = new GeneralFixture();
+
                 ClassTestSmellsInfo classTestSmellsInfo = new ClassTestSmellsInfo();
-                classTestSmellsInfo.setBelongingPackage(productionClass.getBelongingPackage());
-                classTestSmellsInfo.setName(productionClass.getName());
-                classTestSmellsInfo.setProductionClass(productionClass.getBelongingPackage() + "." + productionClass.getName());
                 double isAssertionRoulette = Double.NaN;
                 double isEagerTest = Double.NaN;
                 double isLazyTest = Double.NaN;
@@ -56,60 +48,75 @@ public class SmellynessProcessor {
                 double isResourceOptimistism = Double.NaN;
                 double isForTestersOnly = Double.NaN;
                 double isIndirectTesting = Double.NaN;
-                double isDuplicateCode = Double.NaN;
-                double assertionDensity = Double.NaN;
+                double isGeneralFixture = Double.NaN;
                 String testSuiteName = "NO-TEST";
                 if (testSuite != null) {
 
                     isAssertionRoulette = assertionRoulette.isAssertionRoulette(testSuite) ? 1 : 0;
                     if (isAssertionRoulette == 1) {
                         classTestSmellsInfo.setAssertionRoulette(1);
+                        isAffected=true;
                     }
 
                     isEagerTest = eagerTest.isEagerTest(testSuite, productionClass) ? 1 : 0;
                     if (isEagerTest == 1) {
                         classTestSmellsInfo.setEagerTest(1);
+                        isAffected=true;
+
                     }
 
                     isLazyTest = lazyTest.isLazyTest(testSuite, productionClass) ? 1 : 0;
                     if (isLazyTest == 1) {
                         classTestSmellsInfo.setLazyTest(1);
+                        isAffected=true;
+
                     }
                     isMysteryGuest = mysteryGuest.isMysteryGuest(testSuite) ? 1 : 0;
                     if (isMysteryGuest == 1) {
                         classTestSmellsInfo.setMysteryGuest(1);
+                        isAffected=true;
+
                     }
 
                     isSensitiveEquality = sensitiveEquality.isSensitiveEquality(testSuite) ? 1 : 0;
                     if (isSensitiveEquality == 1) {
                         classTestSmellsInfo.setMysteryGuest(1);
+                        isAffected=true;
+
                     }
 
                     isResourceOptimistism = resourceOptimism.isResourceOptimistism(testSuite) ? 1 : 0;
                     if (isResourceOptimistism == 1) {
                         classTestSmellsInfo.setResourceOptimism(1);
+                        isAffected=true;
+
                     }
 
                     isForTestersOnly = forTestersOnly.isForTestersOnly(testSuite, productionClass, methodsInTheProject) ? 1 : 0;
                     if (isForTestersOnly == 1) {
                         classTestSmellsInfo.setForTestersOnly(1);
+                        isAffected=true;
+
                     }
 
                     isIndirectTesting = indirectTesting.isIndirectTesting(testSuite, productionClass, methodsInTheProject) ? 1 : 0;
                     if (isIndirectTesting == 1) {
                         classTestSmellsInfo.setIndirectTesting(1);
+                        isAffected=true;
+
+                    }
+                    isGeneralFixture = generalFixture.isGeneralFixture(testSuite) ? 1 : 0;
+                    if (isGeneralFixture == 1) {
+                        classTestSmellsInfo.setGeneralFixture(1);
+                        isAffected=true;
+
                     }
 
-                    isDuplicateCode = duplicateCode.isCodeDuplication(testSuite, suiteTest.getAbsolutePath()) ? 1 : 0;
-                    if (isDuplicateCode == 1) {
-                        classTestSmellsInfo.setDuplicateCode(1);
-                    }
 
                 LOGGER.info(classTestSmellsInfo.toString());
-                classTestSmellsInfos.add(classTestSmellsInfo);
 
-            } }
-            String fileName = new SimpleDateFormat("yyyyMMddHHmm'.csv'").format(new Date());
+            }
+            /*String fileName = new SimpleDateFormat("yyyyMMddHHmm'.csv'").format(new Date());
             String outputDir = proj.getBasePath() + "\\reports\\smellyness";
             String output = "project;test-suite;production-class;ar;et;lt;mg;se;ro;fto;it;dc\n";
             for(ClassTestSmellsInfo smellsInfo : classTestSmellsInfos){
@@ -119,8 +126,10 @@ public class SmellynessProcessor {
             }
             File out = new File(outputDir);
             out.mkdirs();
-            FileUtility.writeFile(output, outputDir + "\\" + fileName);
-            return classTestSmellsInfos;
+            FileUtility.writeFile(output, outputDir + "\\" + fileName); */
+            if(isAffected)
+                project.setAffectedClasses(project.getAffectedClasses()+1);
+            return classTestSmellsInfo;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

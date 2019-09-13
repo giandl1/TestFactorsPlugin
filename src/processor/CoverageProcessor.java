@@ -27,7 +27,7 @@ import java.util.Vector;
 
 public class CoverageProcessor {
     private static final Logger LOGGER = Logger.getInstance("global");
-    public static void calculate(File root, Vector<PackageBean> packages, Vector<PackageBean> testPackages, TestProjectAnalysis proj) {
+    public static Vector<ClassCoverageInfo> calculate(File root, ArrayList<ClassBean> classes, Vector<PackageBean> testPackages, TestProjectAnalysis proj) {
         try {
             double projectTotalLines = 0;
             double projectCoveredLines = 0;
@@ -41,7 +41,6 @@ public class CoverageProcessor {
             double assertionDensity = Double.NaN;
             Hashtable<String, Integer> isGreenSuite = new Hashtable<>();
 
-            ArrayList<ClassBean> classes = utilities.getClasses(packages);
             String buildPath = root.getAbsolutePath() + "\\out";
             String destination = root.getAbsolutePath() + "\\out\\production\\" + proj.getName();
             String testPath = root.getAbsolutePath() + "\\out\\test\\" + proj.getName();
@@ -138,7 +137,6 @@ public class CoverageProcessor {
 
             FileUtils.deleteDirectory(new File(buildPath + "\\instrumented"));
            FileUtils.deleteQuietly(new File(buildPath + "\\cobertura.ser"));
-            proj.setClassCoverageInfo(classCoverageInfo);
             LOGGER.info("project coveredlines: " + projectCoveredLines);
             LOGGER.info("project totallines: " + projectTotalLines);
 
@@ -158,8 +156,10 @@ public class CoverageProcessor {
             File out = new File(outputDir);
             out.mkdirs();
             FileUtility.writeFile(output, outputDir + "\\" + fileName);
+            return classCoverageInfo;
         } catch (Exception e) {
             LOGGER.info(e.getMessage());
+            return null;
         }
 
     }
