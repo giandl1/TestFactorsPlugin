@@ -11,6 +11,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
+import java.util.Comparator;
+import java.util.Vector;
 
 public class AnalysisResultsUI extends JFrame {
     private TestProjectAnalysis project;
@@ -37,7 +39,28 @@ public class AnalysisResultsUI extends JFrame {
         JPanel panel = new JPanel();
         panel.setBorder(new EmptyBorder(10,10,10,10));
       //  panel.setLayout(new GridLayout(1,1));
-        JList<TestClassAnalysis> classPanel = new JBList(project.getClassAnalysis());
+        Vector<TestClassAnalysis> classAnalysis = project.getClassAnalysis();
+        classAnalysis.sort(new Comparator<TestClassAnalysis>() {
+            @Override
+            public int compare(TestClassAnalysis o1, TestClassAnalysis o2) {
+                return o1.getSmellsThreshold() > o2.getSmellsThreshold() ? -1 :(o1.getSmellsThreshold() < o2.getSmellsThreshold() ? 1 : 0);
+            }
+        });
+        JList<TestClassAnalysis> classPanel = new JBList(classAnalysis);
+        classPanel.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                Component renderer = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (renderer instanceof JLabel && value instanceof TestClassAnalysis) {
+                    // Here value will be of the Type 'CD'
+                    ((JLabel) renderer).setText(((TestClassAnalysis) value).getName());
+                    TestClassAnalysis colorChange = (TestClassAnalysis) value;
+                    if(colorChange.getSmellsThreshold()>5)
+                        renderer.setForeground(Color.RED);
+                }
+                return renderer;
+            }
+        });
         classPanel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         classPanel.addListSelectionListener(new ListSelectionListener() {
             @Override
