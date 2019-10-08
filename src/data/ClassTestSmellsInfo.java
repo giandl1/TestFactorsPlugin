@@ -1,43 +1,36 @@
 package data;
 
+
+import config.TestSmellMetricsThresholdsList;
+
 public class ClassTestSmellsInfo {
+    private TestSmellsMetrics metrics;
     private int assertionRoulette;
-    private double arMetric;
     private int eagerTest;
-    private double etMetric;
     private int lazyTest;
-    private double ltMetric;
     private int mysteryGuest;
-    private double mgMetric;
     private int sensitiveEquality;
-    private double seMetric;
     private int resourceOptimism;
-    private double roMetric;
     private int forTestersOnly;
-    private double ftoMetric;
     private int indirectTesting;
-    private double itMetric;
     private int generalFixture;
-    private double gfMetric;
+    private boolean isAffected;
+    private boolean isAffectedCritic;
+    private int weight;
 
-    public ClassTestSmellsInfo(int assertionRoulette, int eagerTest, int lazyTest, int mysteryGuest, int sensitiveEquality, int resourceOptimism, int forTestersOnly, int indirectTesting, int generalFixture) {
 
-        this.assertionRoulette = assertionRoulette;
-        this.eagerTest = eagerTest;
-        this.lazyTest = lazyTest;
-        this.mysteryGuest = mysteryGuest;
-        this.sensitiveEquality = sensitiveEquality;
-        this.resourceOptimism = resourceOptimism;
-        this.forTestersOnly = forTestersOnly;
-        this.indirectTesting = indirectTesting;
-        this.generalFixture = generalFixture;
+    public ClassTestSmellsInfo() {
+        weight = 1;
     }
 
-    public ClassTestSmellsInfo() {}
 
+    public TestSmellsMetrics getMetrics() {
+        return metrics;
+    }
 
-
-
+    public void setMetrics(TestSmellsMetrics metrics) {
+        this.metrics = metrics;
+    }
 
     public int getAssertionRoulette() {
         return assertionRoulette;
@@ -111,75 +104,31 @@ public class ClassTestSmellsInfo {
         this.generalFixture = generalFixture;
     }
 
-    public double getArMetric() {
-        return arMetric;
+    public int getWeight() {
+        return weight;
     }
 
-    public void setArMetric(double arMetric) {
-        this.arMetric = arMetric;
+    public void setWeight(int weight) {
+        this.weight = weight;
     }
 
-    public double getEtMetric() {
-        return etMetric;
+    public boolean isAffected() {
+        return isAffected;
     }
 
-    public void setEtMetric(double etMetric) {
-        this.etMetric = etMetric;
+    public void setAffected(boolean affected) {
+        isAffected = affected;
     }
 
-    public double getLtMetric() {
-        return ltMetric;
+    public boolean isAffectedCritic() {
+        return isAffectedCritic;
     }
 
-    public void setLtMetric(double ltMetric) {
-        this.ltMetric = ltMetric;
+    public void setAffectedCritic(boolean affectedCritic) {
+        isAffectedCritic = affectedCritic;
     }
 
-    public double getMgMetric() {
-        return mgMetric;
-    }
+    public void getCritValue(){
 
-    public void setMgMetric(double mgMetric) {
-        this.mgMetric = mgMetric;
-    }
-
-    public double getSeMetric() {
-        return seMetric;
-    }
-
-    public void setSeMetric(double seMetric) {
-        this.seMetric = seMetric;
-    }
-
-    public double getRoMetric() {
-        return roMetric;
-    }
-
-    public void setRoMetric(double roMetric) {
-        this.roMetric = roMetric;
-    }
-
-    public double getFtoMetric() {
-        return ftoMetric;
-    }
-
-    public void setFtoMetric(double ftoMetric) {
-        this.ftoMetric = ftoMetric;
-    }
-
-    public double getItMetric() {
-        return itMetric;
-    }
-
-    public void setItMetric(double itMetric) {
-        this.itMetric = itMetric;
-    }
-
-    public double getGfMetric() {
-        return gfMetric;
-    }
-
-    public void setGfMetric(double gfMetric) {
-        this.gfMetric = gfMetric;
     }
 }

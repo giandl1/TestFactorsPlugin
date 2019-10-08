@@ -2,7 +2,8 @@ package gui;
 
 import com.intellij.ui.components.JBScrollPane;
 import config.ConfigUtils;
-import config.SmellsThresholds;
+import config.TestSmellMetricThresholds;
+import config.TestSmellMetricsThresholdsList;
 import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
@@ -12,74 +13,123 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Vector;
 
 public class ConfigUI extends JFrame{
-    private JTextField sogliaAR1;
-    private JTextField sogliaAR2;
-    private JTextField sogliaET1;
-    private JTextField sogliaET2;
-    private JTextField sogliaGF1;
-    private JTextField sogliaGF2;
-    private JTextField sogliaLT1;
-    private JTextField sogliaLT2;
-    private JTextField sogliaRO1;
-    private JTextField sogliaRO2;
-    private JTextField sogliaMG1;
-    private JTextField sogliaMG2;
-    private JTextField sogliaSE1;
-    private JTextField sogliaSE2;
-    private JTextField sogliaFTO1;
-    private JTextField sogliaFTO2;
-    private JTextField sogliaIT1;
-    private JTextField sogliaIT2;
+    private ArrayList<JTextField> arThresholds;
+    private ArrayList<JTextField> etThresholds;
+    private ArrayList<JTextField> ltThresholds;
+    private ArrayList<JTextField> seThresholds;
+    private ArrayList<JTextField> roThresholds;
+    private ArrayList<JTextField> gfThresholds;
+    private ArrayList<JTextField> ftoThresholds;
+    private ArrayList<JTextField> itThresholds;
+    private ArrayList<JTextField> mgThresholds;
+    private TestSmellMetricsThresholdsList metricsList;
     private JButton save;
     private JButton restore;
     private JButton exit;
     private File default_conf;
     private File conf;
     private String projdir;
-    private SmellsThresholds thresholds;
+    private JPanel gridPanel;
+   // private SmellsThresholds thresholds;
 
 
     public ConfigUI(String projdir) throws HeadlessException {
-        sogliaAR1 = new JTextField(2);
-        sogliaAR2 = new JTextField(2);
-        sogliaET1 = new JTextField(2);
-        sogliaET2 = new JTextField(2);
-        sogliaGF1 = new JTextField(2);
-        sogliaGF2 = new JTextField(2);
-        sogliaLT1 = new JTextField(2);
-        sogliaLT2 = new JTextField(2);
-        sogliaRO1 = new JTextField(2);
-        sogliaRO2 = new JTextField(2);
-        sogliaMG1 = new JTextField(2);
-        sogliaMG2 = new JTextField(2);
-        sogliaSE1 = new JTextField(2);
-        sogliaSE2 = new JTextField(2);
-        sogliaFTO1 = new JTextField(2);
-        sogliaFTO2= new JTextField(2);
-        sogliaIT1= new JTextField(2);
-        sogliaIT2 = new JTextField(2);
+        arThresholds = new ArrayList<>();
+        etThresholds = new ArrayList<>();
+        ltThresholds = new ArrayList<>();
+        seThresholds = new ArrayList<>();
+        roThresholds = new ArrayList<>();
+        gfThresholds = new ArrayList<>();
+        ftoThresholds = new ArrayList<>();
+        itThresholds = new ArrayList<>();
+        mgThresholds = new ArrayList<>();
+
+        gridPanel = new JPanel();
+
         this.projdir=projdir;
+        this.setTitle("Metrics Thresholds Configuration");
         default_conf = new File(projdir + "\\default_config.ini");
         conf = new File(projdir + "\\config.ini");
-        if(!default_conf.exists()) {
+       /*if(!default_conf.exists()) {
             thresholds = new SmellsThresholds(1,1,1,1,1,1,1,1,1);
             new ConfigUtils().writeThresholds(new File(projdir + "\\default_config.ini"), thresholds);
+        }*/
+       if(conf.exists())
+            metricsList = new ConfigUtils().readThresholds(conf);
+       else
+            metricsList = new ConfigUtils().readThresholds(default_conf);
+
+
+
+        for(TestSmellMetricThresholds metric : metricsList.getArMetrics()) {
+            JTextField yellow = new JTextField(4);
+            arThresholds.add(yellow);
+            JTextField red = new JTextField(4);
+            arThresholds.add(red);
         }
-        if(default_conf.exists() && !conf.exists()){
-            thresholds = new ConfigUtils().readThresholds(default_conf);
+
+        for(TestSmellMetricThresholds metric : metricsList.getEtMetrics()){
+            JTextField yellow = new JTextField(4);
+            etThresholds.add(yellow);
+            JTextField red = new JTextField(4);
+            etThresholds.add(red);
         }
-        else if(conf.exists()){
-            thresholds = new ConfigUtils().readThresholds(conf);
+
+        for(TestSmellMetricThresholds metric : metricsList.getSeMetrics()){
+            JTextField yellow = new JTextField(4);
+            seThresholds.add(yellow);
+            JTextField red = new JTextField(4);
+            seThresholds.add(red);
+        }
+
+        for(TestSmellMetricThresholds metric : metricsList.getRoMetrics()){
+            JTextField yellow = new JTextField(4);
+            roThresholds.add(yellow);
+            JTextField red = new JTextField(4);
+            roThresholds.add(red);
+        }
+        for(TestSmellMetricThresholds metric : metricsList.getFtoMetrics()){
+            JTextField yellow = new JTextField(4);
+            ftoThresholds.add(yellow);
+            JTextField red = new JTextField(4);
+            ftoThresholds.add(red);
+        }
+        for(TestSmellMetricThresholds metric : metricsList.getMgMetrics()){
+            JTextField yellow = new JTextField(4);
+            mgThresholds.add(yellow);
+            JTextField red = new JTextField(4);
+            mgThresholds.add(red);
+        }
+        for(TestSmellMetricThresholds metric : metricsList.getGfMetrics()){
+            JTextField yellow = new JTextField(4);
+            gfThresholds.add(yellow);
+            JTextField red = new JTextField(4);
+            gfThresholds.add(red);
+        }
+        for(TestSmellMetricThresholds metric : metricsList.getLtMetrics()){
+            JTextField yellow = new JTextField(4);
+            ltThresholds.add(yellow);
+            JTextField red = new JTextField(4);
+            ltThresholds.add(red);
+        }
+        for(TestSmellMetricThresholds metric : metricsList.getItMetrics()){
+            JTextField yellow = new JTextField(4);
+            itThresholds.add(yellow);
+            JTextField red = new JTextField(4);
+            itThresholds.add(red);
         }
         setSoglieText();
+       // System.out.println(arThresholds.get(0).getText());
         save = new JButton("Save");
         restore = new JButton("Restore default");
         exit = new JButton("Exit");
-        setPreferredSize(new Dimension(1680,600));
-        add(createPanel());
-        add(buttonPanel(), BorderLayout.SOUTH);
+        setPreferredSize(new Dimension(800,600));
+        add(createPanel(), BorderLayout.CENTER);
+       add(buttonPanel(), BorderLayout.SOUTH);
         pack();
         setLocationRelativeTo(null);
     }
@@ -90,117 +140,46 @@ public class ConfigUI extends JFrame{
         JPanel extPanel = new JPanel();
         extPanel.setBorder(margin);
         extPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        JPanel gridPanel = new JPanel(new GridLayout(3,3));
+        int size = metricsList.getArMetrics().size() + metricsList.getFtoMetrics().size() + metricsList.getEtMetrics().size()
+                + metricsList.getGfMetrics().size() + metricsList.getItMetrics().size() + metricsList.getLtMetrics().size() + metricsList.getMgMetrics().size() +
+                metricsList.getRoMetrics().size() + metricsList.getSeMetrics().size();
+        gridPanel.setLayout(new GridLayout((size*4)+16+(size),1));
         JScrollPane scrollPane = new JBScrollPane(extPanel);
+        gridPanel.add(titlePanel("Assertion Roulette"));
+        addMetricPanel(metricsList.getArMetrics(), arThresholds);
+        gridPanel.add(new MyLine());
 
-        JPanel arPanel = new JPanel(new GridLayout(5,1));
-        margin = new EmptyBorder(0,50,0,100);
-        arPanel.setBorder(margin);
-        arPanel.add(titlePanel("Assertion Roulette"));
-        arPanel.add(valuePanel(sogliaAR1, "Max nr. of non-documented assertions"));
-        arPanel.add(descrPanel("AR Smell is detected when more than max assertion <br/>statements without a message are found"));
-        arPanel.add(valuePanel(sogliaAR2, "Soglia AR2"));
-        arPanel.add(descrPanel("Descrizione soglia AR2"));
-        gridPanel.add(arPanel);
-     //   gridPanel.add(new JLabel(""));
+        // gridPanel.add(new JPanel().add(new MyLine()));
+        gridPanel.add(titlePanel("Eager Test"));
+        addMetricPanel(metricsList.getEtMetrics(), etThresholds);
+        gridPanel.add(new MyLine());
 
-        arPanel = new JPanel(new GridLayout(5,1));
-        margin = new EmptyBorder(0,50,0,0);
-        arPanel.setBorder(margin);
-        arPanel.add(titlePanel("Eager Test"));
-        arPanel.add(valuePanel(sogliaET1, "Soglia ET1"));
-        arPanel.add(descrPanel("Descrizione soglia ET1 lunghezza variabile"));
-        arPanel.add(valuePanel(sogliaET2, "Soglia ET2"));
-        arPanel.add(descrPanel("Descrizione soglia ET2"));
-        gridPanel.add(arPanel);
-      //  gridPanel.add(new JLabel(""));
+        gridPanel.add(titlePanel("Lazy Test"));
+        addMetricPanel(metricsList.getLtMetrics(), ltThresholds);
+        gridPanel.add(new MyLine());
 
-        arPanel = new JPanel(new GridLayout(5,1));
-        margin = new EmptyBorder(0,50,0,0);
-        arPanel.setBorder(margin);
-        arPanel.add(titlePanel("Mystery Guest"));
-        arPanel.add(valuePanel(sogliaMG1, "Max nr. of external resources in a test"));
-        arPanel.add(descrPanel("MG Smell is detected when the number of external resources<br/> used in test methods is higher than the max allowed"));
-        arPanel.add(valuePanel(sogliaMG2, "Soglia MG2"));
-        arPanel.add(descrPanel("Descrizione soglia MG2"));
-        gridPanel.add(arPanel);
+        gridPanel.add(titlePanel("Mystery Guest"));
+        addMetricPanel(metricsList.getMgMetrics(), mgThresholds);
+        gridPanel.add(new MyLine());
 
+        gridPanel.add(titlePanel("Resource Optimism"));
+        addMetricPanel(metricsList.getRoMetrics(), roThresholds);
+        gridPanel.add(new MyLine());
 
-       /* gridPanel.add(new JLabel(""));
-        gridPanel.add(new JLabel(""));
-        gridPanel.add(new JLabel(""));
-        gridPanel.add(new JLabel(""));
-        gridPanel.add(new JLabel(""));*/
+        gridPanel.add(titlePanel("General Fixture"));
+        addMetricPanel(metricsList.getGfMetrics(), gfThresholds);
+        gridPanel.add(new MyLine());
 
-        arPanel = new JPanel(new GridLayout(5,1));
-        margin = new EmptyBorder(0,50,0,100);
-        arPanel.setBorder(margin);
-        arPanel.add(titlePanel("Resource Optimism"));
-        arPanel.add(valuePanel(sogliaRO1, "Max nr. of external resources existence assumptions"));
-        arPanel.add(descrPanel("This smell occurs when a test method makes an optimistic assumption<br/>that more than max external resource utilized by the test method exists"));
-        arPanel.add(valuePanel(sogliaRO2, "Soglia RO2"));
-        arPanel.add(descrPanel("Descrizione soglia RO2"));
-        gridPanel.add(arPanel);
-      //  gridPanel.add(new JLabel(""));
+        gridPanel.add(titlePanel("Sensitive Equality"));
+        addMetricPanel(metricsList.getSeMetrics(), seThresholds);
+        gridPanel.add(new MyLine());
 
-        arPanel = new JPanel(new GridLayout(5,1));
-        margin = new EmptyBorder(0,50,0,0);
-        arPanel.setBorder(margin);
-        arPanel.add(titlePanel("Sensitive Equality"));
-        arPanel.add(valuePanel(sogliaSE1, "Max nr. of toString invocations"));
-        arPanel.add(descrPanel("SE Smell is detected if there are more than<br/> max toString invocations within test methods"));
-        arPanel.add(valuePanel(sogliaSE2, "Soglia SE2"));
-        arPanel.add(descrPanel("Descrizione soglia SE2"));
-        gridPanel.add(arPanel);
-     //   gridPanel.add(new JLabel(""));
+        gridPanel.add(titlePanel("For Testers Only"));
+        addMetricPanel(metricsList.getFtoMetrics(), ftoThresholds);
+        gridPanel.add(new MyLine());
 
-        arPanel = new JPanel(new GridLayout(5,1));
-        margin = new EmptyBorder(0,50,0,0);
-        arPanel.setBorder(margin);
-        arPanel.add(titlePanel("General Fixture"));
-        arPanel.add(valuePanel(sogliaGF1, "Max nr. of non-used setup fields"));
-        arPanel.add(descrPanel("GF Smell occurs if the number of unused fields instantiated<br/> within the setUp method is higher than the max allowed"));
-        arPanel.add(valuePanel(sogliaGF2, "Soglia GF2"));
-        arPanel.add(descrPanel("Descrizione soglia GF2"));
-        gridPanel.add(arPanel);
-
-       /* gridPanel.add(new JLabel(""));
-        gridPanel.add(new JLabel(""));
-        gridPanel.add(new JLabel(""));
-        gridPanel.add(new JLabel(""));
-        gridPanel.add(new JLabel(""));*/
-
-        arPanel = new JPanel(new GridLayout(5,1));
-        arPanel.add(titlePanel("For Testers Only"));
-        margin = new EmptyBorder(0,50,0,100);
-        arPanel.setBorder(margin);
-        arPanel.add(valuePanel(sogliaFTO1, "Soglia FTO1"));
-        arPanel.add(descrPanel("Descrizione soglia FTO1 lunghezza variabile"));
-        arPanel.add(valuePanel(sogliaFTO2, "Soglia FTO2"));
-        arPanel.add(descrPanel("Descrizione soglia FTO2"));
-        gridPanel.add(arPanel);
-      //  gridPanel.add(new JLabel(""));
-
-        arPanel = new JPanel(new GridLayout(5,1));
-        margin = new EmptyBorder(0,50,0,0);
-        arPanel.setBorder(margin);
-        arPanel.add(titlePanel("Lazy Test"));
-        arPanel.add(valuePanel(sogliaLT1, "PLACEHOLDER"));
-        arPanel.add(descrPanel("PLACEHOLDER"));
-        arPanel.add(valuePanel(sogliaLT2, "Soglia LT2"));
-        arPanel.add(descrPanel("Descrizione soglia LT2"));
-        gridPanel.add(arPanel);
-      //  gridPanel.add(new JLabel(""));
-
-        arPanel = new JPanel(new GridLayout(5,1));
-        margin = new EmptyBorder(0,50,0,0);
-        arPanel.setBorder(margin);
-        arPanel.add(titlePanel("Indirect Testing"));
-        arPanel.add(valuePanel(sogliaIT1, "Soglia IT1"));
-        arPanel.add(descrPanel("Descrizione soglia IT1 lunghezza variabile"));
-        arPanel.add(valuePanel(sogliaIT2, "Soglia IT2"));
-        arPanel.add(descrPanel("Descrizione soglia IT2"));
-        gridPanel.add(arPanel);
+        gridPanel.add(titlePanel("Indirect Testing"));
+        addMetricPanel( metricsList.getItMetrics(), itThresholds);
 
 
 
@@ -218,17 +197,62 @@ public class ConfigUI extends JFrame{
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 try {
-                    thresholds.setSogliaAR(Integer.parseInt(sogliaAR1.getText()));
-                    thresholds.setSogliaMG(Integer.parseInt(sogliaMG1.getText()));
-                    thresholds.setSogliaIT(Integer.parseInt(sogliaIT1.getText()));
-                    thresholds.setSogliaSE(Integer.parseInt(sogliaSE1.getText()));
-                    thresholds.setSogliaFTO(Integer.parseInt(sogliaFTO1.getText()));
-                    thresholds.setSogliaLT(Integer.parseInt(sogliaLT1.getText()));
-                    thresholds.setSogliaGF(Integer.parseInt(sogliaGF1.getText()));
-                    thresholds.setSogliaET(Integer.parseInt(sogliaET1.getText()));
-                    thresholds.setSogliaRO(Integer.parseInt(sogliaRO1.getText()));
+                    int i = 0;
+                    for(TestSmellMetricThresholds metric : metricsList.getArMetrics()){
+                        metric.setYellowThreshold(Double.parseDouble(arThresholds.get(i).getText()));
+                        metric.setRedThreshold(Double.parseDouble(arThresholds.get(i+1).getText()));
+                        i+=2;
+                    }
+                    i=0;
+                    for(TestSmellMetricThresholds metric : metricsList.getEtMetrics()){
+                        metric.setYellowThreshold(Double.parseDouble(etThresholds.get(i).getText()));
+                        metric.setRedThreshold(Double.parseDouble(etThresholds.get(i+1).getText()));
+                        i+=2;
+                    }
+                    i=0;
+                    for(TestSmellMetricThresholds metric : metricsList.getMgMetrics()){
+                        metric.setYellowThreshold(Double.parseDouble(mgThresholds.get(i).getText()));
+                        metric.setRedThreshold(Double.parseDouble(mgThresholds.get(i+1).getText()));
+                        i+=2;
+                    }
+                    i=0;
+                    for(TestSmellMetricThresholds metric : metricsList.getRoMetrics()){
+                        metric.setYellowThreshold(Double.parseDouble(roThresholds.get(i).getText()));
+                        metric.setRedThreshold(Double.parseDouble(roThresholds.get(i+1).getText()));
+                        i+=2;
+                    }
+                    i=0;
+                    for(TestSmellMetricThresholds metric : metricsList.getFtoMetrics()){
+                        metric.setYellowThreshold(Double.parseDouble(ftoThresholds.get(i).getText()));
+                        metric.setRedThreshold(Double.parseDouble(ftoThresholds.get(i+1).getText()));
+                        i+=2;
+                    }
+                    i=0;
+                    for(TestSmellMetricThresholds metric : metricsList.getItMetrics()){
+                        metric.setYellowThreshold(Double.parseDouble(itThresholds.get(i).getText()));
+                        metric.setRedThreshold(Double.parseDouble(itThresholds.get(i+1).getText()));
+                        i+=2;
+                    }
+                    i=0;
+                    for(TestSmellMetricThresholds metric : metricsList.getLtMetrics()){
+                        metric.setYellowThreshold(Double.parseDouble(ltThresholds.get(i).getText()));
+                        metric.setRedThreshold(Double.parseDouble(ltThresholds.get(i+1).getText()));
+                        i+=2;
+                    }
+                    i=0;
+                    for(TestSmellMetricThresholds metric : metricsList.getGfMetrics()){
+                        metric.setYellowThreshold(Double.parseDouble(gfThresholds.get(i).getText()));
+                        metric.setRedThreshold(Double.parseDouble(gfThresholds.get(i+1).getText()));
+                        i+=2;
+                    }
+                    i=0;
+                    for(TestSmellMetricThresholds metric : metricsList.getSeMetrics()){
+                        metric.setYellowThreshold(Double.parseDouble(seThresholds.get(i).getText()));
+                        metric.setRedThreshold(Double.parseDouble(seThresholds.get(i+1).getText()));
+                        i+=2;
+                    }
 
-                    new ConfigUtils().writeThresholds(new File(projdir + "\\config.ini"), thresholds);
+                    new ConfigUtils().writeThresholds(new File(projdir+"\\config.ini"), metricsList);
                 } catch(Exception e){
                     JOptionPane.showMessageDialog(panel, "ONLY INT VALUES ARE ALLOWED");
                 }
@@ -239,7 +263,7 @@ public class ConfigUI extends JFrame{
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 try {
-                    thresholds = new ConfigUtils().readThresholds(default_conf);
+                    metricsList = new ConfigUtils().readThresholds(default_conf);
                     setSoglieText();
                     FileUtils.forceDelete(conf);
                 } catch(Exception e){
@@ -259,7 +283,7 @@ public class ConfigUI extends JFrame{
     }
 
     private JPanel valuePanel(JTextField field, String label){
-        JPanel valuePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel valuePanel = new JPanel(new FlowLayout());
       //  System.out.println(field.getText());
     //    valuePanel.add(new JLabel("" + nome+ ":  "));
         valuePanel.add(new JLabel("<html>" + label +":&nbsp;</html>"));
@@ -272,7 +296,15 @@ public class ConfigUI extends JFrame{
        // Border border=BorderFactory.createLineBorder(Color.WHITE,1);
         JLabel label = new JLabel(title);
         label.setForeground(Color.YELLOW);
-    //    label.setBorder(border);
+
+        titlePanel.add(label);
+        return titlePanel;
+    }
+
+    private JPanel metricName(String name){
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        // Border border=BorderFactory.createLineBorder(Color.WHITE,1);
+        JLabel label = new JLabel(name);
         titlePanel.add(label);
         return titlePanel;
     }
@@ -285,16 +317,145 @@ public class ConfigUI extends JFrame{
         return descr;
     }
 
-    private void setSoglieText(){
-        sogliaAR1.setText("" +thresholds.getSogliaAR());
-        sogliaET1.setText("" + thresholds.getSogliaET());
-        sogliaMG1.setText("" + thresholds.getSogliaMG());
-        sogliaSE1.setText("" + thresholds.getSogliaSE());
-        sogliaFTO1.setText("" + thresholds.getSogliaFTO());
-        sogliaLT1.setText("" + thresholds.getSogliaLT());
-        sogliaGF1.setText("" + thresholds.getSogliaGF());
-        sogliaIT1.setText("" + thresholds.getSogliaIT());
-        sogliaRO1.setText("" + thresholds.getSogliaRO());
+    private void addMetricPanel(Vector<TestSmellMetricThresholds> metrics, ArrayList<JTextField> thresholdsFields){
+
+        int i=0;
+        int j=0;
+        for(TestSmellMetricThresholds metric : metrics) {
+            j++;
+            JTextField yellow = thresholdsFields.get(i);
+            JTextField red = thresholdsFields.get(i+1);
+            gridPanel.add(metricName(metric.getName()));
+            JPanel setValues = new JPanel(new FlowLayout());
+            setValues.add(valuePanel(yellow, "Guard Threshold"));
+            setValues.add(new JLabel());
+            setValues.add(valuePanel(red, "Critic Threshold"));
+            gridPanel.add(setValues);
+            gridPanel.add(descrPanel(metric.getDescription()));
+            if(j!=metrics.size())
+                gridPanel.add(new JLabel());
+            i+=2;
+        }
+    }
+
+
+
+    private void setSoglieText() {
+        int i=0;
+       for(TestSmellMetricThresholds metric : metricsList.getArMetrics()) {
+           //JTextField yellow = new JTextField(4);
+           JTextField yellow = arThresholds.get(i);
+           JTextField red = arThresholds.get(i+1);
+           yellow.setText("" + metric.getYellowThreshold());
+         //  arThresholds.add(yellow);
+        //   JTextField red = new JTextField(4);
+           red.setText("" + metric.getRedThreshold());
+           System.out.println("lol: " + red.getText());
+            i+=2;
+         //  arThresholds.add(red);
+       }
+
+        i=0;
+        for(TestSmellMetricThresholds metric : metricsList.getEtMetrics()){
+      //      JTextField yellow = new JTextField(4);
+            JTextField yellow = etThresholds.get(i);
+            JTextField red = etThresholds.get(i+1);
+            yellow.setText("" + metric.getYellowThreshold());
+        //    etThresholds.add(yellow);
+       //     JTextField red = new JTextField(4);
+            red.setText("" + metric.getRedThreshold());
+            System.out.println("lol: " + red.getText());
+
+            i+=2;
+      //      etThresholds.add(red);
+        }
+
+        i=0;
+        for(TestSmellMetricThresholds metric : metricsList.getSeMetrics()){
+         //   JTextField yellow = new JTextField(4);
+            JTextField yellow = seThresholds.get(i);
+            JTextField red = seThresholds.get(i+1);
+            yellow.setText("" + metric.getYellowThreshold());
+            //seThresholds.add(yellow);
+           // JTextField red = new JTextField(4);
+            red.setText("" + metric.getRedThreshold());
+            i+=2;
+            //seThresholds.add(red);
+        }
+        i=0;
+        for(TestSmellMetricThresholds metric : metricsList.getRoMetrics()){
+            //JTextField yellow = new JTextField(4);
+            JTextField yellow = roThresholds.get(i);
+            JTextField red = roThresholds.get(i+1);
+            yellow.setText("" + metric.getYellowThreshold());
+            //roThresholds.add(yellow);
+            //JTextField red = new JTextField(4);
+            red.setText("" + metric.getRedThreshold());
+            i+=2;
+           // roThresholds.add(red);
+        }
+        i=0;
+        for(TestSmellMetricThresholds metric : metricsList.getFtoMetrics()){
+            //JTextField yellow = new JTextField(4);
+            JTextField yellow = ftoThresholds.get(i);
+            JTextField red = ftoThresholds.get(i+1);
+            yellow.setText("" + metric.getYellowThreshold());
+            //ftoThresholds.add(yellow);
+            //JTextField red = new JTextField(4);
+            red.setText("" + metric.getRedThreshold());
+            //ftoThresholds.add(red);
+            i+=2;
+        }
+
+        i=0;
+        for(TestSmellMetricThresholds metric : metricsList.getMgMetrics()){
+            //JTextField yellow = new JTextField(4);
+            JTextField yellow = mgThresholds.get(i);
+            JTextField red = mgThresholds.get(i+1);
+            yellow.setText("" + metric.getYellowThreshold());
+            //mgThresholds.add(yellow);
+            //JTextField red = new JTextField(4);
+            red.setText("" + metric.getRedThreshold());
+            //mgThresholds.add(red);
+            i+=2;
+        }
+        i=0;
+        for(TestSmellMetricThresholds metric : metricsList.getGfMetrics()){
+            //JTextField yellow = new JTextField(4);
+
+            JTextField yellow = gfThresholds.get(i);
+            JTextField red = gfThresholds.get(i+1);
+            yellow.setText("" + metric.getYellowThreshold());
+           // gfThresholds.add(yellow);
+            //JTextField red = new JTextField(4);
+            red.setText("" + metric.getRedThreshold());
+            //gfThresholds.add(red);
+            i+=2;
+        }
+        i=0;
+        for(TestSmellMetricThresholds metric : metricsList.getLtMetrics()){
+            //JTextField yellow = new JTextField(4);
+            JTextField yellow = ltThresholds.get(i);
+            JTextField red = ltThresholds.get(i+1);
+            yellow.setText("" + metric.getYellowThreshold());
+            //ltThresholds.add(yellow);
+            //JTextField red = new JTextField(4);
+            red.setText("" + metric.getRedThreshold());
+            i+=2;
+            //ltThresholds.add(red);
+        }
+        i=0;
+        for(TestSmellMetricThresholds metric : metricsList.getItMetrics()){
+            //JTextField yellow = new JTextField(4);
+            JTextField yellow = itThresholds.get(i);
+            JTextField red = itThresholds.get(i+1);
+            yellow.setText("" + metric.getYellowThreshold());
+            //itThresholds.add(yellow);
+            //JTextField red = new JTextField(4);
+            red.setText("" + metric.getRedThreshold());
+            //itThresholds.add(red);
+            i+=2;
+        }
 
     }
 }

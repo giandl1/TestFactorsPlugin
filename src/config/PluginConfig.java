@@ -11,6 +11,7 @@ public class PluginConfig extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
+       // TestSmellMetricsThresholdsList list = new ConfigUtils().readThresholds(new File("C:\\Users\\Psycho\\IdeaProjects\\ProgettoExample\\default_config.ini"));
         JFrame frame = new ConfigUI(e.getData(PlatformDataKeys.PROJECT).getBasePath());
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.setVisible(true);

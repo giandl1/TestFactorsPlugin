@@ -1,5 +1,6 @@
 package utils;
 
+import config.TestSmellMetricThresholds;
 import data.ClassCoverageInfo;
 import data.FlakyTestsInfo;
 
@@ -21,6 +22,15 @@ public class VectorFind {
                 return info;
         }
         return null;
+    }
+
+    public static double findMaxValue(Vector<TestSmellMetricThresholds> metrics){
+        double max=0;
+        for(TestSmellMetricThresholds metric : metrics){
+            if(metric.getValue() > max)
+                max=metric.getValue();
+        }
+        return max;
     }
 
 

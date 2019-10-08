@@ -58,8 +58,8 @@ public class TestClassAnalysis {
 
     public void setSmells(ClassTestSmellsInfo smells) {
         this.smells = smells;
-        this.smellsThreshold =  smells.getArMetric() + smells.getGfMetric() + smells.getItMetric() + smells.getFtoMetric() + smells.getRoMetric() + smells.getSeMetric()
-                + smells.getMgMetric() + smells.getLtMetric() + smells.getEtMetric();
+       // this.smellsThreshold =  smells.getArMetric() + smells.getGfMetric() + smells.getItMetric() + smells.getFtoMetric() + smells.getRoMetric() + smells.getSeMetric()
+         //       + smells.getMgMetric() + smells.getLtMetric() + smells.getEtMetric();
     }
 
     public FlakyTestsInfo getFlakyTests() {

@@ -6,23 +6,19 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import config.SmellsThresholds;
+import config.TestSmellMetricThresholds;
+import config.TestSmellMetricsThresholdsList;
 import data.*;
 import gui.AnalysisResultsUI;
-import gui.CKFrame;
-import gui.ConfigUI;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
 import it.unisa.testSmellDiffusion.testMutation.TestMutationUtilities;
 import it.unisa.testSmellDiffusion.utility.FolderToJavaProjectConverter;
-import org.apache.commons.io.FileUtils;
 import processor.*;
 import utils.VectorFind;
 
 
 import javax.swing.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -39,7 +35,12 @@ public class PluginInit extends AnAction {
         String srcPath = root.getAbsolutePath() + "/src";
         String mainPath = srcPath + "/main";
         String testPath = srcPath + "/test";
-        SmellsThresholds thresholds = new SmellsThresholds();
+        boolean isMaven=false;
+        for(File file : root.listFiles()){
+            if(file.isFile() && file.getName().equalsIgnoreCase("pom.xml"))
+                isMaven=true;
+        }
+
         File project = new File(srcPath);
         TestProjectAnalysis projectAnalysis = new TestProjectAnalysis();
         projectAnalysis.setName(proj.getName());
@@ -53,9 +54,9 @@ public class PluginInit extends AnAction {
                 CKMetricsProcessor CKProcessor = new CKMetricsProcessor();
               //  Vector<ClassCKInfo> ckInfos = CKProcessor.calculate(packages,testPackages, projectAnalysis);
                 ArrayList<ClassBean> classes = new TestMutationUtilities().getClasses(packages);
-                Vector<ClassCoverageInfo> coverageInfos = CoverageProcessor.calculate(root, classes, testPackages,projectAnalysis);
+              Vector<ClassCoverageInfo> coverageInfos = CoverageProcessor.calculate(root, classes, testPackages,projectAnalysis, isMaven);
             //    Vector<ClassTestSmellsInfo> classTestSmellsInfos = SmellynessProcessor.calculate(root, packages, testPackages, proj);
-                Vector<FlakyTestsInfo> flakyInfos = FlakyTestsProcessor.calculate(root, packages, testPackages, projectAnalysis);
+              //  Vector<FlakyTestsInfo> flakyInfos = FlakyTestsProcessor.calculate(root, packages, testPackages, projectAnalysis);
                 for (ClassBean productionClass : classes) {
                     ClassBean testSuite = TestMutationUtilities.getTestClassBy(productionClass.getName(), testPackages);
                     if(testSuite!=null) {
@@ -64,9 +65,9 @@ public class PluginInit extends AnAction {
                         analysis.setBelongingPackage(testSuite.getBelongingPackage());
                         analysis.setProductionClass(productionClass.getBelongingPackage() + "." + productionClass.getName());
                         analysis.setCkMetrics(CKProcessor.calculate(testSuite, projectAnalysis));
-                        analysis.setCoverage(VectorFind.findCoverageInfo(coverageInfos, analysis.getName()));
-                        analysis.setSmells(SmellynessProcessor.calculate(testSuite, productionClass, packages, thresholds, projectAnalysis));
-                        analysis.setFlakyTests(VectorFind.findFlakyInfo(flakyInfos, analysis.getName()));
+                     analysis.setCoverage(VectorFind.findCoverageInfo(coverageInfos, analysis.getName()));
+                        analysis.setSmells(SmellynessProcessor.calculate(testSuite, productionClass, packages,  projectAnalysis));
+                      //  analysis.setFlakyTests(VectorFind.findFlakyInfo(flakyInfos, analysis.getName()));
                         classAnalysis.add(analysis);
                     }
                 }
@@ -83,7 +84,6 @@ public class PluginInit extends AnAction {
             }
         }
         else JOptionPane.showMessageDialog(null, "STRUTTURA DIRECTORIES NON CORRETTA");
-
 
     }
 
