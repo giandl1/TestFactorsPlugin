@@ -2,8 +2,10 @@ package gui;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.ui.components.JBComboBoxLabel;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
+import com.sun.jna.platform.unix.solaris.LibKstat;
 import config.ConfigUtils;
 import config.TestSmellMetricThresholds;
 import config.TestSmellMetricsThresholdsList;
@@ -14,6 +16,7 @@ import gherkin.lexer.Ca;
 import it.unisa.testSmellDiffusion.metrics.TestSmellMetrics;
 import it.unisa.testSmellDiffusion.testSmellRules.TestSmellMetric;
 import net.miginfocom.layout.Grid;
+import processor.MetricStoricValues;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -24,9 +27,11 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.font.TextAttribute;
 import java.io.File;
 import java.text.DateFormatSymbols;
 import java.util.*;
+import java.util.concurrent.Flow;
 
 public class AnalysisResultsUI extends JFrame {
     private static final Logger LOGGER = Logger.getInstance("global");
@@ -54,7 +59,7 @@ public class AnalysisResultsUI extends JFrame {
         else if(conf.exists()){
             thresholdsList = new ConfigUtils().readThresholds(conf);
         }
-        setPreferredSize(new Dimension(1200,800));
+        setPreferredSize(new Dimension(1280,800));
         JPanel grid = new JPanel(new GridLayout(1,3));
         setTitle("Analysis Results");
         add(projectPanel(), BorderLayout.NORTH);
@@ -74,6 +79,13 @@ public class AnalysisResultsUI extends JFrame {
         try {
             JPanel panel = new JPanel();
             panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            JLabel titleText = new JLabel(("Classes list"));
+            titleText.setBorder(new EmptyBorder(0,0,0,8));
+            titleText.setFont(titleText.getFont().deriveFont(15.0f));
+            panel.add(titleText);
+           panel.add(Box.createRigidArea(new Dimension(0, 10)));
+
             //  panel.setLayout(new GridLayout(1,1));
             Vector<TestClassAnalysis> classAnalysis = project.getClassAnalysis();
        classAnalysis.sort(new Comparator<TestClassAnalysis>() {
@@ -91,8 +103,11 @@ public class AnalysisResultsUI extends JFrame {
                         // Here value will be of the Type 'CD'
                         ((JLabel) renderer).setText(((TestClassAnalysis) value).getName());
                         TestClassAnalysis colorChange = (TestClassAnalysis) value;
-                        if (colorChange.getSmells().isAffectedCritic())
-                            renderer.setForeground(Color.RED);
+                        JLabel text = (JLabel) renderer;
+                        renderer.setFont( (text.getFont ().deriveFont (15.0f)));
+                        if (colorChange.getSmells().isAffectedCritic()) {
+                            renderer.setForeground(new Color(255,102,102));
+                        }
                         else if(colorChange.getSmells().isAffected())
                             renderer.setForeground(Color.YELLOW);
                     }
@@ -117,13 +132,42 @@ public class AnalysisResultsUI extends JFrame {
                             azz.setLayout(new BoxLayout(azz,BoxLayout.X_AXIS));
                             JPanel classInfo = new JPanel();
                             classInfo.setLayout(new BoxLayout(classInfo, BoxLayout.Y_AXIS));
-                            classInfo.add(new JLabel("Belonging package: " + selected.getBelongingPackage()));
-                            classInfo.add(new JLabel("Class name: " + selected.getName()));
-                            classInfo.add(new JLabel("LOC: " + selected.getCkMetrics().getLoc()));
-                            classInfo.add(new JLabel("NOM: " + selected.getCkMetrics().getNom()));
-                            classInfo.add(new JLabel("WMC: " + selected.getCkMetrics().getWmc()));
-                            classInfo.add(new JLabel("RFC: " + selected.getCkMetrics().getRfc()));
-                            classInfo.add(new JLabel("Line Coverage: " + selected.getCoverage().getLineCoverage()));
+                            classInfo.add(new JLabel("<html>Belonging package:<font color='white'> " + selected.getBelongingPackage() + "</font></html>") );
+                            classInfo.add(new JLabel("<html>Class name:<font color='white'> "+ selected.getName() + "</font></html>"));
+                            classInfo.add(new JLabel("<html>LOC:<font color='white'> " + selected.getCkMetrics().getLoc() + "</font></html>"));
+                            classInfo.add(new JLabel("<html>NOM:<font color='white'> "+ selected.getCkMetrics().getNom() + "</font></html>"));
+                            classInfo.add(new JLabel("<html>WMC:<font color='white'> " + selected.getCkMetrics().getWmc() + "</font></html>"));
+                            classInfo.add(new JLabel("<html>RFC: <font color='white'> " + selected.getCkMetrics().getRfc() + "</font></html>"));
+                            classInfo.add(new JLabel("<html>Assertion Density: <font color='white'> " + selected.getCoverage().getAssertionDensity() + "</font></html>"));
+                            double prevLineCov = new MetricStoricValues().getPreviousLineCoverage(selected.getBelongingPackage() + "." + selected.getName(), project.getPath() + "\\reports" );
+                            if(prevLineCov!=-1){
+                                String color;
+                                if(selected.getCoverage().getLineCoverage() > prevLineCov) color = "#00e600";
+                                else if(selected.getCoverage().getLineCoverage() < prevLineCov) color = "#ff6666";
+                                else color = "'white'";
+                                JLabel label = new JLabel("<html>Line Coverage: <font color=" + color + "> " + selected.getCoverage().getLineCoverage() + "</font>" + "&nbsp;&nbsp;(was " + prevLineCov + ")</html>" );
+                                classInfo.add(label);
+                            }
+                            else
+                            classInfo.add(new JLabel("<html>Line Coverage: <font color='white'> " + selected.getCoverage().getLineCoverage() + "</font></html>"));
+                            double prevBranchCov = new MetricStoricValues().getPreviousBranchCoverage(selected.getBelongingPackage() + "." + selected.getName(), project.getPath() + "\\reports" );
+                            if(selected.getCoverage().getBranchCoverage()==-1.0)
+                                classInfo.add(new JLabel("<html>Branch Coverage: <font color='white'> N/A</font></html>"));
+
+                            else{
+                                if(prevBranchCov!=-1.0) {
+                                    String color;
+                                    if (selected.getCoverage().getBranchCoverage() > prevBranchCov) color = "#00e600";
+                                    else if (selected.getCoverage().getBranchCoverage() < prevBranchCov)
+                                        color = "#ff6666";
+                                    else color = "'white'";
+                                    JLabel label = new JLabel("<html>Branch Coverage: <font color=" + color + "> " + selected.getCoverage().getBranchCoverage() + "</font>" + "&nbsp;&nbsp;(was " + prevBranchCov + ")</html>");
+                                    classInfo.add(label);
+                                }
+                                else
+                                    classInfo.add(new JLabel("<html>Branch Coverage: <font color='white'> " + selected.getCoverage().getBranchCoverage() + "</font></html>"));
+
+                            }
                             classInfo.setBorder(new EmptyBorder(0,0,300,40));
                             azz.add(classInfo);
 
@@ -207,23 +251,19 @@ public class AnalysisResultsUI extends JFrame {
                 }
             });
 
-      /*  classPanel.setCellRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                Component renderer = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (renderer instanceof JLabel && value instanceof TestClassAnalysis) {
-                    // Here value will be of the Type 'CD'
-                    ((JLabel) renderer).setText(((TestClassAnalysis) value).getName());
-                }
-                return renderer;
-            }
-        }); */
-      //  classPanel.setPreferredSize(new Dimension(150,300));
 
         JScrollPane scrollPane = new JBScrollPane(classPanel);
         scrollPane.setPreferredSize(new Dimension(150,300));
         panel.add(scrollPane);
-        return panel;
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        JLabel yellow = new JLabel("*Class is affected by one or more smells");
+        yellow.setForeground(Color.YELLOW);
+        JLabel red = new JLabel(("**Class is critically affected by one or more smells"));
+        red.setForeground(new Color(255,102,102));
+        panel.add(yellow);
+        panel.add(red);
+
+            return panel;
         } catch(Exception e){
             LOGGER.info(e.getMessage());
             return null;
@@ -238,7 +278,7 @@ public class AnalysisResultsUI extends JFrame {
         panel.add(new JLabel());
         panel.add(new JLabel("Nr. of test classes: " + project.getTestClassesNumber()));
         panel.add(new JLabel("Nr. of test classes affected by smells: " + project.getAffectedClasses()));
-        panel.add(new JLabel("LOC: " + project.getLoc() + "   NOM: " + project.getNom() + "   WMC: " + project.getWmc() + "   RFC:" + project.getRfc() + "   Line Coverage: " + project.getLineCoverage() + "         "));
+        panel.add(new JLabel("LOC: " + project.getLoc() + "   NOM: " + project.getNom() + "   WMC: " + project.getWmc() + "   RFC:" + project.getRfc() + "   Line Coverage: " + project.getLineCoverage()  + "         "));
         projectPanel.add(panel);
         return projectPanel;
 
