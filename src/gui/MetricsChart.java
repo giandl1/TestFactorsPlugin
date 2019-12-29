@@ -2,21 +2,15 @@ package gui;
 
 import com.intellij.openapi.diagnostic.Logger;
 import config.TestSmellMetricThresholds;
-import config.TestSmellMetricsThresholdsList;
-import cucumber.api.java.eo.Do;
 import data.TestSmellsMetrics;
-import it.unisa.testSmellDiffusion.metrics.TestSmellMetrics;
 import it.unisa.testSmellDiffusion.testSmellRules.TestSmellMetric;
 import org.knowm.xchart.*;
-import org.knowm.xchart.style.AxesChartStyler;
 import org.knowm.xchart.style.Styler;
 import org.knowm.xchart.style.lines.SeriesLines;
-import processor.MetricStoricValues;
-import utils.VectorFind;
+import storage.AnalysisHistoryHandler;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Vector;
 
 public class MetricsChart {
@@ -55,7 +49,7 @@ public class MetricsChart {
 
         for(TestSmellMetric metric : metrics) {
             ArrayList<Double> xData = new ArrayList<>();
-            ArrayList<Double> storic = new MetricStoricValues().getStoricValues(className, metric.getId(), path + "\\reports", month, year);
+            ArrayList<Double> storic = new AnalysisHistoryHandler().getStoricValues(className, metric.getId(), path + "\\reports", month, year);
             if (storic != null) {
                 metric.setStoricValues(storic);
                 execs = storic.size();
@@ -68,7 +62,13 @@ public class MetricsChart {
             yData.add(0.0);
                 for (Double value : storic)
                     yData.add(value);
-                chart.addSeries(metric.getId(), xData, yData);
+                String toShow;
+                if(metric.getId().equalsIgnoreCase("ar1")){
+                    toShow="NONDA";
+                }
+                else
+                    toShow="APCMC";
+                chart.addSeries(toShow, xData, yData);
 
 
               //  yData.add(metric.getValue());

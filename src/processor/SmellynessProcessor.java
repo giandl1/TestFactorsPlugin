@@ -1,8 +1,7 @@
 package processor;
 
 import com.intellij.openapi.diagnostic.Logger;
-import config.ConfigUtils;
-import config.TestSmellMetricThresholds;
+import storage.ConfigFileHandler;
 import config.TestSmellMetricsThresholdsList;
 import data.ClassTestSmellsInfo;
 import data.TestProjectAnalysis;
@@ -41,13 +40,13 @@ public class SmellynessProcessor {
            File conf = new File(project.getPath() + "\\config.ini");
        /*if(!default_conf.exists()) {
             thresholds = new SmellsThresholds(1,1,1,1,1,1,1,1,1);
-            new ConfigUtils().writeThresholds(new File(projdir + "\\default_config.ini"), thresholds);
+            new ConfigFileHandler().writeThresholds(new File(projdir + "\\default_config.ini"), thresholds);
         }*/
             if(conf.exists())
-                metricsList = new ConfigUtils().readThresholds(conf);
+                metricsList = new ConfigFileHandler().readThresholds(conf);
 
             else
-                metricsList = new ConfigUtils().readThresholds(default_conf);
+                metricsList = new ConfigFileHandler().readThresholds(default_conf);
 
         //    classTestSmellsInfo.set
 
@@ -70,9 +69,13 @@ public class SmellynessProcessor {
                         classTestSmellsInfo.setAssertionRoulette(1);
                         isAffected=true;
                         for(TestSmellMetric metric : assertionRoulette.getMetrics())
-                            if(metric.getValue() > metricsList.getArMetricThreshold(metric.getId(), true))
-                                isCritic=true;
-                    }
+                            if(metric.getValue() >= metricsList.getArMetricThreshold(metric.getId(), true)) {
+                                isCritic = true;
+                                classTestSmellsInfo.setAssertionRoulette(2);
+                            }
+
+
+                            }
                     metrics.setArMetrics(assertionRoulette.getMetrics());
 
                     isEagerTest = eagerTest.isEagerTest(testSuite, productionClass, metricsList.getEtMetrics().get(0).getYellowThreshold());
@@ -82,10 +85,12 @@ public class SmellynessProcessor {
                         classTestSmellsInfo.setEagerTest(1);
                         isAffected=true;
                         for(TestSmellMetric metric : eagerTest.getMetrics())
-                            if(metric.getValue() > metricsList.getEtMetricThreshold(metric.getId(), true))
-                                isCritic=true;
+                            if(metric.getValue() >= metricsList.getEtMetricThreshold(metric.getId(), true)) {
+                                isCritic = true;
+                                classTestSmellsInfo.setEagerTest(2);
+                            }
 
-                    }
+                            }
                     metrics.setEtMetrics(eagerTest.getMetrics());
 
                  /*   isLazyTest = lazyTest.isLazyTest(testSuite, productionClass, metricsList.getLtMetrics().get(0).getYellowThreshold()) ? 1 : 0;
@@ -101,8 +106,11 @@ public class SmellynessProcessor {
                         classTestSmellsInfo.setMysteryGuest(1);
                         isAffected=true;
                         for(TestSmellMetric metric : mysteryGuest.getMetrics())
-                            if(metric.getValue() > metricsList.getMgMetricThreshold(metric.getId(), true))
-                                isCritic=true;
+                            if(metric.getValue() >= metricsList.getMgMetricThreshold(metric.getId(), true)) {
+                                isCritic = true;
+                                classTestSmellsInfo.setMysteryGuest(1);
+
+                            }
 
                     }
                     metrics.setMgMetrics(mysteryGuest.getMetrics());
@@ -111,11 +119,14 @@ public class SmellynessProcessor {
                     if (isSensitiveEquality) {
                         LOGGER.info("Is SE");
 
-                        classTestSmellsInfo.setMysteryGuest(1);
+                        classTestSmellsInfo.setSensitiveEquality(1);
                         isAffected=true;
                         for(TestSmellMetric metric : sensitiveEquality.getMetrics())
-                            if(metric.getValue() > metricsList.getSeMetricThreshold(metric.getId(), true))
-                                isCritic=true;
+                            if(metric.getValue() >= metricsList.getSeMetricThreshold(metric.getId(), true)) {
+                                isCritic = true;
+                                classTestSmellsInfo.setSensitiveEquality(2);
+
+                            }
 
                     }
                     metrics.setSeMetrics(sensitiveEquality.getMetrics());
@@ -127,8 +138,11 @@ public class SmellynessProcessor {
                         classTestSmellsInfo.setResourceOptimism(1);
                         isAffected=true;
                         for(TestSmellMetric metric : resourceOptimism.getMetrics())
-                            if(metric.getValue() > metricsList.getRoMetricThreshold(metric.getId(), true))
-                                isCritic=true;
+                            if(metric.getValue() >= metricsList.getRoMetricThreshold(metric.getId(), true)) {
+                                isCritic = true;
+                                classTestSmellsInfo.setResourceOptimism(2);
+
+                            }
 
                     }
                     metrics.setRoMetrics(resourceOptimism.getMetrics());
@@ -147,8 +161,10 @@ public class SmellynessProcessor {
                         classTestSmellsInfo.setIndirectTesting(1);
                         isAffected=true;
                         for(TestSmellMetric metric : indirectTesting.getMetrics())
-                            if(metric.getValue() > metricsList.getItMetricThreshold(metric.getId(), true))
-                                isCritic=true;
+                            if(metric.getValue() >= metricsList.getItMetricThreshold(metric.getId(), true)) {
+                                isCritic = true;
+                                classTestSmellsInfo.setIndirectTesting(2);
+                            }
 
                     }
                     metrics.setItMetrics(indirectTesting.getMetrics());
@@ -160,8 +176,11 @@ public class SmellynessProcessor {
                         classTestSmellsInfo.setGeneralFixture(1);
                         isAffected=true;
                         for(TestSmellMetric metric : generalFixture.getMetrics())
-                            if(metric.getValue() > metricsList.getMgMetricThreshold(metric.getId(), true))
-                                isCritic=true;
+                            if(metric.getValue() >= metricsList.getGfMetricThreshold(metric.getId(), true)) {
+                                isCritic = true;
+                                classTestSmellsInfo.setGeneralFixture(2);
+
+                            }
 
                     }
                     metrics.setGfMetrics(generalFixture.getMetrics());

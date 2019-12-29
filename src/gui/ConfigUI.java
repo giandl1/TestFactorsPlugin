@@ -1,7 +1,7 @@
 package gui;
 
 import com.intellij.ui.components.JBScrollPane;
-import config.ConfigUtils;
+import storage.ConfigFileHandler;
 import config.TestSmellMetricThresholds;
 import config.TestSmellMetricsThresholdsList;
 import org.apache.commons.io.FileUtils;
@@ -56,12 +56,12 @@ public class ConfigUI extends JFrame{
         conf = new File(projdir + "\\config.ini");
        /*if(!default_conf.exists()) {
             thresholds = new SmellsThresholds(1,1,1,1,1,1,1,1,1);
-            new ConfigUtils().writeThresholds(new File(projdir + "\\default_config.ini"), thresholds);
+            new ConfigFileHandler().writeThresholds(new File(projdir + "\\default_config.ini"), thresholds);
         }*/
        if(conf.exists())
-            metricsList = new ConfigUtils().readThresholds(conf);
+            metricsList = new ConfigFileHandler().readThresholds(conf);
        else
-            metricsList = new ConfigUtils().readThresholds(default_conf);
+            metricsList = new ConfigFileHandler().readThresholds(default_conf);
 
 
 
@@ -252,7 +252,7 @@ public class ConfigUI extends JFrame{
                         i+=2;
                     }
 
-                    new ConfigUtils().writeThresholds(new File(projdir+"\\config.ini"), metricsList);
+                    new ConfigFileHandler().writeThresholds(new File(projdir+"\\config.ini"), metricsList);
                 } catch(Exception e){
                     JOptionPane.showMessageDialog(panel, "ONLY INT VALUES ARE ALLOWED");
                 }
@@ -263,7 +263,7 @@ public class ConfigUI extends JFrame{
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 try {
-                    metricsList = new ConfigUtils().readThresholds(default_conf);
+                    metricsList = new ConfigFileHandler().readThresholds(default_conf);
                     setSoglieText();
                     FileUtils.forceDelete(conf);
                 } catch(Exception e){

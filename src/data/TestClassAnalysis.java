@@ -78,6 +78,7 @@ public class TestClassAnalysis {
         this.smellsThreshold = smellsThreshold;
     }
 
+
     @Override
     public String toString() {
         return name;

@@ -1,4 +1,4 @@
-package processor;
+package storage;
 
 import com.intellij.openapi.diagnostic.Logger;
 
@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
-public class MetricStoricValues {
+public class AnalysisHistoryHandler {
     private static final Logger LOGGER = Logger.getInstance("global");
 
     public ArrayList<Double> getStoricValues(String className, String id, String path, int month, int year) {
