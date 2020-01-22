@@ -1,6 +1,5 @@
 package storage;
 
-import config.SmellsThresholds;
 import config.TestSmellMetricThresholds;
 import config.TestSmellMetricsThresholdsList;
 import it.unisa.testSmellDiffusion.utility.FileUtility;
@@ -14,7 +13,6 @@ import java.util.Vector;
 public class ConfigFileHandler {
     public TestSmellMetricsThresholdsList readThresholds(File file) {
         try {
-            SmellsThresholds thresholds = new SmellsThresholds();
             Ini ini = new Ini(file);
             Vector<TestSmellMetricThresholds> arMetrics = new Vector<>();
             Vector<TestSmellMetricThresholds> etMetrics = new Vector<>();

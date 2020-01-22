@@ -2,7 +2,6 @@ package processor;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import cucumber.api.java.tr.Ve;
 import data.ClassCKInfo;
 import data.ClassCoverageInfo;
 import data.TestProjectAnalysis;
