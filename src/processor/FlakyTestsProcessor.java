@@ -7,6 +7,7 @@ import data.TestProjectAnalysis;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
 import it.unisa.testSmellDiffusion.beans.MethodBean;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
+import it.unisa.testSmellDiffusion.main.Flaky;
 import it.unisa.testSmellDiffusion.testMutation.TestMutationUtilities;
 
 import java.io.BufferedReader;
@@ -21,7 +22,7 @@ import java.util.Vector;
 public class FlakyTestsProcessor {
     private static final Logger LOGGER = Logger.getInstance("global");
 
-    public static Vector<FlakyTestsInfo> calculate(File root, Vector<PackageBean> packages, Vector<PackageBean> testPackages, TestProjectAnalysis proj){
+    public static FlakyTestsInfo calculate(File root, Vector<PackageBean> packages, Vector<PackageBean> testPackages, TestProjectAnalysis proj){
         try {
             String buildPath = root.getAbsolutePath() + "\\out";
             String destination = root.getAbsolutePath() + "\\out\\production\\" + proj.getName();
@@ -91,7 +92,8 @@ public class FlakyTestsProcessor {
                     //   LOGGER.info(flaky.toString());
                 }
             }
-            return flakyTests;
+            FlakyTestsInfo info = new FlakyTestsInfo();
+            return info;
 
         } catch(Exception e){
             LOGGER.info(e.toString());

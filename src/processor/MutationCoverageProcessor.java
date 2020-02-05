@@ -3,6 +3,8 @@ package processor;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import data.ClassCoverageInfo;
+import data.ClassMutationCoverageInfo;
+import data.TestClassAnalysis;
 import data.TestProjectAnalysis;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
@@ -18,8 +20,9 @@ import java.util.Vector;
 
 public class MutationCoverageProcessor {
     private static final Logger LOGGER = Logger.getInstance("global");
-    public static ClassCoverageInfo calculate(ClassCoverageInfo classCoverageInfo, ClassBean productionClass, File root, Vector<PackageBean> testPackages, TestProjectAnalysis proj) {
+    public static ClassMutationCoverageInfo calculate(ClassBean testSuite, ClassBean productionClass, File root, TestProjectAnalysis proj) {
         try{
+            ClassMutationCoverageInfo mutationInfo = new ClassMutationCoverageInfo();
             double mutationCoverage=-1;
             double lineCoverage=-1;
             String reportPath = root.getAbsolutePath() + "\\out\\pitreport";
@@ -28,9 +31,6 @@ public class MutationCoverageProcessor {
             String testBuildPath=root.getAbsolutePath() + "\\out\\test\\" + proj.getName();
             String mainPath=root.getAbsolutePath() + "\\src\\main";
             String testPath=root.getAbsolutePath() + "\\src\\test";
-            TestMutationUtilities utilities = new TestMutationUtilities();
-           // for (ClassBean productionClass : classes) {
-                ClassBean testSuite = TestMutationUtilities.getTestClassBy(productionClass.getName(), testPackages);
                 String cmd = "java -cp \""+mainBuildPath+";"+testBuildPath+";C:/jar_files/*\" "
                         + "org.pitest.mutationtest.commandline.MutationCoverageReport --reportDir " + reportPath + "\\" + testSuite.getBelongingPackage()+"."+testSuite.getName()+" --targetClasses "+productionClass.getBelongingPackage()+"."+productionClass.getName()+" "
                         + "--targetTests "+testSuite.getBelongingPackage()+"."+testSuite.getName()+" --sourceDirs "+mainPath+","+testPath;
@@ -50,12 +50,9 @@ public class MutationCoverageProcessor {
                     CoverageInfo ci = pitHTML.getCoverageInfo();
                     lineCoverage = Math.round(ci.getLineCoverage());
                     mutationCoverage = (double) Math.round((ci.getMutationCoverage()))/100;
-                    classCoverageInfo.setMutationCoverage(mutationCoverage);
-                    classCoverageInfo.setCoveredLines(ci.getCoveredLines());
-
-                    classCoverageInfo.setTotalLines(ci.getNumberOfLines());
-                    classCoverageInfo.setMutatedLines(ci.getNumberOfMutatedLines());
-                    classCoverageInfo.setCoveredMutatedLines(ci.getCoveredMutatedLines());
+                    mutationInfo.setMutationCoverage(mutationCoverage);
+                    mutationInfo.setMutatedLines(ci.getNumberOfMutatedLines());
+                    mutationInfo.setCoveredMutatedLines(ci.getCoveredMutatedLines());
                  //   System.out.println(testSuite.getBelongingPackage()+"."+testSuite.getName()+"LINE: "+lineCoverage+" - MUTATION: "+mutationCoverage);
                     LOGGER.info(testSuite.getBelongingPackage()+"."+testSuite.getName()+"LINE: "+lineCoverage+" - MUTATION: "+mutationCoverage);
                 }
@@ -65,7 +62,7 @@ public class MutationCoverageProcessor {
                 }
 
            // }
-            return classCoverageInfo;
+            return mutationInfo;
 
 
             } catch(Exception e){

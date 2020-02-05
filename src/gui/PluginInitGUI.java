@@ -1,22 +1,38 @@
 package gui;
 
+import com.google.wireless.android.sdk.stats.GradleBuildProject;
+import data.ClassCoverageInfo;
+import data.TestClassAnalysis;
+import data.TestProjectAnalysis;
+import it.unisa.testSmellDiffusion.beans.ClassBean;
+import it.unisa.testSmellDiffusion.beans.PackageBean;
+import it.unisa.testSmellDiffusion.testMutation.TestMutationUtilities;
 import javafx.scene.control.Spinner;
+import processor.*;
+import utils.VectorFind;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Vector;
 
 public class PluginInitGUI extends JFrame {
-    private static JCheckBox ckMetrics, flakyTests, mutationCoverage, lineBranchCoverage, codeSmells;
-    private static JLabel flakyTestsExecutions, mutationCoverageTimeout;
-    private static JSpinner ftExecNumber, mcTimeout;
-    private static JButton editMetricsThresholds, runAnalysis;
-    private static JFrame initFrame, metricsThresholdFrame;
+    private  Vector<PackageBean> packages;
+    private  Vector<PackageBean> testPackages;
+    private File root;
+    private  JCheckBox ckMetrics, flakyTests, mutationCoverage, lineBranchCoverage, codeSmells;
+    private  JLabel flakyTestsExecutions, mutationCoverageTimeout;
+    private  JSpinner ftExecNumber, mcTimeout;
+    private  JButton editMetricsThresholds, runAnalysis;
+    private  JFrame initFrame, metricsThresholdFrame;
 
-    public static void addComponents(Container pane) {
+    public void addComponents(Container pane) {
         pane.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
 
@@ -105,7 +121,6 @@ public class PluginInitGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 initFrame.setEnabled(false);
-                metricsThresholdsFrame();
             }
         });
         constraints.gridx = 1;
@@ -114,6 +129,45 @@ public class PluginInitGUI extends JFrame {
         pane.add(editMetricsThresholds, constraints);
         // Button runAnalysis COL3 - ROW6 6[--x]
         runAnalysis = new JButton("Start Analysis");
+        runAnalysis.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                PluginInitGUI.this.dispose();
+                JFrame frame = swingProgressBar();
+                boolean ok=false;
+                TestProjectAnalysis project = new TestProjectAnalysis();
+                TestMutationUtilities utils = new TestMutationUtilities();
+                ArrayList<ClassBean> classes = utils.getClasses(packages);
+                Vector<ClassCoverageInfo> coverageInfos=null;
+                if(lineBranchCoverage.isSelected())
+                     coverageInfos = CoverageProcessor.calculate(root, classes, testPackages, project, true);
+
+                for(ClassBean prodClass : classes){
+                    ClassBean testSuite = utils.getTestClassBy(prodClass.getName(), testPackages);
+                    if(testSuite!=null){
+                        TestClassAnalysis analysis = new TestClassAnalysis();
+                        analysis.setName(testSuite.getName());
+                        analysis.setBelongingPackage(testSuite.getBelongingPackage());
+                        analysis.setProductionClass(prodClass.getBelongingPackage() + "." + prodClass.getName());
+                        analysis.setCkMetrics(CKMetricsProcessor.calculate(testSuite, project));
+                        analysis.setSmells(SmellynessProcessor.calculate(testSuite, prodClass, packages, project));
+                        if(coverageInfos != null){
+                            analysis.setCoverage(VectorFind.findCoverageInfo(coverageInfos, testSuite.getName()));
+                        }
+                        if(mutationCoverage.isSelected())
+                            analysis.setMutationCoverage(MutationCoverageProcessor.calculate(testSuite, prodClass, root, project));
+                        if(flakyTests.isSelected())
+                            analysis.setFlakyTests(FlakyTestsProcessor.calculate(root, packages, testPackages, project));
+                    }
+                }
+                if(ok){
+                    frame.setVisible(false);
+                    JFrame ckShow = new AnalysisResultsUI(project);
+                    ckShow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    ckShow.setVisible(true);
+                }
+            }
+        });
         constraints.gridx = 2;
         constraints.gridy = 5;
         constraints.insets = new Insets(10, 0, 10, 10);
@@ -122,19 +176,38 @@ public class PluginInitGUI extends JFrame {
         // constraints.fill = GridBagConstraints.HORIZONTAL; // natural height, maximum width
     }
 
-    public static void metricsThresholdsFrame() {
-        metricsThresholdFrame = new JFrame("Edit Metrics Thresholds");
-        metricsThresholdFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        metricsThresholdFrame.setSize(600, 450);
-    }
 
-    public PluginInitGUI() {
+    public PluginInitGUI(Vector<PackageBean> packages, Vector<PackageBean> testPackages, File root) {
+        this.packages=packages;
+        this.testPackages=testPackages;
+        this.root=root;
         initFrame = new JFrame("TEMEVI");
-        initFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        initFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         addComponents(initFrame.getContentPane());
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
         initFrame.setLocation(dimension.width/2-initFrame.getSize().width/2, dimension.height/2-initFrame.getSize().height/2);
         initFrame.pack();
         initFrame.setVisible(true);
+    }
+
+    public JFrame swingProgressBar() {
+        JFrame frame = new JFrame("Performing analysis");
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        frame.setPreferredSize(new Dimension(400,150));
+        JPanel panel = new JPanel();
+        panel.setBorder(new EmptyBorder(50,50,50,50));
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(new JLabel("Loading, please wait"));
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        JProgressBar pbar = new JProgressBar();
+        pbar.setIndeterminate(true);
+        pbar.setVisible(true);
+        panel.add(pbar);
+        frame.add(panel, BorderLayout.CENTER);
+        frame.setResizable(false);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+        return frame;
     }
 }

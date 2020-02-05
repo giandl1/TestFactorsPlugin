@@ -12,6 +12,7 @@ import config.TestSmellMetricThresholds;
 import config.TestSmellMetricsThresholdsList;
 import data.*;
 import gui.AnalysisResultsUI;
+import gui.PluginInitGUI;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
 import it.unisa.testSmellDiffusion.testMutation.TestMutationUtilities;
@@ -29,7 +30,7 @@ import java.util.Vector;
 
 public class PluginInit extends AnAction {
     private static final Logger LOGGER = Logger.getInstance("global");
-    boolean ok;
+   /* boolean ok;
 
 
     @Override
@@ -124,9 +125,42 @@ public class PluginInit extends AnAction {
         panel.add(pbar);
         return panel;
     }
+*/
 
+    @Override
+    public void actionPerformed(AnActionEvent e) {
+        TestProjectAnalysis projectAnalysis = new TestProjectAnalysis();
+        Project proj = e.getData(PlatformDataKeys.PROJECT);
+        String projectFolder = proj.getBasePath();
+        File root = new File(projectFolder);
+        String srcPath = root.getAbsolutePath() + "/src";
+        String mainPath = srcPath + "/main";
+        String testPath = srcPath + "/test";
+        boolean isMaven = false;
+        for (File file : root.listFiles()) {
+            if (file.isFile() && file.getName().equalsIgnoreCase("pom.xml"))
+                isMaven = true;
+        }
 
+        File project = new File(srcPath);
+        projectAnalysis.setName(proj.getName());
+        projectAnalysis.setPath(proj.getBasePath());
+        Vector<TestClassAnalysis> classAnalysis = new Vector<>();
+        File test = new File(testPath);
+        if ((test.isDirectory()) && (!test.isHidden())) {
+            try {
+                Vector<PackageBean> testPackages = FolderToJavaProjectConverter.convert(test.getAbsolutePath());
+                Vector<PackageBean> packages = FolderToJavaProjectConverter.convert(mainPath);
+                PluginInitGUI initGUI = new PluginInitGUI(packages, testPackages, root);
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+        }
     }
+
+}
 
 
 

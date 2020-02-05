@@ -6,6 +6,7 @@ public class TestClassAnalysis {
     private String productionClass;
     private ClassCKInfo ckMetrics;
     private ClassCoverageInfo coverage;
+    private ClassMutationCoverageInfo mutationCoverage;
     private ClassTestSmellsInfo smells;
     private FlakyTestsInfo flakyTests;
     private double smellsThreshold;
@@ -78,6 +79,13 @@ public class TestClassAnalysis {
         this.smellsThreshold = smellsThreshold;
     }
 
+    public ClassMutationCoverageInfo getMutationCoverage() {
+        return mutationCoverage;
+    }
+
+    public void setMutationCoverage(ClassMutationCoverageInfo mutationCoverage) {
+        this.mutationCoverage = mutationCoverage;
+    }
 
     @Override
     public String toString() {
