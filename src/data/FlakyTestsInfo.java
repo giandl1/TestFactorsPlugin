@@ -2,21 +2,24 @@ package data;
 
 import it.unisa.testSmellDiffusion.beans.MethodBean;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class FlakyTestsInfo {
     private String testSuite;
-    private Hashtable<String, Integer> flakyTests;
+    private ArrayList<MethodBean> flakyMethods;
 
 
-    public FlakyTestsInfo() {}
-
-    public Hashtable<String, Integer> getFlakyTests() {
-        return flakyTests;
+    public FlakyTestsInfo() {
+        flakyMethods=null;
     }
 
-    public void setFlakyTests(Hashtable<String, Integer> flakyTests) {
-        this.flakyTests = flakyTests;
+    public ArrayList<MethodBean> getFlakyMethods() {
+        return flakyMethods;
+    }
+
+    public void setFlakyMethods(ArrayList<MethodBean> flakyMethods) {
+        this.flakyMethods = flakyMethods;
     }
 
     public String getTestSuite() {
@@ -27,11 +30,5 @@ public class FlakyTestsInfo {
         this.testSuite = testSuite;
     }
 
-    @Override
-    public String toString() {
-        return "FlakyTestsInfo{" +
-                "testSuite='" + testSuite + '\'' +
-                ", flakyTests=" + flakyTests +
-                '}';
-    }
+
 }
