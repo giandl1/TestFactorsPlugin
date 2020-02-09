@@ -156,7 +156,7 @@ public class PluginInitGUI extends JFrame {
                         Vector<FlakyTestsInfo> flakyInfos=null;
                         Vector<TestClassAnalysis> classAnalyses = new Vector<>();
                         if (lineBranchCoverage.isSelected())
-                            coverageInfos = CoverageProcessor.calculate(root, classes, testPackages, project, true);
+                            coverageInfos = CoverageProcessor.calculate(classes, testPackages, project, isMaven);
                         if(flakyTests.isSelected())
                             flakyInfos = FlakyTestsProcessor.calculate(packages,testPackages,project,isMaven,(int) ftExecNumber.getValue());
                         for (ClassBean prodClass : classes) {

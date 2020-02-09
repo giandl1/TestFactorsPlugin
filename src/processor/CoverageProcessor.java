@@ -21,7 +21,7 @@ import java.util.Vector;
 public class CoverageProcessor {
     private static final Logger LOGGER = Logger.getInstance("global");
 
-    public static Vector<ClassCoverageInfo> calculate(File root, ArrayList<ClassBean> classes, Vector<PackageBean> testPackages, TestProjectAnalysis proj, boolean isMaven) {
+    public static Vector<ClassCoverageInfo> calculate(ArrayList<ClassBean> classes, Vector<PackageBean> testPackages, TestProjectAnalysis proj, boolean isMaven) {
         try {
             double projectTotalLines = 0;
             double projectCoveredLines = 0;
@@ -39,13 +39,19 @@ public class CoverageProcessor {
             double branchCoverage = -1.0d;
             double assertionDensity = Double.NaN;
             Hashtable<String, Integer> isGreenSuite = new Hashtable<>();
+            String destination;
+            String testPath;
+            String buildPath;
 
-            //  String buildPath = root.getAbsolutePath() + "\\out";
-            //   String destination = root.getAbsolutePath() + "\\out\\production\\" + proj.getName();
-            //    String testPath = root.getAbsolutePath() + "\\out\\test\\" + proj.getName();
-            File buildPath = new File(root.getAbsolutePath() + "\\target");
-            String destination = buildPath.getAbsolutePath() + "\\classes";
-            String testPath = buildPath.getAbsolutePath() + "\\test-classes";
+            if (isMaven) {
+                buildPath = proj.getPath() + "\\target";
+                destination = proj.getPath() + "\\target\\classes";
+                testPath = proj.getPath() + "\\target\\test-classes";
+            } else {
+                buildPath = proj.getPath() + "\\out";
+                destination = proj.getPath() + "\\out\\production\\" + proj.getName();
+                testPath = proj.getPath() + "\\out\\test\\" + proj.getName();
+            }
             String cmd = "java -jar " + jacocoCli + " instrument " + destination + " --dest " + buildPath + "\\instrumented";
 
             LOGGER.info("START COBERTURA INSTRUMENT");
@@ -145,7 +151,7 @@ public class CoverageProcessor {
                             double coveredBranches = Double.parseDouble(data[6]);
                             double missedBranches = Double.parseDouble(data[5]);
                             double totalBranches = coveredBranches + missedBranches;
-                            if(totalBranches!=0) {
+                            if (totalBranches != 0) {
                                 double branchCov = coveredBranches / totalBranches;
                                 branchCoverage = Math.round(branchCov * 100);
                                 branchCoverage = branchCoverage / 100;
@@ -153,9 +159,8 @@ public class CoverageProcessor {
                                 projectCoveredLines += coveredLines;
                                 projectTotalBranches += totalBranches;
                                 projectCoveredBranches += coveredBranches;
-                            }
-                            else
-                                branchCoverage=-1.0d;
+                            } else
+                                branchCoverage = -1.0d;
                         }
                     }
 
@@ -194,7 +199,6 @@ public class CoverageProcessor {
             //CLEANUP
 
             FileUtils.deleteDirectory(new File(buildPath + "\\instrumented"));
-
 
 
             LOGGER.info("project coveredlines: " + projectCoveredLines);
