@@ -49,8 +49,8 @@ public class AnalysisResultsUI extends JFrame {
     public AnalysisResultsUI(TestProjectAnalysis project) throws HeadlessException {
         this.project = project;
         this.selectedSmell = 0;
-        File default_conf = new File(project.getPath() + "\\default_config.ini");
-        File conf = new File(project.getPath() + "\\config.ini");
+        File default_conf = new File(System.getProperty("user.home") + "\\.temevi" + "\\default_config.ini");
+        File conf = new File(System.getProperty("user.home") + "\\.temevi" + "\\config.ini");
        /*if(!default_conf.exists()) {
             thresholds = new SmellsThresholds(1,1,1,1,1,1,1,1,1);
             new ConfigFileHandler().writeThresholds(new File(projdir + "\\default_config.ini"), thresholds);

@@ -34,8 +34,8 @@ public class ConfigUI extends JFrame{
         fields = new HashMap<>();
         this.projdir=projdir;
         this.setTitle("Metrics Thresholds Configuration");
-        default_conf = new File(projdir + "\\default_config.ini");
-        conf = new File(projdir + "\\config.ini");
+        File default_conf = new File(System.getProperty("user.home") + "\\.temevi" + "\\default_config.ini");
+        File conf = new File(System.getProperty("user.home") + "\\.temevi" + "\\config.ini");
        /*if(!default_conf.exists()) {
             thresholds = new SmellsThresholds(1,1,1,1,1,1,1,1,1);
             new ConfigFileHandler().writeThresholds(new File(projdir + "\\default_config.ini"), thresholds);
