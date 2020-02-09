@@ -2,9 +2,6 @@ package processor;
 
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
-import com.trilead.ssh2.StreamGobbler;
-import data.ClassCKInfo;
 import data.ClassCoverageInfo;
 import data.TestProjectAnalysis;
 import init.PluginInit;
@@ -13,19 +10,12 @@ import it.unisa.testSmellDiffusion.beans.PackageBean;
 import it.unisa.testSmellDiffusion.metrics.CKMetrics;
 import it.unisa.testSmellDiffusion.metrics.TestSmellMetrics;
 import it.unisa.testSmellDiffusion.testMutation.TestMutationUtilities;
-import it.unisa.testSmellDiffusion.utility.CoberturaHTMLParser;
-import it.unisa.testSmellDiffusion.utility.FileUtility;
 import org.apache.commons.io.FileUtils;
-import utils.CommandOutput;
 
 import java.io.*;
-import java.nio.file.Path;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
-import java.util.concurrent.TimeUnit;
 
 
 public class CoverageProcessor {

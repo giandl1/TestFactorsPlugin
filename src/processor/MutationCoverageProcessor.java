@@ -2,27 +2,16 @@ package processor;
 
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
-import data.ClassCoverageInfo;
 import data.ClassMutationCoverageInfo;
-import data.TestClassAnalysis;
 import data.TestProjectAnalysis;
 import init.PluginInit;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
-import it.unisa.testSmellDiffusion.beans.PackageBean;
-import it.unisa.testSmellDiffusion.testMutation.TestMutationUtilities;
 import it.unisa.testSmellDiffusion.utility.CoverageInfo;
 import it.unisa.testSmellDiffusion.utility.PitestHTMLParser;
-import org.eclipse.jdt.internal.core.Buffer;
-import utils.CommandOutput;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
 public class MutationCoverageProcessor {
