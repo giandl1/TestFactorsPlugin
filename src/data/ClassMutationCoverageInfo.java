@@ -4,6 +4,7 @@ public class ClassMutationCoverageInfo {
     private double mutationCoverage;
     private double mutatedLines;
     private double coveredMutatedLines;
+    private String reportName;
 
     public ClassMutationCoverageInfo(double mutationCoverage, double mutatedLines, double coveredMutatedLines) {
         this.mutationCoverage = mutationCoverage;
@@ -11,7 +12,9 @@ public class ClassMutationCoverageInfo {
         this.coveredMutatedLines = coveredMutatedLines;
     }
 
-    public ClassMutationCoverageInfo(){}
+    public ClassMutationCoverageInfo(){
+        mutationCoverage = -1.0d;
+    }
 
     public double getMutationCoverage() {
         return mutationCoverage;
@@ -35,5 +38,13 @@ public class ClassMutationCoverageInfo {
 
     public void setCoveredMutatedLines(double coveredMutatedLines) {
         this.coveredMutatedLines = coveredMutatedLines;
+    }
+
+    public String getReportName() {
+        return reportName;
+    }
+
+    public void setReportName(String reportName) {
+        this.reportName = reportName;
     }
 }

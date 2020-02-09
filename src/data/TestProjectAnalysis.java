@@ -7,7 +7,7 @@ public class TestProjectAnalysis {
     private String path;
     private int testClassesNumber;
     private double lineCoverage;
-    private double mutationCoverage;
+    private double branchCoverage;
     private int loc;
     private int nom;
     private int rfc;
@@ -42,12 +42,12 @@ public class TestProjectAnalysis {
         this.lineCoverage = lineCoverage;
     }
 
-    public double getMutationCoverage() {
-        return mutationCoverage;
+    public double getBranchCoverage() {
+        return branchCoverage;
     }
 
-    public void setMutationCoverage(double mutationCoverage) {
-        this.mutationCoverage = mutationCoverage;
+    public void setBranchCoverage(double branchCoverage) {
+        this.branchCoverage = branchCoverage;
     }
 
     public int getLoc() {

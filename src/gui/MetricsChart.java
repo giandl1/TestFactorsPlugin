@@ -2,6 +2,7 @@ package gui;
 
 import com.intellij.openapi.diagnostic.Logger;
 import config.TestSmellMetricThresholds;
+import config.TestSmellMetricsThresholdsList;
 import data.TestSmellsMetrics;
 import it.unisa.testSmellDiffusion.testSmellRules.TestSmellMetric;
 import org.knowm.xchart.*;
@@ -45,7 +46,30 @@ public class MetricsChart {
         chart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideE);
         chart.getStyler().setXAxisTicksVisible(false);
         double execs = 1;
-
+        String realId;
+        TestSmellMetric metricz = metrics.get(0);
+        if(metricz.getId().equalsIgnoreCase("ar1")){
+            realId="NONDA";
+        }
+        else if(metricz.getId().equalsIgnoreCase("et1")){
+            realId="APCMC";
+        }
+        else if(metricz.getId().equalsIgnoreCase("gf1")){
+            realId="GFMR";
+        }
+        else if(metricz.getId().equalsIgnoreCase("se1")){
+            realId="TSEC";
+        }
+        else if(metricz.getId().equalsIgnoreCase("it1")){
+            realId="MTOOR";
+        }
+        else if(metricz.getId().equalsIgnoreCase("ro1")){
+            realId="NEXEA";
+        }
+        else if(metricz.getId().equalsIgnoreCase("mg1")){
+            realId="MEXR";
+        }
+        else realId="Error";
 
         for(TestSmellMetric metric : metrics) {
             ArrayList<Double> xData = new ArrayList<>();
@@ -57,30 +81,27 @@ public class MetricsChart {
             for (double i = 0; i <= execs; i++) {
                 xData.add(i);
             }
+
+
             chart.getStyler().setXAxisMax(execs);
             ArrayList<Double> yData = new ArrayList<>();
             yData.add(0.0);
                 for (Double value : storic)
                     yData.add(value);
-                String toShow;
-                if(metric.getId().equalsIgnoreCase("ar1")){
-                    toShow="NONDA";
-                }
-                else
-                    toShow="APCMC";
-                chart.addSeries(toShow, xData, yData);
+
+                chart.addSeries(realId, xData, yData);
 
 
               //  yData.add(metric.getValue());
                // chart.addSeries(metric.getId(), xData, yData);
             }
-
-            double threshold = TestSmellsMetrics.getMetricThreshold(metric.getId(), thresholds, false);
-            double criticThreshold = TestSmellsMetrics.getMetricThreshold(metric.getId(),thresholds,true);
-            XYSeries series = chart.addSeries("Threshold " + metric.getId(), new double[] {0.0, execs}, new double[]{threshold, threshold} );
+            TestSmellMetricThresholds threshold = TestSmellMetricsThresholdsList.getThresholdsById(realId, thresholds);
+            double detectionThreshold = threshold.getDetectionThreshold();
+            double criticThreshold = threshold.getGuardThreshold();
+            XYSeries series = chart.addSeries("Threshold " + realId, new double[] {0.0, execs}, new double[]{detectionThreshold, detectionThreshold} );
             series.setLineColor(Color.YELLOW);
             series.setLineStyle(SeriesLines.DASH_DASH);
-            XYSeries seriesCritic = chart.addSeries("Guard Threshold " + metric.getId(), new double[] {0.0, execs}, new double[]{criticThreshold, criticThreshold} );
+            XYSeries seriesCritic = chart.addSeries("Guard Threshold " + realId, new double[] {0.0, execs}, new double[]{criticThreshold, criticThreshold} );
             seriesCritic.setLineColor(Color.RED);
             seriesCritic.setLineStyle(SeriesLines.DASH_DASH);
 

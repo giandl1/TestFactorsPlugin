@@ -56,10 +56,10 @@ public class ReportProcessor {
                 ClassCoverageInfo covInfo = info.getCoverage();
                 ClassTestSmellsInfo smellsInfo = info.getSmells();
                 TestSmellsMetrics list = smellsInfo.getMetrics();
-
+                ClassMutationCoverageInfo mutationInfo = info.getMutationCoverage();
 
               output+=info.getBelongingPackage() + "." + info.getName() + ";" + info.getProductionClass() + ";" + ckInfo.getLoc() + ";" + ckInfo.getNom() + ";" + ckInfo.getWmc() + ";" + ckInfo.getRfc() + ";" +
-                        covInfo.getLineCoverage() + ";" + covInfo.getBranchCoverage() + ";" + covInfo.getMutationCoverage() + ";";
+                        covInfo.getLineCoverage() + ";" + covInfo.getBranchCoverage() + ";" + mutationInfo.getMutationCoverage() + ";";
 
                 for(TestSmellMetric metric : list.getArMetrics()){
                     output+=metric.getValue() + ";";

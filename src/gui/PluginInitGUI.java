@@ -1,36 +1,37 @@
 package gui;
 
 import com.google.wireless.android.sdk.stats.GradleBuildProject;
+import com.intellij.openapi.project.Project;
 import data.ClassCoverageInfo;
+import data.ClassMutationCoverageInfo;
 import data.TestClassAnalysis;
 import data.TestProjectAnalysis;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
 import it.unisa.testSmellDiffusion.testMutation.TestMutationUtilities;
 import javafx.scene.control.Spinner;
+import org.apache.commons.io.FileUtils;
 import processor.*;
 import utils.VectorFind;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.event.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Vector;
 
 public class PluginInitGUI extends JFrame {
-    private  Vector<PackageBean> packages;
-    private  Vector<PackageBean> testPackages;
+    private Project proj;
+    private Vector<PackageBean> packages;
+    private Vector<PackageBean> testPackages;
     private File root;
-    private  JCheckBox ckMetrics, flakyTests, mutationCoverage, lineBranchCoverage, codeSmells;
-    private  JLabel flakyTestsExecutions, mutationCoverageTimeout;
-    private  JSpinner ftExecNumber, mcTimeout;
-    private  JButton editMetricsThresholds, runAnalysis;
-    private  JFrame initFrame, metricsThresholdFrame;
+    private JCheckBox ckMetrics, flakyTests, mutationCoverage, lineBranchCoverage, codeSmells;
+    private JLabel flakyTestsExecutions, mutationCoverageTimeout;
+    private JSpinner ftExecNumber, mcTimeout;
+    private JButton editMetricsThresholds, runAnalysis;
+    private JFrame initFrame, metricsThresholdFrame;
 
     public void addComponents(Container pane) {
         pane.setLayout(new GridBagLayout());
@@ -96,7 +97,11 @@ public class PluginInitGUI extends JFrame {
         constraints.anchor = GridBagConstraints.LINE_END;
         pane.add(mutationCoverageTimeout, constraints);
         // JSpinner MutationCoverageTimeout COL3 - ROW3 3[--x]
-        SpinnerModel mcSpinnerModel = new SpinnerNumberModel(100, 100, 1000, 100);
+        Long val = 10L;//set your own value, I used to check if it works
+        Long min = 5L;
+        Long max = 1000L;
+        Long step = 1L;
+        SpinnerModel mcSpinnerModel = new SpinnerNumberModel(val, min, max, step);
         mcTimeout = new JSpinner(mcSpinnerModel);
         mcTimeout.setEnabled(false);
         constraints.gridx = 2;
@@ -132,60 +137,103 @@ public class PluginInitGUI extends JFrame {
         runAnalysis.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                PluginInitGUI.this.dispose();
-                JFrame frame = swingProgressBar();
-                boolean ok=false;
-                TestProjectAnalysis project = new TestProjectAnalysis();
-                TestMutationUtilities utils = new TestMutationUtilities();
-                ArrayList<ClassBean> classes = utils.getClasses(packages);
-                Vector<ClassCoverageInfo> coverageInfos=null;
-                if(lineBranchCoverage.isSelected())
-                     coverageInfos = CoverageProcessor.calculate(root, classes, testPackages, project, true);
-
-                for(ClassBean prodClass : classes){
-                    ClassBean testSuite = utils.getTestClassBy(prodClass.getName(), testPackages);
-                    if(testSuite!=null){
-                        TestClassAnalysis analysis = new TestClassAnalysis();
-                        analysis.setName(testSuite.getName());
-                        analysis.setBelongingPackage(testSuite.getBelongingPackage());
-                        analysis.setProductionClass(prodClass.getBelongingPackage() + "." + prodClass.getName());
-                        analysis.setCkMetrics(CKMetricsProcessor.calculate(testSuite, project));
-                        analysis.setSmells(SmellynessProcessor.calculate(testSuite, prodClass, packages, project));
-                        if(coverageInfos != null){
-                            analysis.setCoverage(VectorFind.findCoverageInfo(coverageInfos, testSuite.getName()));
+                new Thread() {
+                    public void run() {
+                        initFrame.setVisible(false);
+                        JFrame frame = swingProgressBar();
+                        boolean ok = false;
+                        TestProjectAnalysis project = new TestProjectAnalysis();
+                        String srcPath = root.getAbsolutePath() + "/src";
+                        String mainPath = srcPath + "/main";
+                        String testPath = srcPath + "/test";
+                        boolean isMaven = false;
+                        for (File file : root.listFiles()) {
+                            if (file.isFile() && file.getName().equalsIgnoreCase("pom.xml"))
+                                isMaven = true;
                         }
-                        if(mutationCoverage.isSelected())
-                            analysis.setMutationCoverage(MutationCoverageProcessor.calculate(testSuite, prodClass, root, project));
-                        if(flakyTests.isSelected())
-                            analysis.setFlakyTests(FlakyTestsProcessor.calculate(root, packages, testPackages, project));
+                        project.setName(proj.getName());
+                        project.setPath(proj.getBasePath());
+                        TestMutationUtilities utils = new TestMutationUtilities();
+                        ArrayList<ClassBean> classes = utils.getClasses(packages);
+                        Vector<ClassCoverageInfo> coverageInfos = null;
+                        Vector<TestClassAnalysis> classAnalyses = new Vector<>();
+                        if (lineBranchCoverage.isSelected())
+                            coverageInfos = CoverageProcessor.calculate(root, classes, testPackages, project, true);
+
+                        for (ClassBean prodClass : classes) {
+                            ClassBean testSuite = utils.getTestClassBy(prodClass.getName(), testPackages);
+                            if (testSuite != null) {
+                                TestClassAnalysis analysis = new TestClassAnalysis();
+                                analysis.setName(testSuite.getName());
+                                analysis.setBelongingPackage(testSuite.getBelongingPackage());
+                                analysis.setProductionClass(prodClass.getBelongingPackage() + "." + prodClass.getName());
+                                analysis.setCkMetrics(CKMetricsProcessor.calculate(testSuite, project));
+                                analysis.setSmells(SmellynessProcessor.calculate(testSuite, prodClass, packages, project));
+                                if (coverageInfos != null) {
+                                    analysis.setCoverage(VectorFind.findCoverageInfo(coverageInfos, testSuite.getName()));
+                                } else {
+                                    analysis.setCoverage(new ClassCoverageInfo());
+                                }
+                                if (mutationCoverage.isSelected())
+                                    analysis.setMutationCoverage(MutationCoverageProcessor.calculate(testSuite, prodClass, root, project, isMaven, (Long) mcTimeout.getValue()));
+                                else
+                                    analysis.setMutationCoverage(new ClassMutationCoverageInfo());
+                                if (flakyTests.isSelected())
+                                    analysis.setFlakyTests(FlakyTestsProcessor.calculate(root, packages, testPackages, project));
+                                classAnalyses.add(analysis);
+                            }
+                        }
+                        project.setClassAnalysis(classAnalyses);
+                        ReportProcessor.saveReport(project);
+
+                        frame.setVisible(false);
+                        JFrame ckShow = new AnalysisResultsUI(project);
+                        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+                        ckShow.addWindowListener(new WindowAdapter() {
+                            @Override
+                            public void windowClosing(WindowEvent e) {
+                                super.windowClosing(e);
+                                JFrame frame = (JFrame) e.getSource();
+                                try {
+                                    FileUtils.deleteDirectory(new File(System.getProperty("user.home") + "\\.temevi" + "\\htmlCoverage"));
+                                    FileUtils.forceDelete(new File(System.getProperty("user.home") + "\\.temevi" + "\\coverage.csv"));
+                                    FileUtils.forceDelete(new File(System.getProperty("user.home") + "\\.temevi" + "\\jacoco.exec"));
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
+                                }
+                                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                            }
+                        });
+                        ckShow.setVisible(true);
+
                     }
-                }
-                if(ok){
-                    frame.setVisible(false);
-                    JFrame ckShow = new AnalysisResultsUI(project);
-                    ckShow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    ckShow.setVisible(true);
-                }
+
+                }.start();
             }
         });
+
+
         constraints.gridx = 2;
         constraints.gridy = 5;
-        constraints.insets = new Insets(10, 0, 10, 10);
+        constraints.insets = new
+
+                Insets(10, 0, 10, 10);
         pane.add(runAnalysis, constraints);
 
         // constraints.fill = GridBagConstraints.HORIZONTAL; // natural height, maximum width
     }
 
 
-    public PluginInitGUI(Vector<PackageBean> packages, Vector<PackageBean> testPackages, File root) {
-        this.packages=packages;
-        this.testPackages=testPackages;
-        this.root=root;
+    public PluginInitGUI(Vector<PackageBean> packages, Vector<PackageBean> testPackages, File root, Project proj) {
+        this.packages = packages;
+        this.testPackages = testPackages;
+        this.root = root;
+        this.proj = proj;
         initFrame = new JFrame("TEMEVI");
         initFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         addComponents(initFrame.getContentPane());
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
-        initFrame.setLocation(dimension.width/2-initFrame.getSize().width/2, dimension.height/2-initFrame.getSize().height/2);
+        initFrame.setLocation(dimension.width / 2 - initFrame.getSize().width / 2, dimension.height / 2 - initFrame.getSize().height / 2);
         initFrame.pack();
         initFrame.setVisible(true);
     }
@@ -193,9 +241,9 @@ public class PluginInitGUI extends JFrame {
     public JFrame swingProgressBar() {
         JFrame frame = new JFrame("Performing analysis");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        frame.setPreferredSize(new Dimension(400,150));
+        frame.setPreferredSize(new Dimension(400, 150));
         JPanel panel = new JPanel();
-        panel.setBorder(new EmptyBorder(50,50,50,50));
+        panel.setBorder(new EmptyBorder(50, 50, 50, 50));
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.add(new JLabel("Loading, please wait"));
         panel.add(Box.createRigidArea(new Dimension(0, 10)));

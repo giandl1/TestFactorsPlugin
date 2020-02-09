@@ -24,7 +24,7 @@ public class VectorFind {
         return null;
     }
 
-    public static double findMaxValue(Vector<TestSmellMetricThresholds> metrics){
+   /* public static double findMaxValue(Vector<TestSmellMetricThresholds> metrics){
         double max=0;
         for(TestSmellMetricThresholds metric : metrics){
             if(metric.getValue() > max)
@@ -33,7 +33,7 @@ public class VectorFind {
         return max;
     }
 
-
+*/
 
 
 

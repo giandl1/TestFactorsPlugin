@@ -16,8 +16,11 @@ import gui.PluginInitGUI;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
 import it.unisa.testSmellDiffusion.testMutation.TestMutationUtilities;
+import it.unisa.testSmellDiffusion.utility.FileUtility;
 import it.unisa.testSmellDiffusion.utility.FolderToJavaProjectConverter;
 import processor.*;
+import processor.CKMetricsProcessor;
+import utils.CommandOutput;
 import utils.VectorFind;
 
 
@@ -30,6 +33,7 @@ import java.util.Vector;
 
 public class PluginInit extends AnAction {
     private static final Logger LOGGER = Logger.getInstance("global");
+    private static String JAVALOCATION;
    /* boolean ok;
 
 
@@ -72,12 +76,17 @@ public class PluginInit extends AnAction {
                         CKMetricsProcessor CKProcessor = new CKMetricsProcessor();
                         //  Vector<ClassCKInfo> ckInfos = CKProcessor.calculate(packages,testPackages, projectAnalysis);
                         ArrayList<ClassBean> classes = new TestMutationUtilities().getClasses(packages);
-                        Vector<ClassCoverageInfo> coverageInfos = CoverageProcessor.calculate(root, classes, testPackages, projectAnalysis, isMaven);
+                   //     Vector<ClassCoverageInfo> coverageInfos = CoverageProcessor.calculate(root, classes, testPackages, projectAnalysis, isMaven);
                         //    Vector<ClassTestSmellsInfo> classTestSmellsInfos = SmellynessProcessor.calculate(root, packages, testPackages, proj);
-                        //  Vector<FlakyTestsInfo> flakyInfos = FlakyTestsProcessor.calculate(root, packages, testPackages, projectAnalysis);
-                        for (ClassBean productionClass : classes) {
-                            ClassBean testSuite = TestMutationUtilities.getTestClassBy(productionClass.getName(), testPackages);
-                            if (testSuite != null) {
+                          Vector<FlakyTestsInfo> flakyInfos = FlakyTestsProcessor.calculate(root, packages, testPackages, projectAnalysis);
+                 //     for (ClassBean productionClass : classes) {
+                     //     ClassBean testSuite = TestMutationUtilities.getTestClassBy(productionClass.getName(), testPackages);
+                     //     if (testSuite != null) {
+                     //         MutationCoverageProcessor.calculate(productionClass, root, testSuite, projectAnalysis, isMaven);
+                     //     }
+                  //    }
+
+
                                 TestClassAnalysis analysis = new TestClassAnalysis();
                                 analysis.setName(testSuite.getName());
                                 analysis.setBelongingPackage(testSuite.getBelongingPackage());
@@ -109,26 +118,76 @@ public class PluginInit extends AnAction {
         }.start();
 
 
-
-
-
-        }
-    public JPanel swingProgressBar() {
-        JPanel panel = new JPanel();
-        panel.setBorder(new EmptyBorder(50,50,50,50));
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.add(new JLabel("Loading, please wait"));
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
-        JProgressBar pbar = new JProgressBar();
-        pbar.setIndeterminate(true);
-        pbar.setVisible(true);
-        panel.add(pbar);
-        return panel;
-    }
 */
+
 
     @Override
     public void actionPerformed(AnActionEvent e) {
+        String userDir = System.getProperty("user.home");
+        String javaLocation = CommandOutput.getCommandOutput("where java");
+        String[] location = javaLocation.split(".exe");
+        String notJbr = null;
+        for (String maro : location)
+            if (!maro.toLowerCase().contains("jetbrains"))
+                notJbr = maro;
+        notJbr += ".exe";
+        JAVALOCATION = notJbr;
+        String pluginFolder = userDir + "\\.temevi";
+        File config = new File(pluginFolder + "\\default_config.ini");
+        File jacocoProp = new File(pluginFolder + "\\jacoco-agent.properties");
+        if (!config.exists()) {
+            String output = "[NONDA]" +
+                    "\nname=Number of Non-Documented Assertions " +
+                    "\ndescription=Number of assert statements without a description " +
+                    "\ndetectionThreshold=1.0 " +
+                    "\nguardThreshold=3.0 " +
+                    "\nbelongingSmells=ASSERTION_ROULETTE " +
+                    "\n[APCMC]" +
+                    "\nname=Average Production Class Methods Calls " +
+                    "\ndescription=Number of production class' methods calls in the test suite, divided by the number of test methods " +
+                    "\ndetectionThreshold=1.0 " +
+                    "\nguardThreshold=3.0 " +
+                    "\nbelongingSmells=EAGER_TEST " +
+                    "\n[MEXR] " +
+                    "\nname=Methods using External Resources " +
+                    "\ndescription=Number of external resources uses made by test methods" +
+                    "\ndetectionThreshold=1.0 " +
+                    "\nguardThreshold=3.0 " +
+                    "\nbelongingSmells=MYSTERY_GUEST " +
+                    "\n[NEXEA] " +
+                    "\nname=Number of EXternal resources Existence Assumptions " +
+                    "\ndescription=Number of assumptions made in test methods about the existence of external resources (e.g. Files, Database) " +
+                    "\ndetectionThreshold=1.0 " +
+                    "\nguardThreshold=3.0 " +
+                    "\nbelongingSmells=RESOURCE_OPTIMISM " +
+                    "\n[GFMR]" +
+                    "\nname=General Fixture Methods Rate " +
+                    "\ndescription=The rate of test methods not using all the set-up variables defined " +
+                    "\ndetectionThreshold=1.0 " +
+                    "\nguardThreshold=3.0 " +
+                    "\nbelongingSmells=GENERAL_FIXTURE " +
+                    "\n[MTOOR] " +
+                    "\nname=Methods Testing Other Objects Rate " +
+                    "\ndescription=The rate of methods testing objects which are different from the production class " +
+                    "\ndetectionThreshold=1.0 " +
+                    "\nguardThreshold=3.0 " +
+                    "\nbelongingSmells=INDIRECT_TESTING " +
+                    "\n[TSEC] " +
+                    "\nname=toString invocations in Equality Checks " +
+                    "\ndescription=The number of toString invocations in equality checks " +
+                    "\ndetectionThreshold=1.0 " +
+                    "\nguardThreshold=3.0 " +
+                    "\nbelongingSmells=SENSITIVE_EQUALITY";
+            File plugin = new File(pluginFolder);
+            plugin.mkdirs();
+            FileUtility.writeFile(output, pluginFolder + "\\" + "default_config.ini");
+
+        }
+        if (!jacocoProp.exists()) {
+            pluginFolder= pluginFolder.replace("\\", "\\\\");
+            String output = "destfile = " + pluginFolder + "\\\\jacoco.exec";
+            FileUtility.writeFile(output, pluginFolder + "\\" + "jacoco-agent.properties");
+        }
         TestProjectAnalysis projectAnalysis = new TestProjectAnalysis();
         Project proj = e.getData(PlatformDataKeys.PROJECT);
         String projectFolder = proj.getBasePath();
@@ -151,13 +210,17 @@ public class PluginInit extends AnAction {
             try {
                 Vector<PackageBean> testPackages = FolderToJavaProjectConverter.convert(test.getAbsolutePath());
                 Vector<PackageBean> packages = FolderToJavaProjectConverter.convert(mainPath);
-                PluginInitGUI initGUI = new PluginInitGUI(packages, testPackages, root);
+                PluginInitGUI initGUI = new PluginInitGUI(packages, testPackages, root, proj);
 
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
 
         }
+    }
+
+    public static String getJAVALOCATION() {
+        return JAVALOCATION;
     }
 
 }

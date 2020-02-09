@@ -1,10 +1,13 @@
 package processor;
 
+import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.trilead.ssh2.StreamGobbler;
 import data.ClassCKInfo;
 import data.ClassCoverageInfo;
 import data.TestProjectAnalysis;
+import init.PluginInit;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
 import it.unisa.testSmellDiffusion.metrics.CKMetrics;
@@ -13,15 +16,16 @@ import it.unisa.testSmellDiffusion.testMutation.TestMutationUtilities;
 import it.unisa.testSmellDiffusion.utility.CoberturaHTMLParser;
 import it.unisa.testSmellDiffusion.utility.FileUtility;
 import org.apache.commons.io.FileUtils;
+import utils.CommandOutput;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 
 public class CoverageProcessor {
@@ -31,160 +35,146 @@ public class CoverageProcessor {
         try {
             double projectTotalLines = 0;
             double projectCoveredLines = 0;
-            double mutatedTotalLines = 0;
-            double coveredMutatedLines = 0;
+            double projectTotalBranches = 0;
+            double projectCoveredBranches = 0;
+            String configDir = System.getProperty("user.home") + "\\.temevi";
+            String pluginPath = PathManager.getPluginsPath() + "\\TestFactorsPlugin\\lib";
+            String jacocoCli = pluginPath + "\\jacococli.jar";
+            String jacocoAgent = pluginPath + "\\jacocoagent.jar";
+            String notJbr = PluginInit.getJAVALOCATION();
             Vector<ClassCoverageInfo> classCoverageInfo = new Vector<ClassCoverageInfo>();
             TestSmellMetrics testSmellMetrics = new TestSmellMetrics();
             TestMutationUtilities utilities = new TestMutationUtilities();
-            double lineCoverage = 0;
-            double branchCoverage = 0;
+            double lineCoverage = -1.0d;
+            double branchCoverage = -1.0d;
             double assertionDensity = Double.NaN;
             Hashtable<String, Integer> isGreenSuite = new Hashtable<>();
-            String coberturaPath = root.getAbsolutePath() + "\\target\\site\\cobertura";
 
-            if (isMaven) {
-                LOGGER.info("SONO MAVEN");
-                File buildPath = new File(root.getAbsolutePath() + "\\target");
-                String mainBuildPath = buildPath.getAbsolutePath() + "\\classes";
-                String testBuildPath = buildPath.getAbsolutePath() + "\\test-classes";
+            //  String buildPath = root.getAbsolutePath() + "\\out";
+            //   String destination = root.getAbsolutePath() + "\\out\\production\\" + proj.getName();
+            //    String testPath = root.getAbsolutePath() + "\\out\\test\\" + proj.getName();
+            File buildPath = new File(root.getAbsolutePath() + "\\target");
+            String destination = buildPath.getAbsolutePath() + "\\classes";
+            String testPath = buildPath.getAbsolutePath() + "\\test-classes";
+            String cmd = "java -jar " + jacocoCli + " instrument " + destination + " --dest " + buildPath + "\\instrumented";
 
-
-                    String cmd = "\"cmd.exe\", \"/c\", mvn compile -f " + root.getAbsolutePath();
-                   LOGGER.info("EXECUTING " + cmd + " on " + root.getAbsolutePath());
-                LOGGER.info("START BUILDING");
-                    Process p = Runtime.getRuntime().exec(cmd);
-                    String s;
-                BufferedReader stdOut = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                while ((s = stdOut.readLine()) != null) {
-                    LOGGER.info(s);
-
-                }
-                    LOGGER.info("END BUILDING");
-
-                 cmd = "\"cmd.exe\", \"/c\", mvn cobertura:cobertura -f " + root.getAbsolutePath();
-                LOGGER.info("START COBERTURA");
-
-                p = Runtime.getRuntime().exec(cmd);
-
-                 s="";
-                 stdOut = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                while ((s = stdOut.readLine()) != null) {
-                    System.out.println(s);
-
-                }
-
-                LOGGER.info("END COBERTURA");
-
-                for (ClassBean productionClass : classes) {
-                    ClassBean testSuite = TestMutationUtilities.getTestClassBy(productionClass.getName(), testPackages);
-                    if (testSuite!=null) {
-
-
-                        String coberturaClassPath = coberturaPath+"/"+productionClass.getBelongingPackage()+"."+productionClass.getName()+".html";
-                        CoberturaHTMLParser chp = new CoberturaHTMLParser(coberturaClassPath);
-                        lineCoverage = chp.getLineCoverage();
-                        branchCoverage = chp.getBranchCoverage();
-
-                        ClassCoverageInfo coverageInfo = new ClassCoverageInfo();
-                        coverageInfo.setBelongingPackage(testSuite.getBelongingPackage());
-                        coverageInfo.setName(testSuite.getName());
-                        coverageInfo.setLineCoverage(lineCoverage);
-                        coverageInfo.setBranchCoverage(branchCoverage);
-                        coverageInfo.setProductionClass(productionClass.getBelongingPackage() + "." + productionClass.getName());
-
-                        coverageInfo.setMutationCoverage(-1);
-                        coverageInfo.setMutatedLines(0);
-                        coverageInfo.setCoveredLines(0); //PLACEHOLDER, DA MODIFICARE
-                        coverageInfo.setCoveredMutatedLines(0);
-
-
-                        int asserts = TestSmellMetrics.getNumberOfAsserts(testSuite);
-                        int t_loc = CKMetrics.getLOC(testSuite);
-                        double locdouble = (double) t_loc;
-                        //     LOGGER.info("asserts:" + asserts);
-                        double assertsnr = (double) asserts;
-                        double density = (assertsnr/locdouble)*100;
-                        assertionDensity = (double) Math.round(density)/100;
-                        coverageInfo.setAssertionDensity(assertionDensity);
-                        classCoverageInfo.add(coverageInfo);
-                    }
-                }
-
-                LOGGER.info("project coveredlines: " + projectCoveredLines);
-                LOGGER.info("project totallines: " + projectTotalLines);
-
-                double proj_lineCoverage = (double) Math.round((projectCoveredLines/projectTotalLines)*100)/100;
-                double proj_mutationCoverage = (double) Math.round((coveredMutatedLines/mutatedTotalLines)*100)/100;
-
-                proj.setLineCoverage(proj_lineCoverage);
-                proj.setMutationCoverage(proj_mutationCoverage);
-
+            LOGGER.info("START COBERTURA INSTRUMENT");
+            LOGGER.info(cmd);
+            Runtime rt = Runtime.getRuntime();
+            Process p = rt.exec(cmd);
+            String s;
+            String output = "";
+            BufferedReader stdOut = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            while ((s = stdOut.readLine()) != null) {
+                output += s;
             }
-            else {
-                String buildPath = root.getAbsolutePath() + "\\out";
-                String destination = root.getAbsolutePath() + "\\out\\production\\" + proj.getName();
-                String testPath = root.getAbsolutePath() + "\\out\\test\\" + proj.getName();
-                String cmd = "\"cmd.exe\", \"/c\", C:\\cobertura\\cobertura-instrument.bat --destination " + buildPath
-                        + "\\instrumented" + " " + destination + " --datafile " + buildPath + "\\cobertura.ser";
+            p.waitFor();
+            LOGGER.info("END COBERTURA INSTRUMENT");
+            LOGGER.info(System.getProperty("user.dir"));
+            //   LOGGER.info("" + classes.size());
+            for (PackageBean packageBean : testPackages) {
+                for (ClassBean testSuite : packageBean.getClasses()) {
 
-                LOGGER.info("START COBERTURA INSTRUMENT");
-                LOGGER.info(cmd);
-                Process p = Runtime.getRuntime().exec(cmd);
-                p.waitFor();
-                LOGGER.info("END COBERTURA INSTRUMENT");
-                //   LOGGER.info("" + classes.size());
-                for (ClassBean productionClass : classes) {
-                    ClassBean testSuite = TestMutationUtilities.getTestClassBy(productionClass.getName(), testPackages);
-                    if (testSuite != null) {
-                        String s = "";
-                        String output = "";
+                    //   ClassBean testSuite = TestMutationUtilities.getTestClassBy(productionClass.getName(), testPackages);
+                    //  if (testSuite != null) {
 
 
-                        Runtime rt = Runtime.getRuntime();
-                        cmd = "java -cp C:\\cobertura\\cobertura-2.1.1.jar;C:\\cobertura\\slf4j.jar;C:\\cobertura\\junit\\junit.jar;C:\\cobertura\\junit\\hamcrest.jar;"
-                                + buildPath + "\\instrumented;" + destination + ";" + testPath
-                                + " -Dnet.sourceforge.cobertura.datafile="
-                                + buildPath + "\\cobertura.ser org.junit.runner.JUnitCore " + testSuite.getBelongingPackage() + "." + testSuite.getName();
-                        LOGGER.info("START JUNIT TESTS");
-                        LOGGER.info(cmd);
-
-                        Process pr = rt.exec(cmd);
-                        BufferedReader stdOut = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-                        while ((s = stdOut.readLine()) != null) {
-                            output += s;
-                        }
-                        LOGGER.info("END JUNIT TESTS");
-                        if (output.contains("FAILURE"))
-                            isGreenSuite.put(testSuite.getName(), 0);
-                        else
-                            isGreenSuite.put(testSuite.getName(), 1);
-
+                    cmd = "\"" + notJbr + "\" -cp " + jacocoAgent + ";" + configDir + ";" + pluginPath + "\\*;"
+                            + buildPath + "\\instrumented;" + destination + ";" + testPath +
+                            " org.junit.runner.JUnitCore " + testSuite.getBelongingPackage() + "." + testSuite.getName();
+                    LOGGER.info("START JUNIT TESTS");
+                    LOGGER.info(cmd);
+                    p = rt.exec(cmd);
+                    output = "";
+                    stdOut = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                    while ((s = stdOut.readLine()) != null) {
+                        output += s;
                     }
+                    LOGGER.info(output);
+                    BufferedReader stdErr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                    output = "";
+                    while ((s = stdErr.readLine()) != null) {
+                        output += s;
+                    }
+
+
+                    p.waitFor();
+                    LOGGER.info("END JUNIT TESTS");
+
                 }
+            }
 
 
-                cmd = "\"cmd.exe\", \"/c\", C:\\cobertura\\cobertura-report.bat --format html --datafile " + buildPath + "\\cobertura.ser" + " --destination " + buildPath + "\\report" + " " + root.getAbsolutePath() + "\\src\\main\\java";
-                //  LOGGER.info("START COBERTURA REPORT");
-                //  LOGGER.info(cmd);
+            cmd = "java -jar C:\\jacoco\\lib\\jacococli.jar report " + configDir + "\\jacoco.exec" + " --classfiles " + destination + " --csv " + configDir + "\\coverage.csv";
+            LOGGER.info("START COBERTURA REPORT");
+            LOGGER.info(cmd);
+            rt = Runtime.getRuntime();
+            p = rt.exec(cmd);
+            output = "";
+            stdOut = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            while ((s = stdOut.readLine()) != null) {
+                output += s;
+            }
+            p.waitFor();
+            LOGGER.info("END COBERTURA REPORT");
 
-                p = Runtime.getRuntime().exec(cmd);
-                p.waitFor();
-                //    LOGGER.info("END COBERTURA REPORT");
+            cmd = "java -jar C:\\jacoco\\lib\\jacococli.jar report " + configDir + "\\jacoco.exec" + " --classfiles " + destination + " --html " + configDir + "\\htmlCoverage";
+            LOGGER.info("START COBERTURA REPORT");
+            LOGGER.info(cmd);
+            rt = Runtime.getRuntime();
+            p = rt.exec(cmd);
+            output = "";
+            stdOut = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            while ((s = stdOut.readLine()) != null) {
+                output += s;
+            }
+            p.waitFor();
+            LOGGER.info("END COBERTURA REPORT");
 
-                for (ClassBean productionClass : classes) {
-                    ClassBean testSuite = TestMutationUtilities.getTestClassBy(productionClass.getName(), testPackages);
-                    if (testSuite != null) {
+            for (ClassBean productionClass : classes) {
+                ClassBean testSuite = TestMutationUtilities.getTestClassBy(productionClass.getName(), testPackages);
+                if (testSuite != null) {
 
-                        coberturaPath = buildPath + "\\report\\" + productionClass.getBelongingPackage() + "." + productionClass.getName() + ".html";
-                        CoberturaHTMLParser parser = new CoberturaHTMLParser(coberturaPath);
-                        lineCoverage = parser.getLineCoverage();
-                        branchCoverage = parser.getBranchCoverage();
-                        ClassCoverageInfo coverageInfo = new ClassCoverageInfo();
-                        coverageInfo.setBelongingPackage(testSuite.getBelongingPackage());
-                        coverageInfo.setName(testSuite.getName());
-                        coverageInfo.setLineCoverage(lineCoverage);
-                        coverageInfo.setBranchCoverage(branchCoverage);
-                        coverageInfo.setProductionClass(productionClass.getBelongingPackage() + "." + productionClass.getName());
+                    String line = "";
+                    String cvsSplitBy = ",";
+                    String reportPath = configDir + "\\coverage.csv";
+                    File file = new File(reportPath);
+                    BufferedReader br = new BufferedReader(new FileReader(file));
+                    br.readLine();
+                    line = br.readLine();
+                    String[] data = line.split(cvsSplitBy);
+                    while ((line = br.readLine()) != null) {
+                        data = line.split(cvsSplitBy);
+                        if (data[1].equalsIgnoreCase(productionClass.getBelongingPackage()) && data[2].equalsIgnoreCase(productionClass.getName())) {
+                            double coveredLines = Double.parseDouble(data[8]);
+                            double missedLines = Double.parseDouble(data[7]);
+                            double totalLines = coveredLines + missedLines;
+                            double cov = coveredLines / totalLines;
+                            lineCoverage = Math.round(cov * 100);
+                            lineCoverage = lineCoverage / 100;
+                            double coveredBranches = Double.parseDouble(data[6]);
+                            double missedBranches = Double.parseDouble(data[5]);
+                            double totalBranches = coveredBranches + missedBranches;
+                            if(totalBranches!=0) {
+                                double branchCov = coveredBranches / totalBranches;
+                                branchCoverage = Math.round(branchCov * 100);
+                                branchCoverage = branchCoverage / 100;
+                                projectTotalLines += totalLines;
+                                projectCoveredLines += coveredLines;
+                                projectTotalBranches += totalBranches;
+                                projectCoveredBranches += coveredBranches;
+                            }
+                            else
+                                branchCoverage=-1.0d;
+                        }
+                    }
+
+                    ClassCoverageInfo coverageInfo = new ClassCoverageInfo();
+                    //      coverageInfo.setBelongingPackage(testSuite.getBelongingPackage());
+                    coverageInfo.setName(testSuite.getName());
+                    coverageInfo.setLineCoverage(lineCoverage);
+                    coverageInfo.setBranchCoverage(branchCoverage);
+                    //     coverageInfo.setProductionClass(productionClass.getBelongingPackage() + "." + productionClass.getName());
 
                        /* if (isGreenSuite.get(testSuite.getName()) == 1) {
                             LOGGER.info("LA SUITE E' GREEN");
@@ -194,41 +184,40 @@ public class CoverageProcessor {
                         //    mutatedTotalLines += coverageInfo.getMutatedLines();
                         //    coveredMutatedLines += coverageInfo.getCoveredMutatedLines();
                         } else {*/
-                            coverageInfo.setMutationCoverage(-1);
-                            coverageInfo.setMutatedLines(0);
-                            coverageInfo.setCoveredLines(0); //PLACEHOLDER, DA MODIFICARE
-                            coverageInfo.setCoveredMutatedLines(0);
-                     //   }
+
+                    //   }
 
 
-                        //    LOGGER.info(coverageInfo.toString());
-                        int asserts = TestSmellMetrics.getNumberOfAsserts(testSuite);
-                        int t_loc = CKMetrics.getLOC(testSuite);
-                        double locdouble = (double) t_loc;
-                        //     LOGGER.info("asserts:" + asserts);
-                        double assertsnr = (double) asserts;
-                        double density = (assertsnr / locdouble) * 100;
-                        assertionDensity = (double) Math.round(density) / 100;
-                        coverageInfo.setAssertionDensity(assertionDensity);
-                        classCoverageInfo.add(coverageInfo);
-                    }
+                    //    LOGGER.info(coverageInfo.toString());
+                    int asserts = TestSmellMetrics.getNumberOfAsserts(testSuite);
+                    int t_loc = CKMetrics.getLOC(testSuite);
+                    double locdouble = (double) t_loc;
+                    //     LOGGER.info("asserts:" + asserts);
+                    double assertsnr = (double) asserts;
+                    double density = (assertsnr / locdouble) * 100;
+                    assertionDensity = (double) Math.round(density) / 100;
+                    coverageInfo.setAssertionDensity(assertionDensity);
+                    classCoverageInfo.add(coverageInfo);
                 }
-
-                //CLEANUP
-
-                FileUtils.deleteDirectory(new File(buildPath + "\\instrumented"));
-                FileUtils.deleteQuietly(new File(buildPath + "\\cobertura.ser"));
             }
+
+            //CLEANUP
+
+            FileUtils.deleteDirectory(new File(buildPath + "\\instrumented"));
+
+
 
             LOGGER.info("project coveredlines: " + projectCoveredLines);
             LOGGER.info("project totallines: " + projectTotalLines);
+            double projectLineCov = projectCoveredLines / projectTotalLines;
+            double projectLineCov100 = Math.round(projectLineCov * 100);
+            projectLineCov100 = projectLineCov100 / 100;
+            proj.setLineCoverage(projectLineCov100);
 
-            double proj_lineCoverage = (double) Math.round((projectCoveredLines / projectTotalLines) * 100) / 100;
-            double proj_mutationCoverage = (double) Math.round((coveredMutatedLines / mutatedTotalLines) * 100) / 100;
-
-            proj.setLineCoverage(proj_lineCoverage);
-            proj.setMutationCoverage(proj_mutationCoverage);
-
+            double projectBranchCov = projectCoveredBranches / projectTotalBranches;
+            double projectBranchCov100 = Math.round(projectBranchCov * 100);
+            projectBranchCov100 = projectBranchCov100 / 100;
+            proj.setBranchCoverage(projectBranchCov100);
             return classCoverageInfo;
         } catch (Exception e) {
             LOGGER.info(e.getMessage());

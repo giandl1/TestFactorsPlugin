@@ -132,8 +132,8 @@ public class TestSmellsMetrics {
     public static double getMetricThreshold(String id, Vector<TestSmellMetricThresholds> thresholds, boolean critic){
         for(TestSmellMetricThresholds threshold : thresholds){
             if(threshold.getId().equalsIgnoreCase(id)){
-                if(critic) return threshold.getRedThreshold();
-                return threshold.getYellowThreshold();
+                if(critic) return threshold.getGuardThreshold();
+                return threshold.getDetectionThreshold();
             }
         }
         return Double.NaN;
