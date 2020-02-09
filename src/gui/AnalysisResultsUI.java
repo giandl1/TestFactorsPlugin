@@ -1,11 +1,9 @@
 package gui;
 
-import com.intellij.ide.ui.EditorOptionsTopHitProvider;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
-import org.apache.commons.httpclient.URIException;
 import storage.ConfigFileHandler;
 import config.TestSmellMetricThresholds;
 import config.TestSmellMetricsThresholdsList;
@@ -13,7 +11,6 @@ import data.TestClassAnalysis;
 import data.TestProjectAnalysis;
 import it.unisa.testSmellDiffusion.testSmellRules.TestSmellMetric;
 import storage.AnalysisHistoryHandler;
-import utils.OpenBrowser;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -25,8 +22,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.net.URI;
-import java.net.URL;
 import java.text.DateFormatSymbols;
 import java.util.*;
 
@@ -469,12 +464,11 @@ public class AnalysisResultsUI extends JFrame {
                             classInfo.add(label);
                         } else
                             classInfo.add(new JLabel("<html>Line Coverage: <font color='white'> " + selected.getCoverage().getLineCoverage() + "</font></html>"));
-                    }
-                    else{
+                    } else {
                         classInfo.add(new JLabel("<html>Line Coverage: <font color='white'>N/A</font></html>"));
 
                     }
-                    
+
                     double prevBranchCov = new AnalysisHistoryHandler().getPreviousBranchCoverage(selected.getBelongingPackage() + "." + selected.getName(), project.getPath() + "\\reports");
                     if (selected.getCoverage().getBranchCoverage() == -1.0d)
                         classInfo.add(new JLabel("<html>Branch Coverage: <font color='white'> N/A</font></html>"));
@@ -509,7 +503,9 @@ public class AnalysisResultsUI extends JFrame {
                         classInfo.add(button);
 
                     } else
-                        classInfo.add(new JLabel("<html>Mutation Coverage: <font color='white'> " + selected.getMutationCoverage().getMutationCoverage() + " (Enable Mutation Testing and/or increase timeout)</font></html>"));
+                        classInfo.add(new JLabel("<html>Mutation Coverage: <font color='white'>N/A</font></html>"));
+                    if(selected.getFlakyTests().getFlakyMethods() != null)
+                        classInfo.add(new JLabel("<html>Flaky Tests: <font color='white'>" + selected.getFlakyTests().getFlakyMethods().size() + "</font></html>"));
 
                     String affected = "";
                     if (selected.getSmells().getAssertionRoulette() == 1 || selected.getSmells().getAssertionRoulette() == 2)

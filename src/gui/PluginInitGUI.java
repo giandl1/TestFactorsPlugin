@@ -2,10 +2,7 @@ package gui;
 
 import com.google.wireless.android.sdk.stats.GradleBuildProject;
 import com.intellij.openapi.project.Project;
-import data.ClassCoverageInfo;
-import data.ClassMutationCoverageInfo;
-import data.TestClassAnalysis;
-import data.TestProjectAnalysis;
+import data.*;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
 import it.unisa.testSmellDiffusion.testMutation.TestMutationUtilities;
@@ -156,10 +153,12 @@ public class PluginInitGUI extends JFrame {
                         TestMutationUtilities utils = new TestMutationUtilities();
                         ArrayList<ClassBean> classes = utils.getClasses(packages);
                         Vector<ClassCoverageInfo> coverageInfos = null;
+                        Vector<FlakyTestsInfo> flakyInfos=null;
                         Vector<TestClassAnalysis> classAnalyses = new Vector<>();
                         if (lineBranchCoverage.isSelected())
                             coverageInfos = CoverageProcessor.calculate(root, classes, testPackages, project, true);
-
+                        if(flakyTests.isSelected())
+                            flakyInfos = FlakyTestsProcessor.calculate(packages,testPackages,project,isMaven,(int) ftExecNumber.getValue());
                         for (ClassBean prodClass : classes) {
                             ClassBean testSuite = utils.getTestClassBy(prodClass.getName(), testPackages);
                             if (testSuite != null) {
@@ -179,7 +178,9 @@ public class PluginInitGUI extends JFrame {
                                 else
                                     analysis.setMutationCoverage(new ClassMutationCoverageInfo());
                                 if (flakyTests.isSelected())
-                                    analysis.setFlakyTests(FlakyTestsProcessor.calculate(root, packages, testPackages, project));
+                                    analysis.setFlakyTests(VectorFind.findFlakyInfo(flakyInfos, testSuite.getName()));
+                                else
+                                    analysis.setFlakyTests(new FlakyTestsInfo());
                                 classAnalyses.add(analysis);
                             }
                         }
