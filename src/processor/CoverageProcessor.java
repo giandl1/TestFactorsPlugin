@@ -137,10 +137,11 @@ public class CoverageProcessor {
                     File file = new File(reportPath);
                     BufferedReader br = new BufferedReader(new FileReader(file));
                     br.readLine();
-                    line = br.readLine();
-                    String[] data = line.split(cvsSplitBy);
+                    String[] data;
                     while ((line = br.readLine()) != null) {
                         data = line.split(cvsSplitBy);
+                        LOGGER.info(data[1]);
+                        LOGGER.info(data[2]);
                         if (data[1].equalsIgnoreCase(productionClass.getBelongingPackage()) && data[2].equalsIgnoreCase(productionClass.getName())) {
                             double coveredLines = Double.parseDouble(data[8]);
                             double missedLines = Double.parseDouble(data[7]);
@@ -148,6 +149,7 @@ public class CoverageProcessor {
                             double cov = coveredLines / totalLines;
                             lineCoverage = Math.round(cov * 100);
                             lineCoverage = lineCoverage / 100;
+                            LOGGER.info("Line cov: " + lineCoverage );
                             double coveredBranches = Double.parseDouble(data[6]);
                             double missedBranches = Double.parseDouble(data[5]);
                             double totalBranches = coveredBranches + missedBranches;

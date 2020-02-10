@@ -43,7 +43,7 @@ public class MutationCoverageProcessor {
                 mainBuildPath = root.getAbsolutePath() + "\\target\\classes\\";
                 testBuildPath = root.getAbsolutePath() + "\\target\\test-classes\\";
             }
-            String cmd = "\"" + notJbr + "\" -cp " + mainBuildPath + ";" + testBuildPath + ";" + PathManager.getPluginsPath() + "\\TestFactorsPlugin\\lib\\*" + "\" "
+            String cmd = "\"" + notJbr + "\" -cp " + mainBuildPath + ";" + testBuildPath + ";" + PathManager.getPluginsPath() + "\\TestFactorsPlugin\\lib\\* "
                     + "org.pitest.mutationtest.commandline.MutationCoverageReport --reportDir " + reportPath + "\\" + testSuite.getBelongingPackage() + "." + testSuite.getName() + " --targetClasses " + productionClass.getBelongingPackage() + "." + productionClass.getName() + " "
                     + "--targetTests " + testSuite.getBelongingPackage() + "." + testSuite.getName() + " --sourceDirs " + mainPath + "," + testPath;
             Runtime rt = Runtime.getRuntime();
