@@ -33,7 +33,6 @@ import java.util.Vector;
 
 public class PluginInit extends AnAction {
     private static final Logger LOGGER = Logger.getInstance("global");
-    private static String JAVALOCATION;
    /* boolean ok;
 
 
@@ -124,14 +123,7 @@ public class PluginInit extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent e) {
         String userDir = System.getProperty("user.home");
-        String javaLocation = CommandOutput.getCommandOutput("where java");
-        String[] location = javaLocation.split(".exe");
-        String notJbr = null;
-        for (String maro : location)
-            if (!maro.toLowerCase().contains("jetbrains"))
-                notJbr = maro;
-        notJbr += ".exe";
-        JAVALOCATION = notJbr;
+
         String pluginFolder = userDir + "\\.temevi";
         File config = new File(pluginFolder + "\\default_config.ini");
         File jacocoProp = new File(pluginFolder + "\\jacoco-agent.properties");
@@ -219,9 +211,6 @@ public class PluginInit extends AnAction {
         }
     }
 
-    public static String getJAVALOCATION() {
-        return JAVALOCATION;
-    }
 
 }
 

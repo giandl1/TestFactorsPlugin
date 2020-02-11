@@ -23,6 +23,15 @@ import java.util.Vector;
 
 public class FlakyTestsProcessor {
     private static final Logger LOGGER = Logger.getInstance("global");
+    private static String javaLocation;
+
+    public static String getJavaLocation() {
+        return javaLocation;
+    }
+
+    public static void setJavaLocation(String javaLocation) {
+        FlakyTestsProcessor.javaLocation = javaLocation;
+    }
 
     public static Vector<FlakyTestsInfo> calculate(Vector<PackageBean> packages, Vector<PackageBean> testPackages, TestProjectAnalysis proj, boolean isMaven, int times) {
         try {
@@ -35,15 +44,13 @@ public class FlakyTestsProcessor {
                 destination = proj.getPath() + "\\target\\classes";
                 testPath = proj.getPath() + "\\target\\test-classes";
             }
-            String javaLocation = PluginInit.getJAVALOCATION();
             TestMutationUtilities utilities = new TestMutationUtilities();
             ArrayList<ClassBean> classes = utilities.getClasses(packages);
-            String pluginPath = PathManager.getPluginsPath() + "\\TestFactorsPlugin\\lib";
+            String pluginPath = proj.getPluginPath();
             Vector<FlakyTestsInfo> flakyTests = new Vector<>();
-            Hashtable<String, Integer> passedTests = new Hashtable<>();
-            int j = 0;
+            Hashtable<String, Integer> passedTests;
             for (ClassBean productionClass : classes) {
-                j++;
+                passedTests=new Hashtable<>();
                 ClassBean testSuite = TestMutationUtilities.getTestClassBy(productionClass.getName(), testPackages);
                 if (testSuite != null) {
                     String cmd = "\"" + javaLocation + "\" -cp " + pluginPath + "\\*;"

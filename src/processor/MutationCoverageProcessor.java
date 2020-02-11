@@ -9,15 +9,26 @@ import it.unisa.testSmellDiffusion.beans.ClassBean;
 import it.unisa.testSmellDiffusion.utility.CoverageInfo;
 import it.unisa.testSmellDiffusion.utility.PitestHTMLParser;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class MutationCoverageProcessor {
     private static final Logger LOGGER = Logger.getInstance("global");
+    private static String notJbr;
 
-    public static ClassMutationCoverageInfo calculate(ClassBean testSuite, ClassBean productionClass, File root, TestProjectAnalysis proj, boolean isMaven, long timeoutInSeconds) {
+    public static String getJavaLocation() {
+        return notJbr;
+    }
+
+    public static void setJavaLocation(String notJbr) {
+        MutationCoverageProcessor.notJbr = notJbr;
+    }
+
+    public static ClassMutationCoverageInfo calculate(ClassBean testSuite, ClassBean productionClass, TestProjectAnalysis proj, boolean isMaven, long timeoutInSeconds) {
         try {
             ClassMutationCoverageInfo mutationInfo = new ClassMutationCoverageInfo();
             double mutationCoverage = -1;
@@ -25,44 +36,29 @@ public class MutationCoverageProcessor {
             String testBuildPath;
             String mainPath;
             String testPath;
-            String reportPath = root.getAbsolutePath() + "\\out\\pitreport";
-            String javaLocation = PluginInit.getJAVALOCATION();
-            String[] location = javaLocation.split(".exe");
-            String notJbr = null;
-            for (String maro : location)
-                if (!maro.toLowerCase().contains("jetbrains"))
-                    notJbr = maro;
-            notJbr += ".exe";
-            mainPath = root.getAbsolutePath() + "\\src\\main";
-            testPath = root.getAbsolutePath() + "\\src\\test";
+            String reportPath = proj.getPath() + "\\out\\pitreport";
+
+            mainPath = proj.getPath() + "\\src\\main";
+            testPath = proj.getPath() + "\\src\\test";
 
             if (!isMaven) {
-                mainBuildPath = root.getAbsolutePath() + "\\out\\production\\" + proj.getName();
-                testBuildPath = root.getAbsolutePath() + "\\out\\test\\" + proj.getName();
+                mainBuildPath = proj.getPath() + "\\out\\production\\" + proj.getName();
+                testBuildPath = proj.getPath() + "\\out\\test\\" + proj.getName();
             } else {
-                mainBuildPath = root.getAbsolutePath() + "\\target\\classes\\";
-                testBuildPath = root.getAbsolutePath() + "\\target\\test-classes\\";
+                mainBuildPath = proj.getPath() + "\\target\\classes\\";
+                testBuildPath = proj.getPath() + "\\target\\test-classes\\";
             }
-            String cmd = "\"" + notJbr + "\" -cp " + mainBuildPath + ";" + testBuildPath + ";" + PathManager.getPluginsPath() + "\\TestFactorsPlugin\\lib\\* "
+            String cmd = "\"" + notJbr + "\" -cp " + mainBuildPath + ";" + testBuildPath + ";" + proj.getPluginPath() + "\\*; "
                     + "org.pitest.mutationtest.commandline.MutationCoverageReport --reportDir " + reportPath + "\\" + testSuite.getBelongingPackage() + "." + testSuite.getName() + " --targetClasses " + productionClass.getBelongingPackage() + "." + productionClass.getName() + " "
                     + "--targetTests " + testSuite.getBelongingPackage() + "." + testSuite.getName() + " --sourceDirs " + mainPath + "," + testPath;
             Runtime rt = Runtime.getRuntime();
             LOGGER.info("STARTING PITEST");
+            System.out.println(cmd);
             LOGGER.info(cmd);
             Process p = rt.exec(cmd);
             p.waitFor(timeoutInSeconds, TimeUnit.SECONDS);
-         /*   String output = "";
-            String s="";
-            BufferedReader stdOut = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            while ((s = stdOut.readLine()) != null) {
-                output += s;
-            }
-            BufferedReader stdErr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            output = "";
-            while ((s = stdErr.readLine()) != null) {
-                output += s;
-            }
-*/
+
+
 
           p.destroy();
             LOGGER.info("ENDING PITEST");
@@ -89,7 +85,7 @@ public class MutationCoverageProcessor {
 
 
         } catch (Exception e) {
-            LOGGER.info(e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }

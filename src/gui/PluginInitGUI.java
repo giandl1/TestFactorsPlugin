@@ -1,6 +1,7 @@
 package gui;
 
 import com.google.wireless.android.sdk.stats.GradleBuildProject;
+import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.project.Project;
 import data.*;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
@@ -9,6 +10,7 @@ import it.unisa.testSmellDiffusion.testMutation.TestMutationUtilities;
 import javafx.scene.control.Spinner;
 import org.apache.commons.io.FileUtils;
 import processor.*;
+import utils.CommandOutput;
 import utils.VectorFind;
 
 import javax.swing.*;
@@ -143,6 +145,8 @@ public class PluginInitGUI extends JFrame {
                         String srcPath = root.getAbsolutePath() + "/src";
                         String mainPath = srcPath + "/main";
                         String testPath = srcPath + "/test";
+                        String pluginPath = PathManager.getPluginsPath() + "\\TestFactorsPlugin\\lib";
+                        project.setPluginPath(pluginPath);
                         boolean isMaven = false;
                         for (File file : root.listFiles()) {
                             if (file.isFile() && file.getName().equalsIgnoreCase("pom.xml"))
@@ -155,10 +159,21 @@ public class PluginInitGUI extends JFrame {
                         Vector<ClassCoverageInfo> coverageInfos = null;
                         Vector<FlakyTestsInfo> flakyInfos=null;
                         Vector<TestClassAnalysis> classAnalyses = new Vector<>();
-                        if (lineBranchCoverage.isSelected())
-                            coverageInfos = CoverageProcessor.calculate(classes, testPackages, project, isMaven);
-                        if(flakyTests.isSelected())
-                            flakyInfos = FlakyTestsProcessor.calculate(packages,testPackages,project,isMaven,(int) ftExecNumber.getValue());
+                        String javaLocation = CommandOutput.getCommandOutput("where java");
+                        String[] location = javaLocation.split(".exe");
+                        String notJbr = null;
+                        for (String maro : location)
+                            if (!maro.toLowerCase().contains("jetbrains"))
+                                notJbr = maro;
+                        notJbr += ".exe";
+                        if (lineBranchCoverage.isSelected()) {
+                            CoverageProcessor.setNotJbr(notJbr);
+                            coverageInfos = CoverageProcessor.calculate(classes, testPackages, project, isMaven, pluginPath);
+                        }
+                        if(flakyTests.isSelected()) {
+                            FlakyTestsProcessor.setJavaLocation(notJbr);
+                            flakyInfos = FlakyTestsProcessor.calculate(packages, testPackages, project, isMaven, (int) ftExecNumber.getValue());
+                        }
                         for (ClassBean prodClass : classes) {
                             ClassBean testSuite = utils.getTestClassBy(prodClass.getName(), testPackages);
                             if (testSuite != null) {
@@ -173,8 +188,10 @@ public class PluginInitGUI extends JFrame {
                                 } else {
                                     analysis.setCoverage(new ClassCoverageInfo());
                                 }
-                                if (mutationCoverage.isSelected())
-                                    analysis.setMutationCoverage(MutationCoverageProcessor.calculate(testSuite, prodClass, root, project, isMaven, (Long) mcTimeout.getValue()));
+                                if (mutationCoverage.isSelected()) {
+                                    MutationCoverageProcessor.setJavaLocation(notJbr);
+                                    analysis.setMutationCoverage(MutationCoverageProcessor.calculate(testSuite, prodClass, project, isMaven, (Long) mcTimeout.getValue()));
+                                }
                                 else
                                     analysis.setMutationCoverage(new ClassMutationCoverageInfo());
                                 if (flakyTests.isSelected())

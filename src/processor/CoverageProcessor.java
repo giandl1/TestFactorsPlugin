@@ -20,18 +20,25 @@ import java.util.Vector;
 
 public class CoverageProcessor {
     private static final Logger LOGGER = Logger.getInstance("global");
+    private static String notJbr;
 
-    public static Vector<ClassCoverageInfo> calculate(ArrayList<ClassBean> classes, Vector<PackageBean> testPackages, TestProjectAnalysis proj, boolean isMaven) {
+    public static String getNotJbr() {
+        return notJbr;
+    }
+
+    public static void setNotJbr(String notJbr) {
+        CoverageProcessor.notJbr = notJbr;
+    }
+
+    public static Vector<ClassCoverageInfo> calculate(ArrayList<ClassBean> classes, Vector<PackageBean> testPackages, TestProjectAnalysis proj, boolean isMaven, String pluginPath) {
         try {
             double projectTotalLines = 0;
             double projectCoveredLines = 0;
             double projectTotalBranches = 0;
             double projectCoveredBranches = 0;
             String configDir = System.getProperty("user.home") + "\\.temevi";
-            String pluginPath = PathManager.getPluginsPath() + "\\TestFactorsPlugin\\lib";
             String jacocoCli = pluginPath + "\\jacococli.jar";
             String jacocoAgent = pluginPath + "\\jacocoagent.jar";
-            String notJbr = PluginInit.getJAVALOCATION();
             Vector<ClassCoverageInfo> classCoverageInfo = new Vector<ClassCoverageInfo>();
             TestSmellMetrics testSmellMetrics = new TestSmellMetrics();
             TestMutationUtilities utilities = new TestMutationUtilities();
@@ -42,7 +49,7 @@ public class CoverageProcessor {
             String destination;
             String testPath;
             String buildPath;
-
+            System.out.println(proj.getPath());
             if (isMaven) {
                 buildPath = proj.getPath() + "\\target";
                 destination = proj.getPath() + "\\target\\classes";
@@ -55,6 +62,7 @@ public class CoverageProcessor {
             String cmd = "java -jar " + jacocoCli + " instrument " + destination + " --dest " + buildPath + "\\instrumented";
 
             LOGGER.info("START COBERTURA INSTRUMENT");
+
             LOGGER.info(cmd);
             Runtime rt = Runtime.getRuntime();
             Process p = rt.exec(cmd);
@@ -66,7 +74,9 @@ public class CoverageProcessor {
             }
             p.waitFor();
             LOGGER.info("END COBERTURA INSTRUMENT");
+
             LOGGER.info(System.getProperty("user.dir"));
+
             //   LOGGER.info("" + classes.size());
             for (PackageBean packageBean : testPackages) {
                 for (ClassBean testSuite : packageBean.getClasses()) {
@@ -86,7 +96,7 @@ public class CoverageProcessor {
                     while ((s = stdOut.readLine()) != null) {
                         output += s;
                     }
-                    LOGGER.info(output);
+                    System.out.println(output);
                     BufferedReader stdErr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
                     output = "";
                     while ((s = stdErr.readLine()) != null) {
@@ -216,7 +226,7 @@ public class CoverageProcessor {
             proj.setBranchCoverage(projectBranchCov100);
             return classCoverageInfo;
         } catch (Exception e) {
-            LOGGER.info(e.getMessage());
+            e.printStackTrace();
             return null;
         }
 

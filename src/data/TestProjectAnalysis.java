@@ -8,12 +8,21 @@ public class TestProjectAnalysis {
     private int testClassesNumber;
     private double lineCoverage;
     private double branchCoverage;
+    private String pluginPath;
     private int loc;
     private int nom;
     private int rfc;
     private int wmc;
     private int affectedClasses;
     private Vector<TestClassAnalysis> classAnalysis;
+
+    public String getPluginPath() {
+        return pluginPath;
+    }
+
+    public void setPluginPath(String pluginPath) {
+        this.pluginPath = pluginPath;
+    }
 
     public TestProjectAnalysis() {
     }
