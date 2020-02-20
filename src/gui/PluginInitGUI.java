@@ -168,7 +168,8 @@ public class PluginInitGUI extends JFrame {
                         notJbr += ".exe";
                         if (lineBranchCoverage.isSelected()) {
                             CoverageProcessor.setNotJbr(notJbr);
-                            coverageInfos = CoverageProcessor.calculate(classes, testPackages, project, isMaven, pluginPath);
+                            String configDir = System.getProperty("user.home") + "\\.temevi";
+                            coverageInfos = CoverageProcessor.calculate(classes, testPackages, project, isMaven, pluginPath, configDir);
                         }
                         if(flakyTests.isSelected()) {
                             FlakyTestsProcessor.setJavaLocation(notJbr);
@@ -190,7 +191,8 @@ public class PluginInitGUI extends JFrame {
                                 }
                                 if (mutationCoverage.isSelected()) {
                                     MutationCoverageProcessor.setJavaLocation(notJbr);
-                                    analysis.setMutationCoverage(MutationCoverageProcessor.calculate(testSuite, prodClass, project, isMaven, (Long) mcTimeout.getValue()));
+                                    String reportPath = project.getPath() + "\\out\\pitreport";
+                                    analysis.setMutationCoverage(MutationCoverageProcessor.calculate(testSuite, prodClass, project, isMaven, reportPath, (Long) mcTimeout.getValue()));
                                 }
                                 else
                                     analysis.setMutationCoverage(new ClassMutationCoverageInfo());

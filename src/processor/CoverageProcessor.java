@@ -30,13 +30,12 @@ public class CoverageProcessor {
         CoverageProcessor.notJbr = notJbr;
     }
 
-    public static Vector<ClassCoverageInfo> calculate(ArrayList<ClassBean> classes, Vector<PackageBean> testPackages, TestProjectAnalysis proj, boolean isMaven, String pluginPath) {
+    public static Vector<ClassCoverageInfo> calculate(ArrayList<ClassBean> classes, Vector<PackageBean> testPackages, TestProjectAnalysis proj, boolean isMaven, String pluginPath, String configDir) {
         try {
             double projectTotalLines = 0;
             double projectCoveredLines = 0;
             double projectTotalBranches = 0;
             double projectCoveredBranches = 0;
-            String configDir = System.getProperty("user.home") + "\\.temevi";
             String jacocoCli = pluginPath + "\\jacococli.jar";
             String jacocoAgent = pluginPath + "\\jacocoagent.jar";
             Vector<ClassCoverageInfo> classCoverageInfo = new Vector<ClassCoverageInfo>();
@@ -49,7 +48,6 @@ public class CoverageProcessor {
             String destination;
             String testPath;
             String buildPath;
-            System.out.println(proj.getPath());
             if (isMaven) {
                 buildPath = proj.getPath() + "\\target";
                 destination = proj.getPath() + "\\target\\classes";
@@ -72,6 +70,7 @@ public class CoverageProcessor {
             while ((s = stdOut.readLine()) != null) {
                 output += s;
             }
+
             p.waitFor();
             LOGGER.info("END COBERTURA INSTRUMENT");
 
@@ -96,7 +95,6 @@ public class CoverageProcessor {
                     while ((s = stdOut.readLine()) != null) {
                         output += s;
                     }
-                    System.out.println(output);
                     BufferedReader stdErr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
                     output = "";
                     while ((s = stdErr.readLine()) != null) {
@@ -175,31 +173,16 @@ public class CoverageProcessor {
                                 branchCoverage = -1.0d;
                         }
                     }
-
+                    br.close();
                     ClassCoverageInfo coverageInfo = new ClassCoverageInfo();
-                    //      coverageInfo.setBelongingPackage(testSuite.getBelongingPackage());
                     coverageInfo.setName(testSuite.getName());
                     coverageInfo.setLineCoverage(lineCoverage);
                     coverageInfo.setBranchCoverage(branchCoverage);
-                    //     coverageInfo.setProductionClass(productionClass.getBelongingPackage() + "." + productionClass.getName());
-
-                       /* if (isGreenSuite.get(testSuite.getName()) == 1) {
-                            LOGGER.info("LA SUITE E' GREEN");
-                            coverageInfo = MutationCoverageProcessor.calculate(coverageInfo, productionClass, root, testPackages, proj);
-                            projectTotalLines += coverageInfo.getTotalLines();
-                            projectCoveredLines += coverageInfo.getCoveredLines();
-                        //    mutatedTotalLines += coverageInfo.getMutatedLines();
-                        //    coveredMutatedLines += coverageInfo.getCoveredMutatedLines();
-                        } else {*/
-
-                    //   }
 
 
-                    //    LOGGER.info(coverageInfo.toString());
                     int asserts = TestSmellMetrics.getNumberOfAsserts(testSuite);
                     int t_loc = CKMetrics.getLOC(testSuite);
                     double locdouble = (double) t_loc;
-                    //     LOGGER.info("asserts:" + asserts);
                     double assertsnr = (double) asserts;
                     double density = (assertsnr / locdouble) * 100;
                     assertionDensity = (double) Math.round(density) / 100;

@@ -28,7 +28,7 @@ public class MutationCoverageProcessor {
         MutationCoverageProcessor.notJbr = notJbr;
     }
 
-    public static ClassMutationCoverageInfo calculate(ClassBean testSuite, ClassBean productionClass, TestProjectAnalysis proj, boolean isMaven, long timeoutInSeconds) {
+    public static ClassMutationCoverageInfo calculate(ClassBean testSuite, ClassBean productionClass, TestProjectAnalysis proj, boolean isMaven, String reportPath,  long timeoutInSeconds) {
         try {
             ClassMutationCoverageInfo mutationInfo = new ClassMutationCoverageInfo();
             double mutationCoverage = -1;
@@ -36,7 +36,7 @@ public class MutationCoverageProcessor {
             String testBuildPath;
             String mainPath;
             String testPath;
-            String reportPath = proj.getPath() + "\\out\\pitreport";
+
 
             mainPath = proj.getPath() + "\\src\\main";
             testPath = proj.getPath() + "\\src\\test";
@@ -53,7 +53,6 @@ public class MutationCoverageProcessor {
                     + "--targetTests " + testSuite.getBelongingPackage() + "." + testSuite.getName() + " --sourceDirs " + mainPath + "," + testPath;
             Runtime rt = Runtime.getRuntime();
             LOGGER.info("STARTING PITEST");
-            System.out.println(cmd);
             LOGGER.info(cmd);
             Process p = rt.exec(cmd);
             p.waitFor(timeoutInSeconds, TimeUnit.SECONDS);
@@ -65,7 +64,6 @@ public class MutationCoverageProcessor {
 
             SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmm");
             String mutationFileName = format.format(new Date());
-            System.out.println(testSuite.getBelongingPackage() + "." + testSuite.getName() + "/" + mutationFileName);
             mutationFileName = reportPath + "\\" + testSuite.getBelongingPackage() + "." + testSuite.getName() + "/" + mutationFileName + "/index.html";
             mutationInfo.setReportName(mutationFileName);
             if (new File(mutationFileName).exists()) {
@@ -75,7 +73,6 @@ public class MutationCoverageProcessor {
                 mutationInfo.setMutationCoverage(mutationCoverage);
                 mutationInfo.setMutatedLines(ci.getNumberOfMutatedLines());
                 mutationInfo.setCoveredMutatedLines(ci.getCoveredMutatedLines());
-                //   System.out.println(testSuite.getBelongingPackage()+"."+testSuite.getName()+"LINE: "+lineCoverage+" - MUTATION: "+mutationCoverage);
             } else {
                 mutationCoverage = Double.NaN;
             }

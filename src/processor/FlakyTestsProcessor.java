@@ -69,6 +69,7 @@ public class FlakyTestsProcessor {
                     while ((s = stdOut.readLine()) != null) {
                         output += s;
                     }
+                    stdOut.close();
                     BufferedReader stdErr = new BufferedReader(new InputStreamReader(pr.getErrorStream()));
                     while ((s = stdErr.readLine()) != null) {
                     }
@@ -83,7 +84,6 @@ public class FlakyTestsProcessor {
 
                     //  LOGGER.info("FIRST RUN TESTS END, CLASS nr." + j);
                     for (int i = 0; i < times - 1; i++) {
-                        rt = Runtime.getRuntime();
                         pr = rt.exec(cmd);
                         s = "";
                         output = "";
@@ -91,6 +91,8 @@ public class FlakyTestsProcessor {
                         while ((s = stdOut.readLine()) != null) {
                             output += s;
                         }
+                        stdOut.close();
+
                         stdErr = new BufferedReader(new InputStreamReader(pr.getErrorStream()));
                         while ((s = stdErr.readLine()) != null) {
                         }
