@@ -7,7 +7,6 @@ import data.*;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
 import it.unisa.testSmellDiffusion.testMutation.TestMutationUtilities;
-import javafx.scene.control.Spinner;
 import org.apache.commons.io.FileUtils;
 import processor.*;
 import utils.CommandOutput;
