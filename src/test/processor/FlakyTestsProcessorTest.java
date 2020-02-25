@@ -161,7 +161,8 @@ public class FlakyTestsProcessorTest {
         ArrayList<ClassBean> testClasses = new ArrayList<>();
         testClasses.add(testClass);
         packagetest.setClasses(testClasses);
-        CoverageProcessor.setNotJbr("placeholder");
+        FlakyTestsProcessor.setJavaLocation("placeholder");
+        FlakyTestsProcessor.getJavaLocation();
         TestProjectAnalysis proj = new TestProjectAnalysis();
         Vector<PackageBean> testPackages = new Vector<>();
         testPackages.add(packagetest);

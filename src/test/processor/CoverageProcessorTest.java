@@ -218,6 +218,7 @@ public class CoverageProcessorTest {
         testClasses.add(testClass);
         packagetest.setClasses(testClasses);
         CoverageProcessor.setNotJbr("placeholder");
+        CoverageProcessor.getNotJbr();
         TestProjectAnalysis proj = new TestProjectAnalysis();
         proj.setName("FlakyTests");
         proj.setPath("resources/FlakyTests");

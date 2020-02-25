@@ -3,13 +3,13 @@ package gui;
 import com.intellij.openapi.diagnostic.Logger;
 import config.TestSmellMetricThresholds;
 import config.TestSmellMetricsThresholdsList;
-import data.TestSmellsMetrics;
 import it.unisa.testSmellDiffusion.testSmellRules.TestSmellMetric;
 import org.knowm.xchart.*;
 import org.knowm.xchart.style.Styler;
 import org.knowm.xchart.style.lines.SeriesLines;
-import storage.AnalysisHistoryHandler;
+import storage.AnalysisHistoryManager;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -37,6 +37,7 @@ public class MetricsChart {
         panel = new XChartPanel<XYChart>(getChart());
 
     }
+
 
     public XYChart getChart() {
          chart = new XYChart(600,400);
@@ -73,7 +74,7 @@ public class MetricsChart {
 
         for(TestSmellMetric metric : metrics) {
             ArrayList<Double> xData = new ArrayList<>();
-            ArrayList<Double> storic = new AnalysisHistoryHandler().getStoricValues(className, metric.getId(), path + "\\reports", month, year);
+            ArrayList<Double> storic = new AnalysisHistoryManager().getStoricValues(className, metric.getId(), path + "\\reports", month, year);
             if (storic != null) {
                 metric.setStoricValues(storic);
                 execs = storic.size();
@@ -94,6 +95,9 @@ public class MetricsChart {
 
               //  yData.add(metric.getValue());
                // chart.addSeries(metric.getId(), xData, yData);
+            }
+            if(storic == null){
+                chart.setTitle("NON SONO STATI TROVATI REPORTS!");
             }
             TestSmellMetricThresholds threshold = TestSmellMetricsThresholdsList.getThresholdsById(realId, thresholds);
             double detectionThreshold = threshold.getDetectionThreshold();

@@ -66,7 +66,8 @@ public class MutationCoverageProcessorTest {
         ArrayList<ClassBean> testClasses = new ArrayList<>();
         testClasses.add(testClass);
         packagetest.setClasses(testClasses);
-        CoverageProcessor.setNotJbr(System.getProperty("java.home") + "\\bin\\java.exe");
+        MutationCoverageProcessor.setJavaLocation("placerholder");
+        MutationCoverageProcessor.getJavaLocation();
         TestProjectAnalysis proj = new TestProjectAnalysis();
         Vector<PackageBean> testPackages = new Vector<>();
         testPackages.add(packagetest);

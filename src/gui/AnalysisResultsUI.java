@@ -4,13 +4,15 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
-import storage.ConfigFileHandler;
+import it.unisa.testSmellDiffusion.beans.MethodBean;
+import processor.MutationCoverageProcessor;
+import storage.ConfigFileManager;
 import config.TestSmellMetricThresholds;
 import config.TestSmellMetricsThresholdsList;
 import data.TestClassAnalysis;
 import data.TestProjectAnalysis;
 import it.unisa.testSmellDiffusion.testSmellRules.TestSmellMetric;
-import storage.AnalysisHistoryHandler;
+import storage.AnalysisHistoryManager;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -40,6 +42,7 @@ public class AnalysisResultsUI extends JFrame {
     private JPanel classPanel;
     private JList<TestClassAnalysis> classList;
     private int selectedSmell;
+    private int prevMonth = 1;
 
     public AnalysisResultsUI(TestProjectAnalysis project) throws HeadlessException {
         this.project = project;
@@ -51,9 +54,9 @@ public class AnalysisResultsUI extends JFrame {
             new ConfigFileHandler().writeThresholds(new File(projdir + "\\default_config.ini"), thresholds);
         }*/
         if (conf.exists())
-            list = new ConfigFileHandler().readThresholds(conf);
+            list = new ConfigFileManager().readThresholds(conf);
         else
-            list = new ConfigFileHandler().readThresholds(default_conf);
+            list = new ConfigFileManager().readThresholds(default_conf);
 
         if (list == null) throw new NullPointerException();
         setPreferredSize(new Dimension(1280, 800));
@@ -413,6 +416,7 @@ public class AnalysisResultsUI extends JFrame {
                 int year = yearSlider.getValue();
                 int month = monthSlider.getValue();
                 chart = new MetricsChart(selectedMetrics, selectedThresholds, selected.getBelongingPackage() + "." + selected.getName(), project.getPath(), month, year);
+
                 mainPanel.remove(4);
                 mainPanel.add(chart.getPanel());
                 mainPanel.revalidate();
@@ -454,7 +458,7 @@ public class AnalysisResultsUI extends JFrame {
                     classInfo.add(new JLabel("<html>RFC: <font color='white'> " + selected.getCkMetrics().getRfc() + "</font></html>"));
                     classInfo.add(new JLabel("<html>Assertion Density: <font color='white'> " + selected.getCoverage().getAssertionDensity() + "</font></html>"));
                     if (selected.getCoverage().getLineCoverage() != -1.0d) {
-                        double prevLineCov = new AnalysisHistoryHandler().getPreviousLineCoverage(selected.getBelongingPackage() + "." + selected.getName(), project.getPath() + "\\reports");
+                        double prevLineCov = new AnalysisHistoryManager().getPreviousLineCoverage(selected.getBelongingPackage() + "." + selected.getName(), project.getPath() + "\\reports");
                         if (prevLineCov != -1) {
                             String color;
                             if (selected.getCoverage().getLineCoverage() > prevLineCov) color = "#00e600";
@@ -469,7 +473,7 @@ public class AnalysisResultsUI extends JFrame {
 
                     }
 
-                    double prevBranchCov = new AnalysisHistoryHandler().getPreviousBranchCoverage(selected.getBelongingPackage() + "." + selected.getName(), project.getPath() + "\\reports");
+                    double prevBranchCov = new AnalysisHistoryManager().getPreviousBranchCoverage(selected.getBelongingPackage() + "." + selected.getName(), project.getPath() + "\\reports");
                     if (selected.getCoverage().getBranchCoverage() == -1.0d)
                         classInfo.add(new JLabel("<html>Branch Coverage: <font color='white'> N/A</font></html>"));
 
@@ -502,10 +506,37 @@ public class AnalysisResultsUI extends JFrame {
                         });
                         classInfo.add(button);
 
-                    } else
+                    } else if (MutationCoverageProcessor.getTimeoutHappened() == 0)
                         classInfo.add(new JLabel("<html>Mutation Coverage: <font color='white'>N/A</font></html>"));
-                    if(selected.getFlakyTests().getFlakyMethods() != null)
-                        classInfo.add(new JLabel("<html>Flaky Tests: <font color='white'>" + selected.getFlakyTests().getFlakyMethods().size() + "</font></html>"));
+                    else
+                        classInfo.add(new JLabel("<html>Mutation Coverage: <font color='white'>Mutation Testing interrotto. Aumentare il timeout!</font></html>"));
+
+                    if (selected.getFlakyTests().getFlakyMethods() != null && selected.getFlakyTests().getFlakyMethods().size() == 0)
+                        classInfo.add(new JLabel("<html>Flaky Tests: <font color='white'>0 tests detected</font></html>"));
+                    else if (selected.getFlakyTests().getFlakyMethods() != null && selected.getFlakyTests().getFlakyMethods().size() > 0) {
+                        classInfo.add(new JLabel("<html>Flaky Tests: <font color='white'>" + selected.getFlakyTests().getFlakyMethods().size() + " tests detected</font></html>"));
+                        JButton flakyButton = new JButton();
+                        flakyButton.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                ArrayList<String> flaky = new ArrayList<>();
+                                for(MethodBean method : selected.getFlakyTests().getFlakyMethods())
+                                    flaky.add(method.getName());
+                                JList<String> list = new JBList<>(flaky);
+                                JScrollPane scroll = new JBScrollPane(list);
+                                JFrame flakyFrame = new JFrame();
+                                flakyFrame.setTitle("Flaky Tests");
+                                flakyFrame.setLocationRelativeTo(null);
+                                flakyFrame.setSize(new Dimension(200,300));
+                                flakyFrame.add(scroll);
+                                flakyFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                                flakyFrame.setVisible(true);
+                            }
+                        });
+                        flakyButton.setText("Show Flaky Tests");
+                        classInfo.add(flakyButton);
+
+                    }
 
                     String affected = "";
                     if (selected.getSmells().getAssertionRoulette() == 1 || selected.getSmells().getAssertionRoulette() == 2)

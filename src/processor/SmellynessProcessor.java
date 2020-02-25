@@ -2,7 +2,7 @@ package processor;
 
 import com.intellij.openapi.diagnostic.Logger;
 import config.TestSmellMetricThresholds;
-import storage.ConfigFileHandler;
+import storage.ConfigFileManager;
 import config.TestSmellMetricsThresholdsList;
 import data.ClassTestSmellsInfo;
 import data.TestProjectAnalysis;
@@ -10,7 +10,6 @@ import data.TestSmellsMetrics;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
 import it.unisa.testSmellDiffusion.beans.MethodBean;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
-import it.unisa.testSmellDiffusion.testMutation.TestMutationUtilities;
 import it.unisa.testSmellDiffusion.testSmellRules.*;
 
 import java.io.File;
@@ -24,7 +23,6 @@ public class SmellynessProcessor {
         try {
             boolean isAffected=false;
             boolean isCritic=false;
-            TestMutationUtilities utilities = new TestMutationUtilities();
             Collection<MethodBean> methodsInTheProject = IndirectTesting.findInvocations(packages);
             AssertionRoulette assertionRoulette = new AssertionRoulette();
             EagerTest eagerTest = new EagerTest();
@@ -36,18 +34,19 @@ public class SmellynessProcessor {
             IndirectTesting indirectTesting = new IndirectTesting();
             GeneralFixture generalFixture = new GeneralFixture();
             ClassTestSmellsInfo  classTestSmellsInfo = new ClassTestSmellsInfo();
-            TestSmellMetricsThresholdsList metricsList = new TestSmellMetricsThresholdsList();
+            TestSmellMetricsThresholdsList metricsList;
            File default_conf = new File(System.getProperty("user.home") + "\\.temevi" + "\\default_config.ini");
+           System.out.println(System.getProperty("user.home"));
            File conf = new File(System.getProperty("user.home") + "\\.temevi" + "\\config.ini");
        /*if(!default_conf.exists()) {
             thresholds = new SmellsThresholds(1,1,1,1,1,1,1,1,1);
             new ConfigFileHandler().writeThresholds(new File(projdir + "\\default_config.ini"), thresholds);
         }*/
             if(conf.exists())
-                metricsList = new ConfigFileHandler().readThresholds(conf);
+                metricsList = new ConfigFileManager().readThresholds(conf);
 
             else
-                metricsList = new ConfigFileHandler().readThresholds(default_conf);
+                metricsList = new ConfigFileManager().readThresholds(default_conf);
 
         //    classTestSmellsInfo.set
             if(metricsList==null) throw new NullPointerException();
@@ -66,7 +65,7 @@ public class SmellynessProcessor {
                     TestSmellMetricThresholds threshold = metricsList.getThresholdsById("NONDA");
                     isAssertionRoulette = assertionRoulette.isAssertionRoulette(testSuite, threshold.getDetectionThreshold());
                     if (isAssertionRoulette) {
-                        LOGGER.info("Is AR");
+                        System.out.println("Is AR");
                         classTestSmellsInfo.setAssertionRoulette(1);
                         isAffected=true;
                         for(TestSmellMetric metric : assertionRoulette.getMetrics())
@@ -184,17 +183,7 @@ public class SmellynessProcessor {
 
 
             }
-            /*String fileName = new SimpleDateFormat("yyyyMMddHHmm'.csv'").format(new Date());
-            String outputDir = proj.getBasePath() + "\\reports\\smellyness";
-            String output = "project;test-suite;production-class;ar;et;lt;mg;se;ro;fto;it;dc\n";
-            for(ClassTestSmellsInfo smellsInfo : classTestSmellsInfos){
-                output+=proj.getName() + ";" + smellsInfo.getBelongingPackage() + "." + smellsInfo.getName() + ";" + smellsInfo.getProductionClass() + ";" + smellsInfo.getAssertionRoulette() + ";" +
-                        smellsInfo.getEagerTest()+ ";" + smellsInfo.getLazyTest()+ ";" + smellsInfo.getMysteryGuest()+ ";" + smellsInfo.getSensitiveEquality()+ ";" + smellsInfo.getResourceOptimism()+ ";" +
-                        smellsInfo.getForTestersOnly()+ ";" + smellsInfo.getIndirectTesting()+ ";" + smellsInfo.getDuplicateCode() + "\n";
-            }
-            File out = new File(outputDir);
-            out.mkdirs();
-            FileUtility.writeFile(output, outputDir + "\\" + fileName); */
+
             if(isAffected) {
                 project.setAffectedClasses(project.getAffectedClasses() + 1);
                 classTestSmellsInfo.setAffected(true);

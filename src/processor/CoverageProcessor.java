@@ -1,10 +1,9 @@
 package processor;
 
-import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.diagnostic.Logger;
+
+//import com.intellij.openapi.diagnostic.Logger;
 import data.ClassCoverageInfo;
 import data.TestProjectAnalysis;
-import init.PluginInit;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
 import it.unisa.testSmellDiffusion.metrics.CKMetrics;
@@ -19,7 +18,7 @@ import java.util.Vector;
 
 
 public class CoverageProcessor {
-    private static final Logger LOGGER = Logger.getInstance("global");
+   // private static final Logger LOGGER = Logger.getInstance("global");
     private static String notJbr;
 
     public static String getNotJbr() {
@@ -59,9 +58,9 @@ public class CoverageProcessor {
             }
             String cmd = "java -jar " + jacocoCli + " instrument " + destination + " --dest " + buildPath + "\\instrumented";
 
-            LOGGER.info("START COBERTURA INSTRUMENT");
+           // LOGGER.info("START COBERTURA INSTRUMENT");
 
-            LOGGER.info(cmd);
+            //LOGGER.info(cmd);
             Runtime rt = Runtime.getRuntime();
             Process p = rt.exec(cmd);
             String s;
@@ -72,9 +71,9 @@ public class CoverageProcessor {
             }
 
             p.waitFor();
-            LOGGER.info("END COBERTURA INSTRUMENT");
+            //LOGGER.info("END COBERTURA INSTRUMENT");
 
-            LOGGER.info(System.getProperty("user.dir"));
+          //  LOGGER.info(System.getProperty("user.dir"));
 
             //   LOGGER.info("" + classes.size());
             for (PackageBean packageBean : testPackages) {
@@ -87,8 +86,8 @@ public class CoverageProcessor {
                     cmd = "\"" + notJbr + "\" -cp " + jacocoAgent + ";" + configDir + ";" + pluginPath + "\\*;"
                             + buildPath + "\\instrumented;" + destination + ";" + testPath +
                             " org.junit.runner.JUnitCore " + testSuite.getBelongingPackage() + "." + testSuite.getName();
-                    LOGGER.info("START JUNIT TESTS");
-                    LOGGER.info(cmd);
+                   // LOGGER.info("START JUNIT TESTS");
+                  //  LOGGER.info(cmd);
                     p = rt.exec(cmd);
                     output = "";
                     stdOut = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -103,15 +102,15 @@ public class CoverageProcessor {
 
 
                     p.waitFor();
-                    LOGGER.info("END JUNIT TESTS");
+                    //LOGGER.info("END JUNIT TESTS");
 
                 }
             }
 
 
             cmd = "java -jar C:\\jacoco\\lib\\jacococli.jar report " + configDir + "\\jacoco.exec" + " --classfiles " + destination + " --csv " + configDir + "\\coverage.csv";
-            LOGGER.info("START COBERTURA REPORT");
-            LOGGER.info(cmd);
+           // LOGGER.info("START COBERTURA REPORT");
+          //  LOGGER.info(cmd);
             rt = Runtime.getRuntime();
             p = rt.exec(cmd);
             output = "";
@@ -120,11 +119,11 @@ public class CoverageProcessor {
                 output += s;
             }
             p.waitFor();
-            LOGGER.info("END COBERTURA REPORT");
+           // LOGGER.info("END COBERTURA REPORT");
 
             cmd = "java -jar C:\\jacoco\\lib\\jacococli.jar report " + configDir + "\\jacoco.exec" + " --classfiles " + destination + " --html " + configDir + "\\htmlCoverage";
-            LOGGER.info("START COBERTURA REPORT");
-            LOGGER.info(cmd);
+          //  LOGGER.info("START COBERTURA REPORT");
+         //   LOGGER.info(cmd);
             rt = Runtime.getRuntime();
             p = rt.exec(cmd);
             output = "";
@@ -133,7 +132,7 @@ public class CoverageProcessor {
                 output += s;
             }
             p.waitFor();
-            LOGGER.info("END COBERTURA REPORT");
+          //  LOGGER.info("END COBERTURA REPORT");
 
             for (ClassBean productionClass : classes) {
                 ClassBean testSuite = TestMutationUtilities.getTestClassBy(productionClass.getName(), testPackages);
@@ -148,8 +147,8 @@ public class CoverageProcessor {
                     String[] data;
                     while ((line = br.readLine()) != null) {
                         data = line.split(cvsSplitBy);
-                        LOGGER.info(data[1]);
-                        LOGGER.info(data[2]);
+                      //  LOGGER.info(data[1]);
+                      //  LOGGER.info(data[2]);
                         if (data[1].equalsIgnoreCase(productionClass.getBelongingPackage()) && data[2].equalsIgnoreCase(productionClass.getName())) {
                             double coveredLines = Double.parseDouble(data[8]);
                             double missedLines = Double.parseDouble(data[7]);
@@ -157,7 +156,7 @@ public class CoverageProcessor {
                             double cov = coveredLines / totalLines;
                             lineCoverage = Math.round(cov * 100);
                             lineCoverage = lineCoverage / 100;
-                            LOGGER.info("Line cov: " + lineCoverage );
+                         //   LOGGER.info("Line cov: " + lineCoverage );
                             double coveredBranches = Double.parseDouble(data[6]);
                             double missedBranches = Double.parseDouble(data[5]);
                             double totalBranches = coveredBranches + missedBranches;
@@ -196,8 +195,8 @@ public class CoverageProcessor {
             FileUtils.deleteDirectory(new File(buildPath + "\\instrumented"));
 
 
-            LOGGER.info("project coveredlines: " + projectCoveredLines);
-            LOGGER.info("project totallines: " + projectTotalLines);
+          //  LOGGER.info("project coveredlines: " + projectCoveredLines);
+          //  LOGGER.info("project totallines: " + projectTotalLines);
             double projectLineCov = projectCoveredLines / projectTotalLines;
             double projectLineCov100 = Math.round(projectLineCov * 100);
             projectLineCov100 = projectLineCov100 / 100;

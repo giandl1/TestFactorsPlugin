@@ -9,6 +9,7 @@ import it.unisa.testSmellDiffusion.beans.ClassBean;
 import it.unisa.testSmellDiffusion.utility.CoverageInfo;
 import it.unisa.testSmellDiffusion.utility.PitestHTMLParser;
 
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -19,6 +20,16 @@ import java.util.concurrent.TimeUnit;
 public class MutationCoverageProcessor {
     private static final Logger LOGGER = Logger.getInstance("global");
     private static String notJbr;
+    private static int error=0;
+    private static int timeoutHappened=0;
+
+    public static void setError(int error) {
+        MutationCoverageProcessor.error = error;
+    }
+
+    public static void setTimeoutHappened(int timeoutHappened) {
+        MutationCoverageProcessor.timeoutHappened = timeoutHappened;
+    }
 
     public static String getJavaLocation() {
         return notJbr;
@@ -28,7 +39,15 @@ public class MutationCoverageProcessor {
         MutationCoverageProcessor.notJbr = notJbr;
     }
 
-    public static ClassMutationCoverageInfo calculate(ClassBean testSuite, ClassBean productionClass, TestProjectAnalysis proj, boolean isMaven, String reportPath,  long timeoutInSeconds) {
+    public static int getError() {
+        return error;
+    }
+
+    public static int getTimeoutHappened() {
+        return timeoutHappened;
+    }
+
+    public static ClassMutationCoverageInfo calculate(ClassBean testSuite, ClassBean productionClass, TestProjectAnalysis proj, boolean isMaven, String reportPath, long timeoutInSeconds) {
         try {
             ClassMutationCoverageInfo mutationInfo = new ClassMutationCoverageInfo();
             double mutationCoverage = -1;
@@ -36,7 +55,6 @@ public class MutationCoverageProcessor {
             String testBuildPath;
             String mainPath;
             String testPath;
-
 
             mainPath = proj.getPath() + "\\src\\main";
             testPath = proj.getPath() + "\\src\\test";
@@ -55,11 +73,18 @@ public class MutationCoverageProcessor {
             LOGGER.info("STARTING PITEST");
             LOGGER.info(cmd);
             Process p = rt.exec(cmd);
+            long time = System.currentTimeMillis();
             p.waitFor(timeoutInSeconds, TimeUnit.SECONDS);
-
-
-
-          p.destroy();
+            p.destroy();
+            long mstimeout = timeoutInSeconds * 1000;
+            long time2 = System.currentTimeMillis();
+            if(time2-time >= mstimeout){
+                timeoutHappened=1;
+                int dialogButton = JOptionPane.YES_NO_OPTION;
+                int result = JOptionPane.showConfirmDialog(null, "L'analisi per la classe " + testSuite.getName() + " non è andata a buon fine. \nTIMEOUT SUPERATO!\nVuoi continuare l'analisi?");
+                if(result==JOptionPane.NO_OPTION)
+                    error = 1;
+            }
             LOGGER.info("ENDING PITEST");
 
             SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmm");

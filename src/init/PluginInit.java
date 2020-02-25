@@ -6,29 +6,15 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.psi.PsiDocumentManager;
-import config.TestSmellMetricThresholds;
-import config.TestSmellMetricsThresholdsList;
 import data.*;
-import gui.AnalysisResultsUI;
 import gui.PluginInitGUI;
-import it.unisa.testSmellDiffusion.beans.ClassBean;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
-import it.unisa.testSmellDiffusion.testMutation.TestMutationUtilities;
 import it.unisa.testSmellDiffusion.utility.FileUtility;
 import it.unisa.testSmellDiffusion.utility.FolderToJavaProjectConverter;
-import processor.*;
-import processor.CKMetricsProcessor;
-import utils.CommandOutput;
-import utils.VectorFind;
 
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Vector;
 
 public class PluginInit extends AnAction {
@@ -176,7 +162,7 @@ public class PluginInit extends AnAction {
 
         }
         if (!jacocoProp.exists()) {
-            pluginFolder= pluginFolder.replace("\\", "\\\\");
+            pluginFolder = pluginFolder.replace("\\", "\\\\");
             String output = "destfile = " + pluginFolder + "\\\\jacoco.exec";
             FileUtility.writeFile(output, pluginFolder + "\\" + "jacoco-agent.properties");
         }
@@ -187,27 +173,36 @@ public class PluginInit extends AnAction {
         String srcPath = root.getAbsolutePath() + "/src";
         String mainPath = srcPath + "/main";
         String testPath = srcPath + "/test";
-        boolean isMaven = false;
-        for (File file : root.listFiles()) {
-            if (file.isFile() && file.getName().equalsIgnoreCase("pom.xml"))
-                isMaven = true;
-        }
-
-        File project = new File(srcPath);
-        projectAnalysis.setName(proj.getName());
-        projectAnalysis.setPath(proj.getBasePath());
-        Vector<TestClassAnalysis> classAnalysis = new Vector<>();
+        File main = new File(mainPath);
         File test = new File(testPath);
-        if ((test.isDirectory()) && (!test.isHidden())) {
-            try {
-                Vector<PackageBean> testPackages = FolderToJavaProjectConverter.convert(test.getAbsolutePath());
-                Vector<PackageBean> packages = FolderToJavaProjectConverter.convert(mainPath);
-                PluginInitGUI initGUI = new PluginInitGUI(packages, testPackages, root, proj);
-
-            } catch (Exception ex) {
-                ex.printStackTrace();
+        if (!main.exists() || !test.exists()) {
+            JOptionPane.showMessageDialog(null, "STRUTTURA DIRECTORIES NON CORRETTA!");
+        } else {
+            boolean isMaven = false;
+            for (File file : root.listFiles()) {
+                if (file.isFile() && file.getName().equalsIgnoreCase("pom.xml"))
+                    isMaven = true;
             }
 
+            File project = new File(srcPath);
+            projectAnalysis.setName(proj.getName());
+            projectAnalysis.setPath(proj.getBasePath());
+            Vector<TestClassAnalysis> classAnalysis = new Vector<>();
+            if ((test.isDirectory()) && (!test.isHidden())) {
+                try {
+                    Vector<PackageBean> testPackages = FolderToJavaProjectConverter.convert(test.getAbsolutePath());
+                    if (testPackages.size() == 1 && testPackages.get(0).getClasses().size() == 0)
+                        JOptionPane.showMessageDialog(null, "NON SONO STATI TROVATI FILES SORGENTI DI TEST");
+                    else {
+                        Vector<PackageBean> packages = FolderToJavaProjectConverter.convert(mainPath);
+                        PluginInitGUI initGUI = new PluginInitGUI(packages, testPackages, root, proj);
+
+                    } } catch(Exception ex){
+                        ex.printStackTrace();
+                    }
+
+
+            }
         }
     }
 
