@@ -1,17 +1,19 @@
 <idea-plugin>
   <id>com.your.company.unique.plugin.id</id>
-  <name>TestFactorsPlugin</name>
+  <name>TestFactorsVIEW</name>
   <version>1.0</version>
-  <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+  <vendor email="support@yourcompany.com" url="https://github.com/giandl1/TestFactorsPlugin">Gianluca di Lillo</vendor>
 
   <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+      TestFactorsVIEW calculates and shows certain Test Related Factors of a java project.
     ]]></description>
 
   <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
+      <ul>
+        <li>Bug-fixing: now the coverage is calculated properly.</li>
+        <li>NEW: Flaky Tests are now supported.</li>
+        <li>NEW: Mutation Coverage is now supported.</li>
+      </ul>
     ]]>
   </change-notes>
 
@@ -30,12 +32,11 @@
 
   <actions>
     <!-- Add your actions here -->
-    <action id="InitPlugin" class="init.PluginInit" text="Calculate Test Factors">
-      <add-to-group group-id="FileMenu" anchor="last"/>
-    </action>
-      <action id="ConfigureTFPlugin" class="config.PluginConfig" text="Test Factors Plugin Configuration">
-          <add-to-group group-id="FileMenu" anchor="last"/>
-      </action>
+    <group id="TemeviGroupedActions" text="TestFactorsVIEW" description="Sample desc" popup="true">
+      <add-to-group group-id="ToolsMenu" anchor="before" relative-to-action="ToolsXmlGroup"/>
+      <action id="Run" class="init.PluginInit" text="Calculate Test Factors"/>
+      <action id="Configure" class="config.PluginConfig" text="Edit Configuration"/>
+    </group>
   </actions>
 
 </idea-plugin>

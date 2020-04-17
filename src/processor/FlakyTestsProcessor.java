@@ -23,18 +23,14 @@ import java.util.Vector;
 
 public class FlakyTestsProcessor {
     private static final Logger LOGGER = Logger.getInstance("global");
-    private static String javaLocation;
 
-    public static String getJavaLocation() {
-        return javaLocation;
-    }
 
-    public static void setJavaLocation(String javaLocation) {
-        FlakyTestsProcessor.javaLocation = javaLocation;
-    }
-
-    public static Vector<FlakyTestsInfo> calculate(Vector<PackageBean> packages, Vector<PackageBean> testPackages, TestProjectAnalysis proj, boolean isMaven, int times) {
+    public static Vector<FlakyTestsInfo> calculate(TestProjectAnalysis proj, int times) {
         try {
+            Vector<PackageBean> packages = proj.getPackages();
+            Vector<PackageBean> testPackages = proj.getTestPackages();
+            boolean isMaven = proj.isMaven();
+            String javaLocation = proj.getJavaPath();
             String destination;
             String testPath;
             if (!isMaven) {

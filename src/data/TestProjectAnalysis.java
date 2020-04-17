@@ -1,23 +1,72 @@
 package data;
 
+import it.unisa.testSmellDiffusion.beans.PackageBean;
+
+import java.util.ArrayList;
 import java.util.Vector;
 
 public class TestProjectAnalysis {
     private String name;
     private String path;
+    private boolean isMaven;
     private int testClassesNumber;
     private double lineCoverage;
     private double branchCoverage;
     private String pluginPath;
+    private String javaPath;
+    private String configPath;
     private int loc;
     private int nom;
     private int rfc;
     private int wmc;
     private int affectedClasses;
     private Vector<TestClassAnalysis> classAnalysis;
+    private Vector<PackageBean> packages;
+    private Vector<PackageBean> testPackages;
+
 
     public String getPluginPath() {
         return pluginPath;
+    }
+
+    public String getJavaPath() {
+        return javaPath;
+    }
+
+    public boolean isMaven() {
+        return isMaven;
+    }
+
+    public void setMaven(boolean maven) {
+        isMaven = maven;
+    }
+
+    public String getConfigPath() {
+        return configPath;
+    }
+
+    public void setConfigPath(String configPath) {
+        this.configPath = configPath;
+    }
+
+    public Vector<PackageBean> getPackages() {
+        return packages;
+    }
+
+    public void setPackages (Vector<PackageBean> packages) {
+        this.packages = packages;
+    }
+
+    public Vector<PackageBean> getTestPackages() {
+        return testPackages;
+    }
+
+    public void setTestPackages(Vector<PackageBean> testPackages) {
+        this.testPackages = testPackages;
+    }
+
+    public void setJavaPath(String javaPath) {
+        this.javaPath = javaPath;
     }
 
     public void setPluginPath(String pluginPath) {

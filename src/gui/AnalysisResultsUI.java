@@ -59,7 +59,7 @@ public class AnalysisResultsUI extends JFrame {
             list = new ConfigFileManager().readThresholds(default_conf);
 
         if (list == null) throw new NullPointerException();
-        setPreferredSize(new Dimension(1280, 800));
+        setPreferredSize(new Dimension(1300, 900));
         setTitle("Analysis Results");
         add(projectPanel(), BorderLayout.NORTH);
         classPanel = classPanel();
@@ -506,10 +506,8 @@ public class AnalysisResultsUI extends JFrame {
                         });
                         classInfo.add(button);
 
-                    } else if (MutationCoverageProcessor.getTimeoutHappened() == 0)
-                        classInfo.add(new JLabel("<html>Mutation Coverage: <font color='white'>N/A</font></html>"));
-                    else
-                        classInfo.add(new JLabel("<html>Mutation Coverage: <font color='white'>Mutation Testing interrotto. Aumentare il timeout!</font></html>"));
+                    } else
+                        classInfo.add(new JLabel("<html>Mutation Coverage: <font color='white'>Mutation Testing interrupted. Increase the timeout.</font></html>"));
 
                     if (selected.getFlakyTests().getFlakyMethods() != null && selected.getFlakyTests().getFlakyMethods().size() == 0)
                         classInfo.add(new JLabel("<html>Flaky Tests: <font color='white'>0 tests detected</font></html>"));
@@ -520,14 +518,14 @@ public class AnalysisResultsUI extends JFrame {
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 ArrayList<String> flaky = new ArrayList<>();
-                                for(MethodBean method : selected.getFlakyTests().getFlakyMethods())
+                                for (MethodBean method : selected.getFlakyTests().getFlakyMethods())
                                     flaky.add(method.getName());
                                 JList<String> list = new JBList<>(flaky);
                                 JScrollPane scroll = new JBScrollPane(list);
                                 JFrame flakyFrame = new JFrame();
                                 flakyFrame.setTitle("Flaky Tests");
                                 flakyFrame.setLocationRelativeTo(null);
-                                flakyFrame.setSize(new Dimension(200,300));
+                                flakyFrame.setSize(new Dimension(200, 300));
                                 flakyFrame.add(scroll);
                                 flakyFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                                 flakyFrame.setVisible(true);
@@ -536,118 +534,119 @@ public class AnalysisResultsUI extends JFrame {
                         flakyButton.setText("Show Flaky Tests");
                         classInfo.add(flakyButton);
 
-                    }
+                        //     }
 
-                    String affected = "";
-                    if (selected.getSmells().getAssertionRoulette() == 1 || selected.getSmells().getAssertionRoulette() == 2)
-                        affected += "- Assertion Roulette<br>";
-                    if (selected.getSmells().getEagerTest() == 1 || selected.getSmells().getEagerTest() == 2)
-                        affected += "- Eager Test<br>";
-                    if (selected.getSmells().getGeneralFixture() == 1 || selected.getSmells().getGeneralFixture() == 2)
-                        affected += "- General Fixture<br>";
-                    if (selected.getSmells().getIndirectTesting() == 1 || selected.getSmells().getIndirectTesting() == 2)
-                        affected += "- Indirect Testing<br>";
-                    if (selected.getSmells().getMysteryGuest() == 1 || selected.getSmells().getMysteryGuest() == 2)
-                        affected += "- Mystery Guest<br>";
-                    if (selected.getSmells().getResourceOptimism() == 1 || selected.getSmells().getResourceOptimism() == 2)
-                        affected += "- Resource Optimism<br>";
-                    if (selected.getSmells().getSensitiveEquality() == 1 || selected.getSmells().getSensitiveEquality() == 2)
-                        affected += "- Sensitive Equality";
-                    classInfo.add(new JLabel("<html>Affected by these smells:<br> <font color='white'>" + affected + "</font></html>"));
+                        String affected = "";
+                        if (selected.getSmells().getAssertionRoulette() == 1 || selected.getSmells().getAssertionRoulette() == 2)
+                            affected += "- Assertion Roulette<br>";
+                        if (selected.getSmells().getEagerTest() == 1 || selected.getSmells().getEagerTest() == 2)
+                            affected += "- Eager Test<br>";
+                        if (selected.getSmells().getGeneralFixture() == 1 || selected.getSmells().getGeneralFixture() == 2)
+                            affected += "- General Fixture<br>";
+                        if (selected.getSmells().getIndirectTesting() == 1 || selected.getSmells().getIndirectTesting() == 2)
+                            affected += "- Indirect Testing<br>";
+                        if (selected.getSmells().getMysteryGuest() == 1 || selected.getSmells().getMysteryGuest() == 2)
+                            affected += "- Mystery Guest<br>";
+                        if (selected.getSmells().getResourceOptimism() == 1 || selected.getSmells().getResourceOptimism() == 2)
+                            affected += "- Resource Optimism<br>";
+                        if (selected.getSmells().getSensitiveEquality() == 1 || selected.getSmells().getSensitiveEquality() == 2)
+                            affected += "- Sensitive Equality";
+                        classInfo.add(new JLabel("<html>Affected by these smells:<br> <font color='white'>" + affected + "</font></html>"));
 
-                    classInfo.setBorder(new EmptyBorder(0, 0, 250, 40));
-                    azz.add(classInfo);
+                        classInfo.setBorder(new EmptyBorder(0, 0, 250, 40));
+                        azz.add(classInfo);
 
-                    JComboBox<String> smells = new ComboBox<>();
-                    smells.addItem("Assertion Roulette");
-                    smells.addItem("Eager Test");
-                    smells.addItem("General Fixture");
-                    smells.addItem("Sensitive Equality");
-                    smells.addItem("Mystery Guest");
-                    smells.addItem("Indirect Testing");
-                    smells.addItem("Resource Optimism");
+                        JComboBox<String> smells = new ComboBox<>();
+                        smells.addItem("Assertion Roulette");
+                        smells.addItem("Eager Test");
+                        smells.addItem("General Fixture");
+                        smells.addItem("Sensitive Equality");
+                        smells.addItem("Mystery Guest");
+                        smells.addItem("Indirect Testing");
+                        smells.addItem("Resource Optimism");
 
-                    JPanel comboPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-                    comboPanel.add(new JLabel("Select a smell: "));
-                    comboPanel.add(smells);
-                    mainPanel = new JPanel();
-                    mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-                    mainPanel.add(comboPanel);
-                    mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-                    if (selectedSmell != 0)
-                        smells.setSelectedIndex(selectedSmell - 1);
-                    else
-                        smells.setSelectedIndex(selectedSmell);
-                    String selectedSmell = (String) smells.getSelectedItem();
-                    if (selectedSmell.equalsIgnoreCase("assertion roulette")) {
-                        selectedMetrics = selected.getSmells().getMetrics().getArMetrics();
-                        selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.ASSERTION_ROULETTE);
-                    } else if (selectedSmell.equalsIgnoreCase("eager test")) {
-                        selectedMetrics = selected.getSmells().getMetrics().getEtMetrics();
-                        selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.EAGER_TEST);
-                    } else if (selectedSmell.equalsIgnoreCase("general fixture")) {
-                        selectedMetrics = selected.getSmells().getMetrics().getGfMetrics();
-                        selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.GENERAL_FIXTURE);
-                    } else if (selectedSmell.equalsIgnoreCase("mystery guest")) {
-                        selectedMetrics = selected.getSmells().getMetrics().getMgMetrics();
-                        selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.MYSTERY_GUEST);
-                    } else if (selectedSmell.equalsIgnoreCase("sensitive equality")) {
-                        selectedMetrics = selected.getSmells().getMetrics().getSeMetrics();
-                        selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.SENSITIVE_EQUALITY);
-                    } else if (selectedSmell.equalsIgnoreCase("resource optimism")) {
-                        selectedMetrics = selected.getSmells().getMetrics().getRoMetrics();
-                        selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.RESOURCE_OPTIMISM);
-                    } else if (selectedSmell.equalsIgnoreCase("indirect testing")) {
-                        selectedMetrics = selected.getSmells().getMetrics().getItMetrics();
-                        selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.INDIRECT_TESTING);
-                    }
-                    smells.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent actionEvent) {
-                            String selectedSmell = (String) smells.getSelectedItem();
-                            if (selectedSmell.equalsIgnoreCase("assertion roulette")) {
-                                selectedMetrics = selected.getSmells().getMetrics().getArMetrics();
-                                selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.ASSERTION_ROULETTE);
-                            } else if (selectedSmell.equalsIgnoreCase("eager test")) {
-                                selectedMetrics = selected.getSmells().getMetrics().getEtMetrics();
-                                selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.EAGER_TEST);
-                            } else if (selectedSmell.equalsIgnoreCase("general fixture")) {
-                                selectedMetrics = selected.getSmells().getMetrics().getGfMetrics();
-                                selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.GENERAL_FIXTURE);
-                            } else if (selectedSmell.equalsIgnoreCase("mystery guest")) {
-                                selectedMetrics = selected.getSmells().getMetrics().getMgMetrics();
-                                selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.MYSTERY_GUEST);
-                            } else if (selectedSmell.equalsIgnoreCase("sensitive equality")) {
-                                selectedMetrics = selected.getSmells().getMetrics().getSeMetrics();
-                                selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.SENSITIVE_EQUALITY);
-                            } else if (selectedSmell.equalsIgnoreCase("resource optimism")) {
-                                selectedMetrics = selected.getSmells().getMetrics().getRoMetrics();
-                                selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.RESOURCE_OPTIMISM);
-                            } else if (selectedSmell.equalsIgnoreCase("indirect testing")) {
-                                selectedMetrics = selected.getSmells().getMetrics().getItMetrics();
-                                selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.INDIRECT_TESTING);
-                            }
-                            chart = new MetricsChart(selectedMetrics, selectedThresholds, selected.getBelongingPackage() + "." + selected.getName(), project.getPath(), 1, calendar.get(Calendar.YEAR) - 3);
-                            mainPanel.remove(4);
-                            mainPanel.remove(3);
-                            mainPanel.remove(2);
-
-                            mainPanel.add(filterPanel(selected, selectedMetrics, selectedThresholds));
-                            mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-
-                            mainPanel.add(chart.getPanel());
-                            mainPanel.revalidate();
-                            mainPanel.repaint();
-
+                        JPanel comboPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+                        comboPanel.add(new JLabel("Select a smell: "));
+                        comboPanel.add(smells);
+                        mainPanel = new JPanel();
+                        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+                        mainPanel.add(comboPanel);
+                        mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+                        if (selectedSmell != 0)
+                            smells.setSelectedIndex(selectedSmell - 1);
+                        else
+                            smells.setSelectedIndex(selectedSmell);
+                        String selectedSmell = (String) smells.getSelectedItem();
+                        if (selectedSmell.equalsIgnoreCase("assertion roulette")) {
+                            selectedMetrics = selected.getSmells().getMetrics().getArMetrics();
+                            selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.ASSERTION_ROULETTE);
+                        } else if (selectedSmell.equalsIgnoreCase("eager test")) {
+                            selectedMetrics = selected.getSmells().getMetrics().getEtMetrics();
+                            selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.EAGER_TEST);
+                        } else if (selectedSmell.equalsIgnoreCase("general fixture")) {
+                            selectedMetrics = selected.getSmells().getMetrics().getGfMetrics();
+                            selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.GENERAL_FIXTURE);
+                        } else if (selectedSmell.equalsIgnoreCase("mystery guest")) {
+                            selectedMetrics = selected.getSmells().getMetrics().getMgMetrics();
+                            selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.MYSTERY_GUEST);
+                        } else if (selectedSmell.equalsIgnoreCase("sensitive equality")) {
+                            selectedMetrics = selected.getSmells().getMetrics().getSeMetrics();
+                            selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.SENSITIVE_EQUALITY);
+                        } else if (selectedSmell.equalsIgnoreCase("resource optimism")) {
+                            selectedMetrics = selected.getSmells().getMetrics().getRoMetrics();
+                            selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.RESOURCE_OPTIMISM);
+                        } else if (selectedSmell.equalsIgnoreCase("indirect testing")) {
+                            selectedMetrics = selected.getSmells().getMetrics().getItMetrics();
+                            selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.INDIRECT_TESTING);
                         }
-                    });
-                    mainPanel.add(filterPanel(selected, selectedMetrics, selectedThresholds));
-                    chart = new MetricsChart(selectedMetrics, selectedThresholds, selected.getBelongingPackage() + "." + selected.getName(), project.getPath(), 1, calendar.get(Calendar.YEAR) - 3);
+                        smells.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent actionEvent) {
+                                String selectedSmell = (String) smells.getSelectedItem();
+                                if (selectedSmell.equalsIgnoreCase("assertion roulette")) {
+                                    selectedMetrics = selected.getSmells().getMetrics().getArMetrics();
+                                    selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.ASSERTION_ROULETTE);
+                                } else if (selectedSmell.equalsIgnoreCase("eager test")) {
+                                    selectedMetrics = selected.getSmells().getMetrics().getEtMetrics();
+                                    selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.EAGER_TEST);
+                                } else if (selectedSmell.equalsIgnoreCase("general fixture")) {
+                                    selectedMetrics = selected.getSmells().getMetrics().getGfMetrics();
+                                    selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.GENERAL_FIXTURE);
+                                } else if (selectedSmell.equalsIgnoreCase("mystery guest")) {
+                                    selectedMetrics = selected.getSmells().getMetrics().getMgMetrics();
+                                    selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.MYSTERY_GUEST);
+                                } else if (selectedSmell.equalsIgnoreCase("sensitive equality")) {
+                                    selectedMetrics = selected.getSmells().getMetrics().getSeMetrics();
+                                    selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.SENSITIVE_EQUALITY);
+                                } else if (selectedSmell.equalsIgnoreCase("resource optimism")) {
+                                    selectedMetrics = selected.getSmells().getMetrics().getRoMetrics();
+                                    selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.RESOURCE_OPTIMISM);
+                                } else if (selectedSmell.equalsIgnoreCase("indirect testing")) {
+                                    selectedMetrics = selected.getSmells().getMetrics().getItMetrics();
+                                    selectedThresholds = list.getThresholdsBySmell(TestSmellMetricThresholds.TestSmells.INDIRECT_TESTING);
+                                }
+                                chart = new MetricsChart(selectedMetrics, selectedThresholds, selected.getBelongingPackage() + "." + selected.getName(), project.getPath(), 1, calendar.get(Calendar.YEAR) - 3);
+                                mainPanel.remove(4);
+                                mainPanel.remove(3);
+                                mainPanel.remove(2);
 
-                    mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-                    mainPanel.add(chart.getPanel());
-                    azz.add(mainPanel);
-                    eastPanel.add(azz);
+                                mainPanel.add(filterPanel(selected, selectedMetrics, selectedThresholds));
+                                mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+                                mainPanel.add(chart.getPanel());
+                                mainPanel.revalidate();
+                                mainPanel.repaint();
+
+                            }
+                        });
+                        mainPanel.add(filterPanel(selected, selectedMetrics, selectedThresholds));
+                        chart = new MetricsChart(selectedMetrics, selectedThresholds, selected.getBelongingPackage() + "." + selected.getName(), project.getPath(), 1, calendar.get(Calendar.YEAR) - 3);
+
+                        mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+                        mainPanel.add(chart.getPanel());
+                        azz.add(mainPanel);
+                        eastPanel.add(azz);
+                    }
                 }
             }
         }

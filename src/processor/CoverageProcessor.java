@@ -19,27 +19,24 @@ import java.util.Vector;
 
 public class CoverageProcessor {
    // private static final Logger LOGGER = Logger.getInstance("global");
-    private static String notJbr;
 
-    public static String getNotJbr() {
-        return notJbr;
-    }
 
-    public static void setNotJbr(String notJbr) {
-        CoverageProcessor.notJbr = notJbr;
-    }
-
-    public static Vector<ClassCoverageInfo> calculate(ArrayList<ClassBean> classes, Vector<PackageBean> testPackages, TestProjectAnalysis proj, boolean isMaven, String pluginPath, String configDir) {
+    public static Vector<ClassCoverageInfo> calculate(TestProjectAnalysis proj) {
         try {
             double projectTotalLines = 0;
             double projectCoveredLines = 0;
             double projectTotalBranches = 0;
             double projectCoveredBranches = 0;
+            String pluginPath = proj.getPluginPath();
             String jacocoCli = pluginPath + "\\jacococli.jar";
             String jacocoAgent = pluginPath + "\\jacocoagent.jar";
             Vector<ClassCoverageInfo> classCoverageInfo = new Vector<ClassCoverageInfo>();
             TestSmellMetrics testSmellMetrics = new TestSmellMetrics();
             TestMutationUtilities utilities = new TestMutationUtilities();
+            Vector<PackageBean> testPackages = proj.getTestPackages();
+            String javaPath = proj.getJavaPath();
+            String configDir = proj.getConfigPath();
+            ArrayList<ClassBean> classes = utilities.getClasses(proj.getPackages());
             double lineCoverage = -1.0d;
             double branchCoverage = -1.0d;
             double assertionDensity = Double.NaN;
@@ -47,6 +44,7 @@ public class CoverageProcessor {
             String destination;
             String testPath;
             String buildPath;
+            boolean isMaven = proj.isMaven();
             if (isMaven) {
                 buildPath = proj.getPath() + "\\target";
                 destination = proj.getPath() + "\\target\\classes";
@@ -83,7 +81,7 @@ public class CoverageProcessor {
                     //  if (testSuite != null) {
 
 
-                    cmd = "\"" + notJbr + "\" -cp " + jacocoAgent + ";" + configDir + ";" + pluginPath + "\\*;"
+                    cmd = "\"" + javaPath + "\" -cp " + jacocoAgent + ";" + configDir + ";" + pluginPath + "\\*;"
                             + buildPath + "\\instrumented;" + destination + ";" + testPath +
                             " org.junit.runner.JUnitCore " + testSuite.getBelongingPackage() + "." + testSuite.getName();
                    // LOGGER.info("START JUNIT TESTS");

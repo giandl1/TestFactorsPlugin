@@ -22,10 +22,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 public class PluginInitGUI extends JFrame {
-    private Project proj;
-    private Vector<PackageBean> packages;
-    private Vector<PackageBean> testPackages;
-    private File root;
+    private TestProjectAnalysis project;
     private JCheckBox ckMetrics, flakyTests, mutationCoverage, lineBranchCoverage, codeSmells;
     private JLabel flakyTestsExecutions, mutationCoverageTimeout;
     private JSpinner ftExecNumber, mcTimeout;
@@ -135,28 +132,16 @@ public class PluginInitGUI extends JFrame {
                     public void run() {
                         initFrame.setVisible(false);
                         JFrame frame = swingProgressBar();
-                        TestProjectAnalysis project = new TestProjectAnalysis();
-                        String srcPath = root.getAbsolutePath() + "/src";
-                        String mainPath = srcPath + "/main";
-                        String testPath = srcPath + "/test";
                         String pluginPath = PathManager.getPluginsPath() + "\\TestFactorsPlugin\\lib";
                         project.setPluginPath(pluginPath);
-                        boolean isMaven = false;
-                        for (File file : root.listFiles()) {
-                            if (file.isFile() && file.getName().equalsIgnoreCase("pom.xml"))
-                                isMaven = true;
-                        }
-                        project.setName(proj.getName());
-                        project.setPath(proj.getBasePath());
+                        Vector<PackageBean> packages = project.getPackages();
+                        Vector<PackageBean> testPackages = project.getTestPackages();
                         TestMutationUtilities utils = new TestMutationUtilities();
                         ArrayList<ClassBean> classes = utils.getClasses(packages);
                         Vector<ClassCoverageInfo> coverageInfos = null;
                         Vector<FlakyTestsInfo> flakyInfos = null;
                         Vector<TestClassAnalysis> classAnalyses = new Vector<>();
-                        boolean ok = true;
-                        boolean javaok = true;
-                        boolean mutok = true;
-                        String notJbr = null;
+                        /*boolean ok = true;
                         if (lineBranchCoverage.isSelected() || flakyTests.isSelected() || mutationCoverage.isSelected()) {
                             File bytecode = new File(project.getPath() + "\\out");
                             File mavenBytecode = new File(project.getPath() + "\\target\\classes");
@@ -165,113 +150,79 @@ public class PluginInitGUI extends JFrame {
                                 ok = false;
                             else if (!isMaven && !bytecode.exists())
                                 ok = false;
-                            String javaLocation = CommandOutput.getCommandOutput("where java");
-                            String[] location = javaLocation.split(".exe");
-                            if (location != null) {
-                                for (String maro : location)
-                                    if (!maro.toLowerCase().contains("jetbrains"))
-                                        notJbr = maro;
-                                notJbr += ".exe";
-                            }
-                            if (notJbr == null || !notJbr.contains("bin"))
-                                javaok = false;
                         }
-                        if (ok && javaok) {
+                        if (ok) {*/
 
-                            if (lineBranchCoverage.isSelected()) {
-                                CoverageProcessor.setNotJbr(notJbr);
-                                String configDir = System.getProperty("user.home") + "\\.temevi";
-                                coverageInfos = CoverageProcessor.calculate(classes, testPackages, project, isMaven, pluginPath, configDir);
-                            }
-                            if (flakyTests.isSelected()) {
-                                FlakyTestsProcessor.setJavaLocation(notJbr);
-                                flakyInfos = FlakyTestsProcessor.calculate(packages, testPackages, project, isMaven, (int) ftExecNumber.getValue());
-                            }
-                            for (ClassBean prodClass : classes) {
-                                ClassBean testSuite = utils.getTestClassBy(prodClass.getName(), testPackages);
-                                if (testSuite != null) {
-                                    TestClassAnalysis analysis = new TestClassAnalysis();
-                                    analysis.setName(testSuite.getName());
-                                    analysis.setBelongingPackage(testSuite.getBelongingPackage());
-                                    analysis.setProductionClass(prodClass.getBelongingPackage() + "." + prodClass.getName());
-                                    int loc = CKMetrics.getLOC(testSuite);
-                                    int nom = CKMetrics.getNOM(testSuite);
-                                    int wmc = CKMetrics.getWMC(testSuite);
-                                    int rfc = CKMetrics.getRFC(testSuite);
-                                    ClassCKInfo classInfo = new ClassCKInfo(loc, rfc, nom, wmc);
-                                    project.setLoc(project.getLoc() + loc);
-                                    project.setNom(project.getNom() + nom);
-                                    project.setTestClassesNumber(project.getTestClassesNumber() + 1);
-                                    analysis.setCkMetrics(classInfo);
-                                    analysis.setSmells(SmellynessProcessor.calculate(testSuite, prodClass, packages, project));
-                                    if (coverageInfos != null) {
-                                        analysis.setCoverage(VectorFind.findCoverageInfo(coverageInfos, testSuite.getName()));
-                                    } else {
-                                        analysis.setCoverage(new ClassCoverageInfo());
-                                    }
-                                    if (mutationCoverage.isSelected() && MutationCoverageProcessor.getError() == 0) {
-                                        MutationCoverageProcessor.setJavaLocation(notJbr);
-                                        String reportPath = project.getPath() + "\\out\\pitreport";
-                                        analysis.setMutationCoverage(MutationCoverageProcessor.calculate(testSuite, prodClass, project, isMaven, reportPath, (Long) mcTimeout.getValue()));
-                                    } else if(!mutationCoverage.isSelected())
-                                        analysis.setMutationCoverage(new ClassMutationCoverageInfo());
-                                    else if (mutationCoverage.isSelected() && MutationCoverageProcessor.getError()==1){
-                                        mutok=false;
-                                        break;
-                                    }
-
-                                    if (flakyTests.isSelected())
-                                        analysis.setFlakyTests(VectorFind.findFlakyInfo(flakyInfos, testSuite.getName()));
-                                    else
-                                        analysis.setFlakyTests(new FlakyTestsInfo());
-                                    classAnalyses.add(analysis);
+                        if (lineBranchCoverage.isSelected()) {
+                            String configDir = System.getProperty("user.home") + "\\.temevi";
+                            coverageInfos = CoverageProcessor.calculate(project);
+                        }
+                        if (flakyTests.isSelected()) {
+                            flakyInfos = FlakyTestsProcessor.calculate(project, (int) ftExecNumber.getValue());
+                        }
+                        for (ClassBean prodClass : classes) {
+                            ClassBean testSuite = utils.getTestClassBy(prodClass.getName(), testPackages);
+                            if (testSuite != null) {
+                                TestClassAnalysis analysis = new TestClassAnalysis();
+                                analysis.setName(testSuite.getName());
+                                analysis.setBelongingPackage(testSuite.getBelongingPackage());
+                                analysis.setProductionClass(prodClass.getBelongingPackage() + "." + prodClass.getName());
+                                int loc = CKMetrics.getLOC(testSuite);
+                                int nom = CKMetrics.getNOM(testSuite);
+                                int wmc = CKMetrics.getWMC(testSuite);
+                                int rfc = CKMetrics.getRFC(testSuite);
+                                ClassCKInfo classInfo = new ClassCKInfo(loc, rfc, nom, wmc);
+                                project.setLoc(project.getLoc() + loc);
+                                project.setNom(project.getNom() + nom);
+                                project.setTestClassesNumber(project.getTestClassesNumber() + 1);
+                                analysis.setCkMetrics(classInfo);
+                                analysis.setSmells(SmellynessProcessor.calculate(testSuite, prodClass, packages, project));
+                                if (coverageInfos != null) {
+                                    analysis.setCoverage(VectorFind.findCoverageInfo(coverageInfos, testSuite.getName()));
+                                } else {
+                                    analysis.setCoverage(new ClassCoverageInfo());
                                 }
+                                if (mutationCoverage.isSelected()) {
+                                    analysis.setMutationCoverage(MutationCoverageProcessor.calculate(testSuite, prodClass, project, (Long) mcTimeout.getValue()));
+                                } else if (!mutationCoverage.isSelected())
+                                    analysis.setMutationCoverage(new ClassMutationCoverageInfo());
+
+                                if (flakyTests.isSelected())
+                                    analysis.setFlakyTests(VectorFind.findFlakyInfo(flakyInfos, testSuite.getName()));
+                                else
+                                    analysis.setFlakyTests(new FlakyTestsInfo());
+                                classAnalyses.add(analysis);
                             }
-                            frame.dispose();
-                            if (mutationCoverage.isSelected() && MutationCoverageProcessor.getError()==1)
-                                mutok=false;
-                            if(mutok) {
-                                project.setClassAnalysis(classAnalyses);
-                                ReportManager.saveReport(project);
-
-
-                                JFrame ckShow = new AnalysisResultsUI(project);
-                                frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-                                ckShow.addWindowListener(new WindowAdapter() {
-                                    @Override
-                                    public void windowClosing(WindowEvent e) {
-                                        super.windowClosing(e);
-                                        JFrame frame = (JFrame) e.getSource();
-                                        try {
-                                            FileUtils.deleteDirectory(new File(System.getProperty("user.home") + "\\.temevi" + "\\htmlCoverage"));
-                                            FileUtils.forceDelete(new File(System.getProperty("user.home") + "\\.temevi" + "\\coverage.csv"));
-                                            FileUtils.forceDelete(new File(System.getProperty("user.home") + "\\.temevi" + "\\jacoco.exec"));
-                                        } catch (Exception ex) {
-                                            ex.printStackTrace();
-                                        }
-                                        MutationCoverageProcessor.setError(0);
-                                        MutationCoverageProcessor.setTimeoutHappened(0);
-                                        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                                    }
-                                });
-                                ckShow.setVisible(true);
-                            }
-                            else{
-                                JOptionPane.showMessageDialog(null, "Analisi annullata dall'utente");
-                                MutationCoverageProcessor.setError(0);
-                                MutationCoverageProcessor.setTimeoutHappened(0);
-                            }
-                        } else {
-                            frame.dispose();
-                            if (!ok)
-                                JOptionPane.showMessageDialog(null, "IL PROGETTO NON CONTIENE PRODUCTION CLASSES E TEST CLASSES COMPILATE!");
-                            if(!javaok)
-                                JOptionPane.showMessageDialog(null, "IL PLUGIN NON HA TROVATO UN'INSTALLAZIONE DI JRE8");
-
-
-
-
                         }
+                        frame.dispose();
+                        project.setClassAnalysis(classAnalyses);
+                        ReportManager.saveReport(project);
+
+                        JFrame ckShow = new AnalysisResultsUI(project);
+                        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+                        ckShow.addWindowListener(new WindowAdapter() {
+                            @Override
+                            public void windowClosing(WindowEvent e) {
+                                super.windowClosing(e);
+                                JFrame frame = (JFrame) e.getSource();
+                                try {
+                                    FileUtils.deleteDirectory(new File(System.getProperty("user.home") + "\\.temevi" + "\\htmlCoverage"));
+                                    FileUtils.forceDelete(new File(System.getProperty("user.home") + "\\.temevi" + "\\coverage.csv"));
+                                    FileUtils.forceDelete(new File(System.getProperty("user.home") + "\\.temevi" + "\\jacoco.exec"));
+                                    FileUtils.deleteDirectory(new File(System.getProperty("user.home") + "\\.temevi\\pitreport"));
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
+                                }
+
+                                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                            }
+                        });
+                        ckShow.setVisible(true);
+                       /* } else {
+                            frame.dispose();
+                            JOptionPane.showMessageDialog(null, "IL PROGETTO NON CONTIENE PRODUCTION CLASSES E TEST CLASSES COMPILATE!");
+
+                        } */
 
                     }
 
@@ -282,20 +233,15 @@ public class PluginInitGUI extends JFrame {
 
         constraints.gridx = 2;
         constraints.gridy = 5;
-        constraints.insets = new
-
-                Insets(10, 0, 10, 10);
+        constraints.insets = new Insets(10, 0, 10, 10);
         pane.add(runAnalysis, constraints);
 
         // constraints.fill = GridBagConstraints.HORIZONTAL; // natural height, maximum width
     }
 
 
-    public PluginInitGUI(Vector<PackageBean> packages, Vector<PackageBean> testPackages, File root, Project proj) {
-        this.packages = packages;
-        this.testPackages = testPackages;
-        this.root = root;
-        this.proj = proj;
+    public PluginInitGUI(TestProjectAnalysis project) {
+        this.project=project;
         initFrame = new JFrame("TEMEVI");
         initFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         addComponents(initFrame.getContentPane());
