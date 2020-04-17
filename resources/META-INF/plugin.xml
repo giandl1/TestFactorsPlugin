@@ -2,18 +2,14 @@
   <id>com.your.company.unique.plugin.id</id>
   <name>TestFactorsVIEW</name>
   <version>1.0</version>
-  <vendor email="support@yourcompany.com" url="https://github.com/giandl1/TestFactorsPlugin">Gianluca di Lillo</vendor>
+  <vendor email="https://www.unisa.it/" url="http://www.sesa.unisa.it/">SESA Lab.</vendor>
 
   <description><![CDATA[
-      TestFactorsVIEW calculates and shows certain Test Related Factors of a java project.
+      Plugin that calculates and visualize certain Test-Related Factors of a Java project.
     ]]></description>
 
   <change-notes><![CDATA[
-      <ul>
-        <li>Bug-fixing: now the coverage is calculated properly.</li>
-        <li>NEW: Flaky Tests are now supported.</li>
-        <li>NEW: Mutation Coverage is now supported.</li>
-      </ul>
+      Version 1.0: Initial release of the plugin.
     ]]>
   </change-notes>
 
