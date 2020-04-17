@@ -59,7 +59,7 @@ public class AnalysisResultsUI extends JFrame {
             list = new ConfigFileManager().readThresholds(default_conf);
 
         if (list == null) throw new NullPointerException();
-        setPreferredSize(new Dimension(1300, 900));
+        setPreferredSize(new Dimension(1440, 820));
         setTitle("Analysis Results");
         add(projectPanel(), BorderLayout.NORTH);
         classPanel = classPanel();
@@ -531,10 +531,10 @@ public class AnalysisResultsUI extends JFrame {
                                 flakyFrame.setVisible(true);
                             }
                         });
-                        flakyButton.setText("Show Flaky Tests");
+                        flakyButton.setText("Show Flaky Methods");
                         classInfo.add(flakyButton);
 
-                        //     }
+                    }
 
                         String affected = "";
                         if (selected.getSmells().getAssertionRoulette() == 1 || selected.getSmells().getAssertionRoulette() == 2)
@@ -651,4 +651,4 @@ public class AnalysisResultsUI extends JFrame {
             }
         }
     }
-}
+

@@ -105,33 +105,7 @@ public class ConfigUI extends JFrame {
                         JTextField guard = entry.getValue();
                         double det = Double.parseDouble(detection.getText());
                         double gua = Double.parseDouble(guard.getText());
-                        if(thresholds.getBelongingSmells().contains(TestSmellMetricThresholds.TestSmells.GENERAL_FIXTURE)
-                        || thresholds.getBelongingSmells().contains(TestSmellMetricThresholds.TestSmells.INDIRECT_TESTING)){
-                            if(gua>1){
-                                JOptionPane.showMessageDialog(null, "LA SOGLIA DI GUARDIA SUPERA IL LIMITE MASSIMO CONSENTITO!");
-                                continue;
-                            }
-                            if(det>1){
-                                JOptionPane.showMessageDialog(null, "LA SOGLIA DI RILEVAMENTO SUPERA IL LIMITE MASSIMO CONSENTITO!");
-                                continue;
-                            }
-                            if(det<=0){
-                                JOptionPane.showMessageDialog(null, "LA SOGLIA DI RILEVAMENTO SUPERA IL LIMITE MINIMO CONSENTITO!");
-                                continue;
-                            }
-                            if(gua<=0){
-                                JOptionPane.showMessageDialog(null, "LA SOGLIA DI GUARDIA E' MINORE DEL LIMITE MINIMO CONSENTITO!");
-                                continue;
-                            }
-                        }
-                        if (gua == det) {
-                            JOptionPane.showMessageDialog(null, "SOGLIA DI GUARDIA E RILVAMENTO NON POSSONO AVERE LO STESSO VALORE!");
-                            continue;
-                        }
-                        if(gua < det) {
-                            JOptionPane.showMessageDialog(null, "SOGLIA DI GUARDIA MINORE DELLA SOGLIA DI RILEVAMENTO!");
-                            continue;
-                        }
+
                         thresholds.setDetectionThreshold(det);
                         thresholds.setGuardThreshold(gua);
                     }

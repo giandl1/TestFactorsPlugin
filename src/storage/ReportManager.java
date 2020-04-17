@@ -16,7 +16,7 @@ public class ReportManager {
     private static final Logger LOGGER = Logger.getInstance("global");
 
     public static void saveReport(TestProjectAnalysis proj){
-        LOGGER.info("Starting report");
+       // LOGGER.info("Starting report");
         String fileName = new SimpleDateFormat("yyyyMMddHHmm'.csv'").format(new Date());
             String outputDir = proj.getPath() + "\\reports";
             String output=proj.getName() + ";" + proj.getLoc() +";" + proj.getNom() + ";" + proj.getRfc() + ";" + proj.getWmc() + ";" + proj.getTestClassesNumber() + "\n";
@@ -92,10 +92,10 @@ public class ReportManager {
 
                 output+="\n";
             }
-            LOGGER.info("SONO QUI 3");
+         //   LOGGER.info("SONO QUI 3");
             File out = new File(outputDir);
             out.mkdirs();
             FileUtility.writeFile(output, outputDir + "\\" + fileName);
-            LOGGER.info("FINITO");
+          //  LOGGER.info("FINITO");
     }
 }

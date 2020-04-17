@@ -112,13 +112,18 @@ public class PluginInitGUI extends JFrame {
         pane.add(lineBranchCoverage, constraints);
 
         // Button editMetricsThresholds COL2 - ROW6 6[-x-]
+
         editMetricsThresholds = new JButton("Edit Metrics Thresholds");
         editMetricsThresholds.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                initFrame.setEnabled(false);
+                String pluginFolder = System.getProperty("user.home") + "\\.temevi";
+                JFrame frame = new ConfigUI(pluginFolder);
+                frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+                frame.setVisible(true);
             }
         });
+
         constraints.gridx = 1;
         constraints.gridy = 5;
         constraints.insets = new Insets(10, 0, 10, 0);
