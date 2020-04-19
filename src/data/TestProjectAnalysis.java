@@ -188,45 +188,32 @@ public class TestProjectAnalysis {
 
             case 4:
                 for (TestClassAnalysis analysis : classAnalysis) {
-                    if (analysis.getSmells().getLazyTest() == 1||analysis.getSmells().getLazyTest()==2)
+                    if (analysis.getSmells().getSensitiveEquality() == 1||analysis.getSmells().getSensitiveEquality()==2)
                         classes.add(analysis);
                 }
                 break;
 
             case 5:
                 for (TestClassAnalysis analysis : classAnalysis) {
-                    if (analysis.getSmells().getSensitiveEquality() == 1||analysis.getSmells().getSensitiveEquality()==2)
+                    if (analysis.getSmells().getMysteryGuest() == 1||analysis.getSmells().getMysteryGuest()==2)
                         classes.add(analysis);
                 }
                 break;
 
             case 6:
                 for (TestClassAnalysis analysis : classAnalysis) {
-                    if (analysis.getSmells().getMysteryGuest() == 1||analysis.getSmells().getMysteryGuest()==2)
+                    if (analysis.getSmells().getIndirectTesting() == 1||analysis.getSmells().getIndirectTesting()==2)
                         classes.add(analysis);
                 }
                 break;
 
             case 7:
                 for (TestClassAnalysis analysis : classAnalysis) {
-                    if (analysis.getSmells().getIndirectTesting() == 1||analysis.getSmells().getIndirectTesting()==2)
-                        classes.add(analysis);
-                }
-                break;
-
-            case 8:
-                for (TestClassAnalysis analysis : classAnalysis) {
-                    if (analysis.getSmells().getForTestersOnly() == 1||analysis.getSmells().getForTestersOnly()==2)
-                        classes.add(analysis);
-                }
-                break;
-
-            case 9:
-                for (TestClassAnalysis analysis : classAnalysis) {
                     if (analysis.getSmells().getResourceOptimism() == 1||analysis.getSmells().getResourceOptimism()==2)
                         classes.add(analysis);
                 }
                 break;
+
 
         }
         return classes;

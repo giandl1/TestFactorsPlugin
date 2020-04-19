@@ -97,7 +97,7 @@ public class MetricsChart {
                // chart.addSeries(metric.getId(), xData, yData);
             }
             if(storic == null){
-                chart.setTitle("NON SONO STATI TROVATI REPORTS!");
+                chart.setTitle("NO REPORTS FOUND");
             }
             TestSmellMetricThresholds threshold = TestSmellMetricsThresholdsList.getThresholdsById(realId, thresholds);
             double detectionThreshold = threshold.getDetectionThreshold();

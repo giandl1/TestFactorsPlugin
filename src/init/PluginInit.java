@@ -91,7 +91,7 @@ public class PluginInit extends AnAction {
         File main = new File(mainPath);
         File test = new File(testPath);
         if (!main.exists() || !test.exists()) {
-            JOptionPane.showMessageDialog(null, "STRUTTURA DIRECTORIES NON CORRETTA!");
+            JOptionPane.showMessageDialog(null, "PROJECT'S FOLDER STRUCTURE IS NOT CORRECT. PLEASE USE MAVEN DIRECTORY LAYOUT.");
         } else {
             boolean isMaven = false;
             for (File file : root.listFiles()) {
@@ -110,7 +110,7 @@ public class PluginInit extends AnAction {
                 try {
                     Vector<PackageBean> testPackages = FolderToJavaProjectConverter.convert(test.getAbsolutePath());
                     if (testPackages.size() == 1 && testPackages.get(0).getClasses().size() == 0)
-                        JOptionPane.showMessageDialog(null, "NON SONO STATI TROVATI FILES SORGENTI DI TEST");
+                        JOptionPane.showMessageDialog(null, "TESTING SOURCE FILES NOT FOUND");
                     else {
                         Vector<PackageBean> packages = FolderToJavaProjectConverter.convert(mainPath);
                         projectAnalysis.setPackages(packages);

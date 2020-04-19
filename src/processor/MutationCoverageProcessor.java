@@ -52,7 +52,7 @@ public class MutationCoverageProcessor {
             Process p = rt.exec(cmd);
             long time = System.currentTimeMillis();
             p.waitFor(timeoutInSeconds, TimeUnit.SECONDS);
-            p.destroy();
+            p.destroyForcibly();
            // LOGGER.info("ENDING PITEST");
 
             SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmm");

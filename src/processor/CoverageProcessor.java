@@ -2,6 +2,7 @@ package processor;
 
 
 //import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.diagnostic.Logger;
 import data.ClassCoverageInfo;
 import data.TestProjectAnalysis;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
@@ -18,7 +19,7 @@ import java.util.Vector;
 
 
 public class CoverageProcessor {
-   // private static final Logger LOGGER = Logger.getInstance("global");
+  private static final Logger LOGGER = Logger.getInstance("global");
 
 
     public static Vector<ClassCoverageInfo> calculate(TestProjectAnalysis proj) {
@@ -106,7 +107,7 @@ public class CoverageProcessor {
             }
 
 
-            cmd = "java -jar C:\\jacoco\\lib\\jacococli.jar report " + configDir + "\\jacoco.exec" + " --classfiles " + destination + " --csv " + configDir + "\\coverage.csv";
+            cmd = "java -jar " + jacocoCli + " report " + configDir + "\\jacoco.exec" + " --classfiles " + destination + " --csv " + configDir + "\\coverage.csv";
            // LOGGER.info("START COBERTURA REPORT");
           //  LOGGER.info(cmd);
             rt = Runtime.getRuntime();
@@ -119,7 +120,7 @@ public class CoverageProcessor {
             p.waitFor();
            // LOGGER.info("END COBERTURA REPORT");
 
-            cmd = "java -jar C:\\jacoco\\lib\\jacococli.jar report " + configDir + "\\jacoco.exec" + " --classfiles " + destination + " --html " + configDir + "\\htmlCoverage";
+            cmd = "java -jar " + jacocoCli + " report " + configDir + "\\jacoco.exec" + " --classfiles " + destination + " --html " + configDir + "\\htmlCoverage";
           //  LOGGER.info("START COBERTURA REPORT");
          //   LOGGER.info(cmd);
             rt = Runtime.getRuntime();
@@ -154,6 +155,8 @@ public class CoverageProcessor {
                             double cov = coveredLines / totalLines;
                             lineCoverage = Math.round(cov * 100);
                             lineCoverage = lineCoverage / 100;
+                            projectTotalLines += totalLines;
+                            projectCoveredLines += coveredLines;
                          //   LOGGER.info("Line cov: " + lineCoverage );
                             double coveredBranches = Double.parseDouble(data[6]);
                             double missedBranches = Double.parseDouble(data[5]);
@@ -193,8 +196,7 @@ public class CoverageProcessor {
             FileUtils.deleteDirectory(new File(buildPath + "\\instrumented"));
 
 
-          //  LOGGER.info("project coveredlines: " + projectCoveredLines);
-          //  LOGGER.info("project totallines: " + projectTotalLines);
+
             double projectLineCov = projectCoveredLines / projectTotalLines;
             double projectLineCov100 = Math.round(projectLineCov * 100);
             projectLineCov100 = projectLineCov100 / 100;

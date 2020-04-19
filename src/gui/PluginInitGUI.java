@@ -34,7 +34,7 @@ public class PluginInitGUI extends JFrame {
         GridBagConstraints constraints = new GridBagConstraints();
 
         // CheckBox ckMetrics COL1 - ROW1 1[x--]
-        ckMetrics = new JCheckBox("CK Metrics", true);
+        ckMetrics = new JCheckBox("Test Smells", true);
         ckMetrics.setEnabled(false);
         constraints.gridx = 0;
         constraints.gridy = 0;
@@ -247,7 +247,7 @@ public class PluginInitGUI extends JFrame {
 
     public PluginInitGUI(TestProjectAnalysis project) {
         this.project=project;
-        initFrame = new JFrame("TEMEVI");
+        initFrame = new JFrame("VITRuM");
         initFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         addComponents(initFrame.getContentPane());
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();

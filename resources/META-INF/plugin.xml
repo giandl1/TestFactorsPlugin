@@ -1,8 +1,8 @@
 <idea-plugin>
-  <id>com.your.company.unique.plugin.id</id>
-  <name>TestFactorsVIEW</name>
+  <id>it.unisa.vitrum</id>
+  <name>VITRuM</name>
   <version>1.0</version>
-  <vendor email="https://www.unisa.it/" url="http://www.sesa.unisa.it/">SESA Lab.</vendor>
+  <vendor email="gianluca.dilillo@gmail.com" url="http://www.sesa.unisa.it/">SESA Lab.</vendor>
 
   <description><![CDATA[
       Plugin that calculates and visualize certain Test-Related Factors of a Java project.
@@ -28,7 +28,7 @@
 
   <actions>
     <!-- Add your actions here -->
-    <group id="TemeviGroupedActions" text="TestFactorsVIEW" description="Sample desc" popup="true">
+    <group id="TemeviGroupedActions" text="VITRuM" description="Sample desc" popup="true">
       <add-to-group group-id="ToolsMenu" anchor="before" relative-to-action="ToolsXmlGroup"/>
       <action id="Run" class="init.PluginInit" text="Calculate Test Factors"/>
       <action id="Configure" class="config.PluginConfig" text="Edit Configuration"/>
