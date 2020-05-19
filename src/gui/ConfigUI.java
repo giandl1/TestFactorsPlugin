@@ -34,8 +34,8 @@ public class ConfigUI extends JFrame {
         fields = new HashMap<>();
         this.projdir = projdir;
         this.setTitle("Metrics Thresholds Configuration");
-        File default_conf = new File(System.getProperty("user.home") + "\\.temevi" + "\\default_config.ini");
-        File conf = new File(System.getProperty("user.home") + "\\.temevi" + "\\config.ini");
+        File default_conf = new File(System.getProperty("user.home") + "/vitrum" + "/default_config.ini");
+        File conf = new File(System.getProperty("user.home") + "/vitrum" + "/config.ini");
        /*if(!default_conf.exists()) {
             thresholds = new SmellsThresholds(1,1,1,1,1,1,1,1,1);
             new ConfigFileHandler().writeThresholds(new File(projdir + "\\default_config.ini"), thresholds);
@@ -110,7 +110,7 @@ public class ConfigUI extends JFrame {
                         thresholds.setGuardThreshold(gua);
                     }
 
-                    new ConfigFileManager().writeThresholds(new File(projdir + "\\config.ini"), metricsList);
+                    new ConfigFileManager().writeThresholds(new File(projdir + "/config.ini"), metricsList);
                     JOptionPane.showMessageDialog(null, "NUOVE SOGLIE SALVATE CON SUCCESSO!");
                 } catch (NumberFormatException e) {
                     JOptionPane.showMessageDialog(panel, "IL FORMATO DELLA SOGLIA NON RISPETTA IL TIPO DOUBLE!");

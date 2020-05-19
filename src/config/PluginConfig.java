@@ -16,9 +16,9 @@ public class PluginConfig extends AnAction {
     public void actionPerformed(AnActionEvent e) {
        // TestSmellMetricsThresholdsList list = new ConfigFileHandler().readThresholds(new File("C:\\Users\\Psycho\\IdeaProjects\\ProgettoExample\\default_config.ini"));
         String userDir = System.getProperty("user.home");
-        String pluginFolder = userDir + "\\.temevi";
+        String pluginFolder = userDir + "/vitrum";
         LOGGER.info(System.getProperty("java.home"));
-        File config = new File(pluginFolder + "\\default_config.ini");
+        File config = new File(pluginFolder + "/default_config.ini");
         LOGGER.info(config.getAbsolutePath());
         if(!config.exists()){
             String output = "[NONDA]" +
@@ -65,7 +65,7 @@ public class PluginConfig extends AnAction {
                     "\nbelongingSmells=SENSITIVE_EQUALITY";
             File plugin = new File(pluginFolder);
             plugin.mkdirs();
-            FileUtility.writeFile(output, pluginFolder + "\\" + "default_config.ini");
+            FileUtility.writeFile(output, pluginFolder + "/" + "default_config.ini");
         }
         JFrame frame = new ConfigUI(pluginFolder);
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);

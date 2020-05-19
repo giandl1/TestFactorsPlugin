@@ -3,6 +3,7 @@ package processor;
 
 //import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.util.SystemInfo;
 import data.ClassCoverageInfo;
 import data.TestProjectAnalysis;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
@@ -29,8 +30,8 @@ public class CoverageProcessor {
             double projectTotalBranches = 0;
             double projectCoveredBranches = 0;
             String pluginPath = proj.getPluginPath();
-            String jacocoCli = pluginPath + "\\jacococli.jar";
-            String jacocoAgent = pluginPath + "\\jacocoagent.jar";
+            String jacocoCli = pluginPath + "/jacococli.jar";
+            String jacocoAgent = pluginPath + "/jacocoagent.jar";
             Vector<ClassCoverageInfo> classCoverageInfo = new Vector<ClassCoverageInfo>();
             TestSmellMetrics testSmellMetrics = new TestSmellMetrics();
             TestMutationUtilities utilities = new TestMutationUtilities();
@@ -47,28 +48,40 @@ public class CoverageProcessor {
             String buildPath;
             boolean isMaven = proj.isMaven();
             if (isMaven) {
-                buildPath = proj.getPath() + "\\target";
-                destination = proj.getPath() + "\\target\\classes";
-                testPath = proj.getPath() + "\\target\\test-classes";
+                buildPath = proj.getPath() + "/target";
+                destination = proj.getPath() + "/target/classes";
+                testPath = proj.getPath() + "/target/test-classes";
             } else {
-                buildPath = proj.getPath() + "\\out";
-                destination = proj.getPath() + "\\out\\production\\" + proj.getName();
-                testPath = proj.getPath() + "\\out\\test\\" + proj.getName();
+                buildPath = proj.getPath() + "/out";
+                destination = proj.getPath() + "/out/production/" + proj.getName();
+                testPath = proj.getPath() + "/out/test/" + proj.getName();
             }
-            String cmd = "java -jar " + jacocoCli + " instrument " + destination + " --dest " + buildPath + "\\instrumented";
-
+            String cmd = "java -jar " + jacocoCli + " instrument " + destination + " --dest " + buildPath + "/instrumented";
+            String[] cmdargs = new String[] {
+                    "java",
+                    "-jar",
+                    jacocoCli,
+                    "instrument",
+                    destination,
+                    "--dest",
+                    buildPath + "/instrumented"
+            };
            // LOGGER.info("START COBERTURA INSTRUMENT");
 
-            //LOGGER.info(cmd);
+            LOGGER.info(cmd);
             Runtime rt = Runtime.getRuntime();
-            Process p = rt.exec(cmd);
+            Process p;
+            if(SystemInfo.getOsNameAndVersion().toLowerCase().contains("windows"))
+                 p = rt.exec(cmd);
+            else
+                p = rt.exec(cmdargs);
             String s;
             String output = "";
             BufferedReader stdOut = new BufferedReader(new InputStreamReader(p.getInputStream()));
             while ((s = stdOut.readLine()) != null) {
                 output += s;
             }
-
+            LOGGER.info(output);
             p.waitFor();
             //LOGGER.info("END COBERTURA INSTRUMENT");
 
@@ -80,58 +93,113 @@ public class CoverageProcessor {
 
                     //   ClassBean testSuite = TestMutationUtilities.getTestClassBy(productionClass.getName(), testPackages);
                     //  if (testSuite != null) {
-
-
-                    cmd = "\"" + javaPath + "\" -cp " + jacocoAgent + ";" + configDir + ";" + pluginPath + "\\*;"
-                            + buildPath + "\\instrumented;" + destination + ";" + testPath +
+                     cmdargs = new String[]{
+                            javaPath,
+                            "-cp",
+                            jacocoAgent + ":" + configDir + ":" + pluginPath + "/*:" + buildPath + "/instrumented:" + destination + ":" + testPath,
+                            "org.junit.runner.JUnitCore",
+                            testSuite.getBelongingPackage() + "." + testSuite.getName()
+                            };
+                    cmd = "\"" + javaPath + "\" -cp " + jacocoAgent + ";" + configDir + ";" + pluginPath + "/*;"
+                            + buildPath + "/instrumented;" + destination + ";" + testPath +
                             " org.junit.runner.JUnitCore " + testSuite.getBelongingPackage() + "." + testSuite.getName();
+
                    // LOGGER.info("START JUNIT TESTS");
                   //  LOGGER.info(cmd);
+                if(SystemInfo.getOsNameAndVersion().toLowerCase().contains("windows"))
                     p = rt.exec(cmd);
+                else
+                    p = rt.exec(cmdargs);
                     output = "";
                     stdOut = new BufferedReader(new InputStreamReader(p.getInputStream()));
                     while ((s = stdOut.readLine()) != null) {
                         output += s;
                     }
+
                     BufferedReader stdErr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
                     output = "";
                     while ((s = stdErr.readLine()) != null) {
-                        output += s;
+                        output+=s;
                     }
 
 
                     p.waitFor();
+                    LOGGER.info(output);
+
                     //LOGGER.info("END JUNIT TESTS");
 
                 }
             }
 
 
-            cmd = "java -jar " + jacocoCli + " report " + configDir + "\\jacoco.exec" + " --classfiles " + destination + " --csv " + configDir + "\\coverage.csv";
+            cmd = "java -jar " + jacocoCli + " report " + configDir + "/jacoco.exec" + " --classfiles " + destination + " --csv " + configDir + "/coverage.csv";
+            cmdargs = new String[] {
+                    "java",
+                    "-jar",
+                    jacocoCli,
+                    "report",
+                    configDir + "/jacoco.exec",
+                    "--classfiles",
+                    destination,
+                    "--csv",
+                    configDir + "/coverage.csv"
+            };
            // LOGGER.info("START COBERTURA REPORT");
           //  LOGGER.info(cmd);
             rt = Runtime.getRuntime();
-            p = rt.exec(cmd);
+            if(SystemInfo.getOsNameAndVersion().toLowerCase().contains("windows"))
+                p = rt.exec(cmd);
+            else
+                p = rt.exec(cmdargs);
             output = "";
             stdOut = new BufferedReader(new InputStreamReader(p.getInputStream()));
             while ((s = stdOut.readLine()) != null) {
                 output += s;
             }
-            p.waitFor();
-           // LOGGER.info("END COBERTURA REPORT");
+            BufferedReader stdErr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            output = "";
+            while ((s = stdErr.readLine()) != null) {
+                output += s;
+            }
 
-            cmd = "java -jar " + jacocoCli + " report " + configDir + "\\jacoco.exec" + " --classfiles " + destination + " --html " + configDir + "\\htmlCoverage";
+            p.waitFor();
+            LOGGER.info(output);
+
+            // LOGGER.info("END COBERTURA REPORT");
+            cmdargs = new String[] {
+                    "java",
+                    "-jar",
+                    jacocoCli,
+                    "report",
+                    configDir + "/jacoco.exec",
+                    "--classfiles",
+                    destination,
+                    "--html",
+                    configDir + "/htmlCoverage"
+            };
+            cmd = "java -jar " + jacocoCli + " report " + configDir + "/jacoco.exec" + " --classfiles " + destination + " --html " + configDir + "/htmlCoverage";
           //  LOGGER.info("START COBERTURA REPORT");
          //   LOGGER.info(cmd);
             rt = Runtime.getRuntime();
-            p = rt.exec(cmd);
+            if(SystemInfo.getOsNameAndVersion().toLowerCase().contains("windows"))
+                p = rt.exec(cmd);
+            else
+                p = rt.exec(cmdargs);
             output = "";
             stdOut = new BufferedReader(new InputStreamReader(p.getInputStream()));
             while ((s = stdOut.readLine()) != null) {
                 output += s;
             }
+             stdErr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            output = "";
+            while ((s = stdErr.readLine()) != null) {
+                output += s;
+            }
+
             p.waitFor();
-          //  LOGGER.info("END COBERTURA REPORT");
+            LOGGER.info(output);
+
+            //  LOGGER.info("END COBERTURA REPORT");
 
             for (ClassBean productionClass : classes) {
                 ClassBean testSuite = TestMutationUtilities.getTestClassBy(productionClass.getName(), testPackages);
@@ -139,7 +207,7 @@ public class CoverageProcessor {
 
                     String line = "";
                     String cvsSplitBy = ",";
-                    String reportPath = configDir + "\\coverage.csv";
+                    String reportPath = configDir + "/coverage.csv";
                     File file = new File(reportPath);
                     BufferedReader br = new BufferedReader(new FileReader(file));
                     br.readLine();
@@ -193,7 +261,7 @@ public class CoverageProcessor {
 
             //CLEANUP
 
-            FileUtils.deleteDirectory(new File(buildPath + "\\instrumented"));
+            FileUtils.deleteDirectory(new File(buildPath + "/instrumented"));
 
 
 

@@ -2,6 +2,7 @@ package processor;
 
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.util.SystemInfo;
 import data.ClassMutationCoverageInfo;
 import data.TestProjectAnalysis;
 import init.PluginInit;
@@ -32,24 +33,45 @@ public class MutationCoverageProcessor {
             String testPath;
             String javaPath = proj.getJavaPath();
             boolean isMaven = proj.isMaven();
-            String reportPath = proj.getConfigPath() + "\\pitreport";
-            mainPath = proj.getPath() + "\\src\\main";
-            testPath = proj.getPath() + "\\src\\test";
+            String reportPath = proj.getConfigPath() + "/pitreport";
+            mainPath = proj.getPath() + "/src/main";
+            testPath = proj.getPath() + "/src/test";
 
             if (!isMaven) {
-                mainBuildPath = proj.getPath() + "\\out\\production\\" + proj.getName();
-                testBuildPath = proj.getPath() + "\\out\\test\\" + proj.getName();
+                mainBuildPath = proj.getPath() + "/out/production/" + proj.getName();
+                testBuildPath = proj.getPath() + "/out/test/" + proj.getName();
             } else {
-                mainBuildPath = proj.getPath() + "\\target\\classes\\";
-                testBuildPath = proj.getPath() + "\\target\\test-classes\\";
+                mainBuildPath = proj.getPath() + "/target/classes/";
+                testBuildPath = proj.getPath() + "/target/test-classes/";
             }
-            String cmd = "\"" + javaPath + "\" -cp " + mainBuildPath + ";" + testBuildPath + ";" + proj.getPluginPath() + "\\*; "
-                    + "org.pitest.mutationtest.commandline.MutationCoverageReport --reportDir " + reportPath + "\\" + testSuite.getBelongingPackage() + "." + testSuite.getName() + " --targetClasses " + productionClass.getBelongingPackage() + "." + productionClass.getName() + " "
+            String cmd;
+            cmd = "\"" + javaPath + "\" -cp " + mainBuildPath + ";" + testBuildPath + ";" + proj.getPluginPath() + "/*; "
+                    + "org.pitest.mutationtest.commandline.MutationCoverageReport --reportDir " + reportPath + "/" + testSuite.getBelongingPackage() + "." + testSuite.getName()
+                    + " --targetClasses " + productionClass.getBelongingPackage() + "." + productionClass.getName() + " "
                     + "--targetTests " + testSuite.getBelongingPackage() + "." + testSuite.getName() + " --sourceDirs " + mainPath + "," + testPath;
+
+            String[] cmdargs = new String[] {
+                    javaPath,
+                    "-cp",
+                    mainBuildPath + ":" + testBuildPath + ":" + proj.getPluginPath() + "/*:",
+                    "org.pitest.mutationtest.commandline.MutationCoverageReport",
+                    "--reportDir",
+                    reportPath + "/" + testSuite.getBelongingPackage() + "." + testSuite.getName(),
+                    "--targetClasses",
+                    productionClass.getBelongingPackage() + "." + productionClass.getName(),
+                    "--targetTests",
+                    testSuite.getBelongingPackage() + "." + testSuite.getName(),
+                    "--sourceDirs",
+                    mainPath + "," + testPath
+            };
             Runtime rt = Runtime.getRuntime();
            // LOGGER.info("STARTING PITEST");
             //LOGGER.info(cmd);
-            Process p = rt.exec(cmd);
+            Process p;
+            if(SystemInfo.getOsNameAndVersion().toLowerCase().contains("windows"))
+                p = rt.exec(cmd);
+            else
+                p = rt.exec(cmdargs);
             long time = System.currentTimeMillis();
             p.waitFor(timeoutInSeconds, TimeUnit.SECONDS);
             p.destroyForcibly();
@@ -57,7 +79,7 @@ public class MutationCoverageProcessor {
 
             SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmm");
             String mutationFileName = format.format(new Date());
-            mutationFileName = reportPath + "\\" + testSuite.getBelongingPackage() + "." + testSuite.getName() + "/" + mutationFileName + "/index.html";
+            mutationFileName = reportPath + "/" + testSuite.getBelongingPackage() + "." + testSuite.getName() + "/" + mutationFileName + "/index.html";
             mutationInfo.setReportName(mutationFileName);
             if (new File(mutationFileName).exists()) {
                 PitestHTMLParser pitHTML = new PitestHTMLParser(mutationFileName);

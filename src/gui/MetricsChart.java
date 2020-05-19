@@ -74,7 +74,7 @@ public class MetricsChart {
 
         for(TestSmellMetric metric : metrics) {
             ArrayList<Double> xData = new ArrayList<>();
-            ArrayList<Double> storic = new AnalysisHistoryManager().getStoricValues(className, metric.getId(), path + "\\reports", month, year);
+            ArrayList<Double> storic = new AnalysisHistoryManager().getStoricValues(className, metric.getId(), path + "/reports", month, year);
             if (storic != null) {
                 metric.setStoricValues(storic);
                 execs = storic.size();

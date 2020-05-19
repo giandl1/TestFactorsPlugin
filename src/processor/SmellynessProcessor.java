@@ -35,9 +35,9 @@ public class SmellynessProcessor {
             GeneralFixture generalFixture = new GeneralFixture();
             ClassTestSmellsInfo  classTestSmellsInfo = new ClassTestSmellsInfo();
             TestSmellMetricsThresholdsList metricsList;
-           File default_conf = new File(System.getProperty("user.home") + "\\.temevi" + "\\default_config.ini");
+           File default_conf = new File(System.getProperty("user.home") + "/vitrum" + "/default_config.ini");
            System.out.println(System.getProperty("user.home"));
-           File conf = new File(System.getProperty("user.home") + "\\.temevi" + "\\config.ini");
+           File conf = new File(System.getProperty("user.home") + "/vitrum" + "/config.ini");
        /*if(!default_conf.exists()) {
             thresholds = new SmellsThresholds(1,1,1,1,1,1,1,1,1);
             new ConfigFileHandler().writeThresholds(new File(projdir + "\\default_config.ini"), thresholds);

@@ -3,6 +3,7 @@ package processor;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.SystemInfo;
 import data.FlakyTestsInfo;
 import data.TestProjectAnalysis;
 import init.PluginInit;
@@ -34,11 +35,11 @@ public class FlakyTestsProcessor {
             String destination;
             String testPath;
             if (!isMaven) {
-                destination = proj.getPath() + "\\out\\production\\" + proj.getName();
-                testPath = proj.getPath() + "\\out\\test\\" + proj.getName();
+                destination = proj.getPath() + "/out/production/" + proj.getName();
+                testPath = proj.getPath() + "/out/test/" + proj.getName();
             } else {
-                destination = proj.getPath() + "\\target\\classes";
-                testPath = proj.getPath() + "\\target\\test-classes";
+                destination = proj.getPath() + "/target/classes";
+                testPath = proj.getPath() + "/target/test-classes";
             }
             TestMutationUtilities utilities = new TestMutationUtilities();
             ArrayList<ClassBean> classes = utilities.getClasses(packages);
@@ -49,16 +50,28 @@ public class FlakyTestsProcessor {
                 passedTests=new Hashtable<>();
                 ClassBean testSuite = TestMutationUtilities.getTestClassBy(productionClass.getName(), testPackages);
                 if (testSuite != null) {
-                    String cmd = "\"" + javaLocation + "\" -cp " + pluginPath + "\\*;"
+                    String cmd;
+                        cmd = "\"" + javaLocation + "\" -cp " + pluginPath + "/*;"
                             + destination + ";" + testPath +
                             " org.junit.runner.JUnitCore " + testSuite.getBelongingPackage() + "." + testSuite.getName();
+                    String[] cmdargs = new String[]{
+                            javaLocation,
+                            "-cp",
+                            pluginPath + "/*:" + destination + ":" + testPath,
+                            "org.junit.runner.JUnitCore",
+                            testSuite.getBelongingPackage() + "." + testSuite.getName()
+                    };
                     Collection<MethodBean> methods = testSuite.getMethods();
                     FlakyTestsInfo info = new FlakyTestsInfo();
                     Hashtable<String, Integer> flaky = new Hashtable();
                     info.setTestSuite(testSuite.getName());
                     Runtime rt = Runtime.getRuntime();
                     //  LOGGER.info("STARTING FIRST RUN TESTS, CLASS nr." + j);
-                    Process pr = rt.exec(cmd);
+                    Process pr;
+                    if(SystemInfo.getOsNameAndVersion().toLowerCase().contains("windows"))
+                        pr = rt.exec(cmd);
+                    else
+                        pr = rt.exec(cmdargs);
                     String s;
                     String output = "";
                     BufferedReader stdOut = new BufferedReader(new InputStreamReader(pr.getInputStream()));
@@ -77,10 +90,14 @@ public class FlakyTestsProcessor {
                         else
                             passedTests.put(method.getName(), 1);
                     }
+                    Boolean windows = SystemInfo.getOsNameAndVersion().toLowerCase().contains("windows");
 
                     //  LOGGER.info("FIRST RUN TESTS END, CLASS nr." + j);
                     for (int i = 0; i < times - 1; i++) {
-                        pr = rt.exec(cmd);
+                        if(windows)
+                            pr = rt.exec(cmd);
+                        else
+                            pr = rt.exec(cmdargs);
                         s = "";
                         output = "";
                         stdOut = new BufferedReader(new InputStreamReader(pr.getInputStream()));

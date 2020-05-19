@@ -18,7 +18,7 @@ public class ReportManager {
     public static void saveReport(TestProjectAnalysis proj){
        // LOGGER.info("Starting report");
         String fileName = new SimpleDateFormat("yyyyMMddHHmm'.csv'").format(new Date());
-            String outputDir = proj.getPath() + "\\reports";
+            String outputDir = proj.getPath() + "/reports";
             String output=proj.getName() + ";" + proj.getLoc() +";" + proj.getNom() + ";" + proj.getRfc() + ";" + proj.getWmc() + ";" + proj.getTestClassesNumber() + "\n";
             output += "testsuite;production;loc;nom;wmc;rfc;lc;bc;mc;";
            TestSmellsMetrics idList = proj.getClassAnalysis().get(0).getSmells().getMetrics();
@@ -95,7 +95,7 @@ public class ReportManager {
          //   LOGGER.info("SONO QUI 3");
             File out = new File(outputDir);
             out.mkdirs();
-            FileUtility.writeFile(output, outputDir + "\\" + fileName);
+            FileUtility.writeFile(output, outputDir + "/" + fileName);
           //  LOGGER.info("FINITO");
     }
 }

@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.util.SystemInfo;
 import data.*;
 import gui.PluginInitGUI;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
@@ -25,9 +26,10 @@ public class PluginInit extends AnAction {
     public void actionPerformed(AnActionEvent e) {
         String userDir = System.getProperty("user.home");
 
-        String pluginFolder = userDir + "\\.temevi";
-        File config = new File(pluginFolder + "\\default_config.ini");
-        File jacocoProp = new File(pluginFolder + "\\jacoco-agent.properties");
+        String pluginFolder = userDir + "/vitrum";
+        String pluginFolderWin = userDir + "\\vitrum";
+        File config = new File(pluginFolder + "/default_config.ini");
+        File jacocoProp = new File(pluginFolder + "/jacoco-agent.properties");
         if (!config.exists()) {
             String output = "[NONDA]" +
                     "\nname=Number of Non-Documented Assertions " +
@@ -73,13 +75,21 @@ public class PluginInit extends AnAction {
                     "\nbelongingSmells=SENSITIVE_EQUALITY";
             File plugin = new File(pluginFolder);
             plugin.mkdirs();
-            FileUtility.writeFile(output, pluginFolder + "\\" + "default_config.ini");
+            File plugin2 = new File(pluginFolderWin);
+            plugin2.mkdirs();
+            FileUtility.writeFile(output, pluginFolder + "/" + "default_config.ini");
 
         }
         if (!jacocoProp.exists()) {
-            pluginFolder = pluginFolder.replace("\\", "\\\\");
-            String output = "destfile = " + pluginFolder + "\\\\jacoco.exec";
-            FileUtility.writeFile(output, pluginFolder + "\\" + "jacoco-agent.properties");
+            if(SystemInfo.getOsNameAndVersion().toLowerCase().contains("windows")) {
+                pluginFolderWin = pluginFolderWin.replace("\\", "\\\\");
+                String output = "destfile = " + pluginFolderWin + "\\\\jacoco.exec";
+                FileUtility.writeFile(output, pluginFolderWin + "\\" + "jacoco-agent.properties");
+            }
+            else{
+                String output = "destfile = " + pluginFolder + "/jacoco.exec";
+                FileUtility.writeFile(output, pluginFolder + "/" + "jacoco-agent.properties");
+            }
         }
         TestProjectAnalysis projectAnalysis = new TestProjectAnalysis();
         Project proj = e.getData(PlatformDataKeys.PROJECT);
@@ -101,7 +111,13 @@ public class PluginInit extends AnAction {
             projectAnalysis.setMaven(isMaven);
             File project = new File(srcPath);
             String projectSDK = ProjectRootManager.getInstance(proj).getProjectSdk().getHomePath();
-            String javaPath = projectSDK + "/bin/java.exe";
+            LOGGER.info(projectSDK);
+            String os = SystemInfo.getOsNameAndVersion();
+            String javaPath;
+            if(os.toLowerCase().contains("windows"))
+                javaPath = projectSDK + "/bin/java.exe";
+            else
+                javaPath = projectSDK + "/bin/java";
             projectAnalysis.setName(proj.getName());
             projectAnalysis.setPath(proj.getBasePath());
             projectAnalysis.setJavaPath(javaPath);
@@ -115,7 +131,7 @@ public class PluginInit extends AnAction {
                         Vector<PackageBean> packages = FolderToJavaProjectConverter.convert(mainPath);
                         projectAnalysis.setPackages(packages);
                         projectAnalysis.setTestPackages(testPackages);
-                        projectAnalysis.setConfigPath(System.getProperty("user.home") + "\\.temevi");
+                        projectAnalysis.setConfigPath(System.getProperty("user.home") + "/vitrum");
                         PluginInitGUI initGUI = new PluginInitGUI(projectAnalysis);
 
                     } } catch(Exception ex){

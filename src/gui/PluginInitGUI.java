@@ -2,6 +2,7 @@ package gui;
 
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.SystemInfo;
 import data.*;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
@@ -117,7 +118,7 @@ public class PluginInitGUI extends JFrame {
         editMetricsThresholds.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                String pluginFolder = System.getProperty("user.home") + "\\.temevi";
+                String pluginFolder = System.getProperty("user.home") + "/vitrum";
                 JFrame frame = new ConfigUI(pluginFolder);
                 frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
                 frame.setVisible(true);
@@ -137,7 +138,8 @@ public class PluginInitGUI extends JFrame {
                     public void run() {
                         initFrame.setVisible(false);
                         JFrame frame = swingProgressBar();
-                        String pluginPath = PathManager.getPluginsPath() + "\\TestFactorsPlugin\\lib";
+                        String intellijpath = PathManager.getPluginsPath();
+                        String pluginPath = intellijpath + "/TestFactorsPlugin/lib";
                         project.setPluginPath(pluginPath);
                         Vector<PackageBean> packages = project.getPackages();
                         Vector<PackageBean> testPackages = project.getTestPackages();
@@ -159,7 +161,7 @@ public class PluginInitGUI extends JFrame {
                         if (ok) {*/
 
                         if (lineBranchCoverage.isSelected()) {
-                            String configDir = System.getProperty("user.home") + "\\.temevi";
+                            String configDir = System.getProperty("user.home") + "/vitrum";
                             coverageInfos = CoverageProcessor.calculate(project);
                         }
                         if (flakyTests.isSelected()) {
@@ -211,10 +213,10 @@ public class PluginInitGUI extends JFrame {
                                 super.windowClosing(e);
                                 JFrame frame = (JFrame) e.getSource();
                                 try {
-                                    FileUtils.deleteDirectory(new File(System.getProperty("user.home") + "\\.temevi" + "\\htmlCoverage"));
-                                    FileUtils.forceDelete(new File(System.getProperty("user.home") + "\\.temevi" + "\\coverage.csv"));
-                                    FileUtils.forceDelete(new File(System.getProperty("user.home") + "\\.temevi" + "\\jacoco.exec"));
-                                    FileUtils.deleteDirectory(new File(System.getProperty("user.home") + "\\.temevi\\pitreport"));
+                                    FileUtils.deleteDirectory(new File(System.getProperty("user.home") + "/vitrum" + "/htmlCoverage"));
+                                    FileUtils.forceDelete(new File(System.getProperty("user.home") + "/vitrum" + "/coverage.csv"));
+                                    FileUtils.forceDelete(new File(System.getProperty("user.home") + "/vitrum" + "/jacoco.exec"));
+                                    FileUtils.deleteDirectory(new File(System.getProperty("user.home") + "/vitrum/pitreport"));
                                 } catch (Exception ex) {
                                     ex.printStackTrace();
                                 }

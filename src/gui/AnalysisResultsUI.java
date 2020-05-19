@@ -47,8 +47,8 @@ public class AnalysisResultsUI extends JFrame {
     public AnalysisResultsUI(TestProjectAnalysis project) throws HeadlessException {
         this.project = project;
         this.selectedSmell = 0;
-        File default_conf = new File(System.getProperty("user.home") + "\\.temevi" + "\\default_config.ini");
-        File conf = new File(System.getProperty("user.home") + "\\.temevi" + "\\config.ini");
+        File default_conf = new File(System.getProperty("user.home") + "/vitrum" + "/default_config.ini");
+        File conf = new File(System.getProperty("user.home") + "/vitrum" + "/config.ini");
        /*if(!default_conf.exists()) {
             thresholds = new SmellsThresholds(1,1,1,1,1,1,1,1,1);
             new ConfigFileHandler().writeThresholds(new File(projdir + "\\default_config.ini"), thresholds);
@@ -241,7 +241,7 @@ public class AnalysisResultsUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    File htmlFile = new File(System.getProperty("user.home") + "\\.temevi\\htmlCoverage\\index.html");
+                    File htmlFile = new File(System.getProperty("user.home") + "/vitrum/htmlCoverage/index.html");
                     Desktop.getDesktop().browse(htmlFile.toURI());
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -433,7 +433,7 @@ public class AnalysisResultsUI extends JFrame {
                     classInfo.add(new JLabel("<html>RFC: <font color='white'> " + selected.getCkMetrics().getRfc() + "</font></html>"));
                     classInfo.add(new JLabel("<html>Assertion Density: <font color='white'> " + selected.getCoverage().getAssertionDensity() + "</font></html>"));
                     if (selected.getCoverage().getLineCoverage() != -1.0d) {
-                        double prevLineCov = new AnalysisHistoryManager().getPreviousLineCoverage(selected.getBelongingPackage() + "." + selected.getName(), project.getPath() + "\\reports");
+                        double prevLineCov = new AnalysisHistoryManager().getPreviousLineCoverage(selected.getBelongingPackage() + "." + selected.getName(), project.getPath() + "/reports");
                         if (prevLineCov != -1) {
                             String color;
                             if (selected.getCoverage().getLineCoverage() > prevLineCov) color = "#00e600";
@@ -448,7 +448,7 @@ public class AnalysisResultsUI extends JFrame {
 
                     }
 
-                    double prevBranchCov = new AnalysisHistoryManager().getPreviousBranchCoverage(selected.getBelongingPackage() + "." + selected.getName(), project.getPath() + "\\reports");
+                    double prevBranchCov = new AnalysisHistoryManager().getPreviousBranchCoverage(selected.getBelongingPackage() + "." + selected.getName(), project.getPath() + "/reports");
                     if (selected.getCoverage().getBranchCoverage() == -1.0d)
                         classInfo.add(new JLabel("<html>Branch Coverage: <font color='white'> N/A</font></html>"));
 
