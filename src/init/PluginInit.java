@@ -1,13 +1,18 @@
 package init;
 
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.SystemInfo;
+import com.intellij.openapi.vfs.VirtualFile;
 import data.*;
 import gui.PluginInitGUI;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
@@ -17,6 +22,7 @@ import it.unisa.testSmellDiffusion.utility.FolderToJavaProjectConverter;
 
 import javax.swing.*;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Vector;
 
 public class PluginInit extends AnAction {
@@ -111,7 +117,7 @@ public class PluginInit extends AnAction {
             projectAnalysis.setMaven(isMaven);
             File project = new File(srcPath);
             String projectSDK = ProjectRootManager.getInstance(proj).getProjectSdk().getHomePath();
-            LOGGER.info(projectSDK);
+
             String os = SystemInfo.getOsNameAndVersion();
             String javaPath;
             if(os.toLowerCase().contains("windows"))
@@ -121,6 +127,12 @@ public class PluginInit extends AnAction {
             projectAnalysis.setName(proj.getName());
             projectAnalysis.setPath(proj.getBasePath());
             projectAnalysis.setJavaPath(javaPath);
+            VirtualFile[] libraries = OrderEnumerator.orderEntries(proj).runtimeOnly().librariesOnly().getClassesRoots();
+            ArrayList<String> librariesPaths = new ArrayList<>();
+            for(VirtualFile file : libraries){
+                librariesPaths.add(file.getPath());
+            }
+            projectAnalysis.setLibrariesPaths(librariesPaths);
             Vector<TestClassAnalysis> classAnalysis = new Vector<>();
             if ((test.isDirectory()) && (!test.isHidden())) {
                 try {

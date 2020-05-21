@@ -1,22 +1,15 @@
 package processor;
 
-import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.SystemInfo;
 import data.FlakyTestsInfo;
 import data.TestProjectAnalysis;
-import init.PluginInit;
 import it.unisa.testSmellDiffusion.beans.ClassBean;
 import it.unisa.testSmellDiffusion.beans.MethodBean;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
-import it.unisa.testSmellDiffusion.main.Flaky;
 import it.unisa.testSmellDiffusion.testMutation.TestMutationUtilities;
-
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
@@ -31,7 +24,8 @@ public class FlakyTestsProcessor {
             Vector<PackageBean> packages = proj.getPackages();
             Vector<PackageBean> testPackages = proj.getTestPackages();
             boolean isMaven = proj.isMaven();
-            String javaLocation = proj.getJavaPath();
+            String javaPath = proj.getJavaPath();
+            ArrayList<String> librariesPaths = proj.getLibrariesPaths();
             String destination;
             String testPath;
             if (!isMaven) {
@@ -41,26 +35,46 @@ public class FlakyTestsProcessor {
                 destination = proj.getPath() + "/target/classes";
                 testPath = proj.getPath() + "/target/test-classes";
             }
+            String sep;
+            String libPaths = "";
+            if (SystemInfo.getOsNameAndVersion().toLowerCase().contains("windows")) {
+                sep = ";";
+                javaPath = "\"" + javaPath + "\"";
+            } else
+                sep = ":";
+            for (String path : librariesPaths)
+                libPaths += path + sep;
+            libPaths = libPaths.replaceAll("!/", "");
             TestMutationUtilities utilities = new TestMutationUtilities();
             ArrayList<ClassBean> classes = utilities.getClasses(packages);
             String pluginPath = proj.getPluginPath();
             Vector<FlakyTestsInfo> flakyTests = new Vector<>();
             Hashtable<String, Integer> passedTests;
             for (ClassBean productionClass : classes) {
-                passedTests=new Hashtable<>();
+                passedTests = new Hashtable<>();
                 ClassBean testSuite = TestMutationUtilities.getTestClassBy(productionClass.getName(), testPackages);
                 if (testSuite != null) {
-                    String cmd;
+                   /* String cmd;
                         cmd = "\"" + javaLocation + "\" -cp " + pluginPath + "/*;"
                             + destination + ";" + testPath +
                             " org.junit.runner.JUnitCore " + testSuite.getBelongingPackage() + "." + testSuite.getName();
+                            */
+
                     String[] cmdargs = new String[]{
-                            javaLocation,
+                            javaPath,
                             "-cp",
-                            pluginPath + "/*:" + destination + ":" + testPath,
-                            "org.junit.runner.JUnitCore",
+                            pluginPath + "/junit-platform-console-standalone-1.6.2.jar" + sep
+                                    + libPaths,
+                            "org.junit.platform.console.ConsoleLauncher",
+                            "-cp",
+                            destination + sep + testPath,
+                            "--select-class",
                             testSuite.getBelongingPackage() + "." + testSuite.getName()
                     };
+                    String toPrint = "";
+                    for(String str : cmdargs)
+                        toPrint+=str + " ";
+                    LOGGER.info(toPrint);
                     Collection<MethodBean> methods = testSuite.getMethods();
                     FlakyTestsInfo info = new FlakyTestsInfo();
                     Hashtable<String, Integer> flaky = new Hashtable();
@@ -68,10 +82,7 @@ public class FlakyTestsProcessor {
                     Runtime rt = Runtime.getRuntime();
                     //  LOGGER.info("STARTING FIRST RUN TESTS, CLASS nr." + j);
                     Process pr;
-                    if(SystemInfo.getOsNameAndVersion().toLowerCase().contains("windows"))
-                        pr = rt.exec(cmd);
-                    else
-                        pr = rt.exec(cmdargs);
+                    pr = rt.exec(cmdargs);
                     String s;
                     String output = "";
                     BufferedReader stdOut = new BufferedReader(new InputStreamReader(pr.getInputStream()));
@@ -85,19 +96,15 @@ public class FlakyTestsProcessor {
                     pr.waitFor();
                     for (MethodBean method : methods) {
                         flaky.put(method.getName(), 0);
-                        if (output.contains(" " + method.getName() + "("))
+                        if (output.contains("'" + method.getName() + "'"))
                             passedTests.put(method.getName(), 0);
                         else
                             passedTests.put(method.getName(), 1);
                     }
-                    Boolean windows = SystemInfo.getOsNameAndVersion().toLowerCase().contains("windows");
 
                     //  LOGGER.info("FIRST RUN TESTS END, CLASS nr." + j);
                     for (int i = 0; i < times - 1; i++) {
-                        if(windows)
-                            pr = rt.exec(cmd);
-                        else
-                            pr = rt.exec(cmdargs);
+                        pr = rt.exec(cmdargs);
                         s = "";
                         output = "";
                         stdOut = new BufferedReader(new InputStreamReader(pr.getInputStream()));
@@ -115,10 +122,10 @@ public class FlakyTestsProcessor {
                             int isFlaky = flaky.get(method.getName());
                             if (isFlaky == 0) {
                                 int passed = passedTests.get(method.getName());
-                                if (output.contains(" " + method.getName() + "(") && passed == 1) {
+                                if (output.contains("'" + method.getName() + "'") && passed == 1) {
                                     flaky.replace(method.getName(), 1);
                                     LOGGER.info("flaky detected");
-                                } else if (!output.contains(" " + method.getName() + "(") && passed == 0) {
+                                } else if (!output.contains("'" + method.getName() + "'") && passed == 0) {
                                     flaky.replace(method.getName(), 1);
                                     LOGGER.info("flaky detected");
                                 }

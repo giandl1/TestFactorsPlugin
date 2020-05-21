@@ -1,11 +1,13 @@
 package data;
 
+import com.intellij.openapi.project.Project;
 import it.unisa.testSmellDiffusion.beans.PackageBean;
 
 import java.util.ArrayList;
 import java.util.Vector;
 
 public class TestProjectAnalysis {
+    private ArrayList<String> librariesPaths;
     private String name;
     private String path;
     private boolean isMaven;
@@ -24,6 +26,13 @@ public class TestProjectAnalysis {
     private Vector<PackageBean> packages;
     private Vector<PackageBean> testPackages;
 
+    public ArrayList<String> getLibrariesPaths() {
+        return librariesPaths;
+    }
+
+    public void setLibrariesPaths(ArrayList<String> librariesPaths) {
+        this.librariesPaths = librariesPaths;
+    }
 
     public String getPluginPath() {
         return pluginPath;
@@ -36,6 +45,8 @@ public class TestProjectAnalysis {
     public boolean isMaven() {
         return isMaven;
     }
+
+
 
     public void setMaven(boolean maven) {
         isMaven = maven;
